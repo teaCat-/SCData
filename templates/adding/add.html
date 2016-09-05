@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Добавить {{obj}}</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+
+  	<script>
+		function readURL(input, id) {
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {
+						$('#selectedImg'+id)
+							.attr('src', e.target.result)
+							.width(150)
+							.height(200);
+					};
+
+					reader.readAsDataURL(input.files[0]);
+				}
+		}
+		window.onmousedown = function (e) {
+		var el = e.target;
+		if (el.tagName.toLowerCase() == 'option' && el.parentNode.hasAttribute('multiple')) {
+			e.preventDefault();
+
+			// toggle selection
+			if (el.hasAttribute('selected')) el.removeAttribute('selected');
+			else el.setAttribute('selected', '');
+
+			// hack to correct buggy behavior
+			var select = el.parentNode.cloneNode(true);
+			el.parentNode.parentNode.replaceChild(select, el.parentNode);
+		}
+	}
+	</script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+				<div class="form-group" style = "color:white">
+					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+				</div>
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "worker"%}
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			  	<h3>Добавить {{obj}}:</h3>
+				<hr>
+		  </div>
+		<p></p>
+		{%if added is not False%}
+		<br>
+			<h4>Результат:</h4>
+			<p></p>
+			{%for item in resultList%}
+				<p style="text-indent:30px;">{{item}}</p>
+			{%endfor%}
+			<a class="btn btn-success" href="\">Выйти на главную страницу</a>
+			{%if err == 1%}
+				<a href="#" class="btn btn-success" onclick="history.back();"> Исправить </a>
+			{%endif%}
+				<br>
+				<br>
+				<hr>
+		{%endif%}
+		<div class="row">
+			<form class="form-regi" method = "POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			  	<input type="file" name="excelImport" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/x-excel, application/excel, application/x-msexcel, application/vnd.ms-excel"/>
+				<p></p>
+				<button type="submit" class="btn btn-success"> Загрузить файл </button>
+			</form>
+			<div class="col-md-10">
+				<hr>
+				<form class="form-regi" method = "POST"  enctype="multipart/form-data">
+				{% csrf_token %}
+				{%if loaded is True%}
+				    {%if inputOpt == 1%}
+					<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=startuper&added=true&projectID={{projectID}}">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+					</div>
+						<br>
+						<br>
+					<hr>
+						{%for item in inputList%}
+							<h3>{{item.num}}</h3>
+							<label>Фамилия: <input name="tbSurname"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.surname}}" /> </label>
+							<label>Имя: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.name}}" /></label>
+							<label>Отчество: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.midname}}" /></label>
+							<p></p>
+							<label>Телефон: <input name="tbPhone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="___-___-____" type="tel" class="form-control" value="{{item.phone}}"/></label>
+							<label>Почта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}"></label>
+							<p></p>
+							{%if item.fgrade is False %}
+								<label><input  type="checkbox" class="checkbox-inline"> <input type="hidden" name="cbFgrade{{item.num}}" value="False"/> - 1я ступень Sikorsky Challenge </label>
+							{%endif%}
+							{%if item.fgrade is True %}
+								<label><input name="cbFgrade{{item.num}}" type="checkbox" class="checkbox-inline" value="True" checked> - 1я ступень Sikorsky Challenge </label>
+							{%endif%}
+							<p></p>
+							{%if item.sgrade is False %}
+								<label><input type="checkbox" class="checkbox-inline"> <input type="hidden" name="cbSgrade{{item.num}}" value="False"/> - 2я ступень Sikorsky Challenge </label>
+							{%endif%}
+							{%if item.sgrade is True %}
+								<label><input name="cbSgrade{{item.num}}" type="checkbox" class="checkbox-inline" value="True" checked> - 2я ступень Sikorsky Challenge </label>
+							{%endif%}
+							<p></p>
+							<label>Фото:
+								<input name="fAvatar{{item.num}}" type="file" accept="image/*" onchange="readURL(this,{{item.num}});"/> Размер не должен привышать 100кб</label>
+    							<img id="selectedImg{{item.num}}" src="#" />
+							<hr>
+							<hr>
+						{%endfor%}
+					<br>
+						<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=startuper&added=true&projectID={{projectID}}">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						{%endif%}
+				{%endif%}
+
+                {%if loaded is True%}
+				    {%if inputOpt == 2%}
+						<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=project&added=true&startuperID={{startuperID}}">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<br>
+						<br>
+						<hr>
+						{%for item in inputList%}
+							<h3>{{item.num}}</h3>
+							<table class="table table">
+								<tbody>
+									<tr>
+										<td width="250">
+											Название: <input name="tbTitle" type="text" class="form-control" required value="{{item.title}}"  >
+										</td>
+										<td width="250">
+											Почта главного стартапера: <input name="tbLeader" list="leaders" type="email" class="form-control" required value="{{item.leader}}" >
+											<datalist id="leaders">
+												{%for item in possibleLeaders%}
+												 <option value="{{item.mail}}" label="({{item.surname}} {{item.name}} {{item.midname}})">
+												{%endfor%}
+											</datalist>
+										</td>
+										<td width="250">
+											Почта ментора:<input name="tbMentor" list="mentors" type="email" class="form-control" value="{{item.mentor}}" required >
+											<datalist id="mentors">
+												{%for item in mentors%}
+													<option value="{{item.mail}}" label="({{item.surname}} {{item.name}} {{item.midname}})">
+												{%endfor%}
+											</datalist>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Отрасль:
+												<select name="tbSector" class="form-control">
+													{%if item.sector == "Административное обслуживание"%}<option value="Административное обслуживание" selected>{%else%}<option value="Административное обслуживание">{%endif%}Административное обслуживание</option>
+													{%if item.sector == "Водоснабжение, очистка"%}<option value="Водоснабжение, очистка" selected>{%else%}<option value="Водоснабжение, очистка">{%endif%}Водоснабжение, очистка</option>
+													{%if item.sector == "Государственное управление"%}<option value="Государственное управление" selected>{%else%}<option value="Государственное управление">{%endif%}Государственное управление</option>
+													{%if item.sector == "Добыча ресурсов"%}<option value="Добыча ресурсов" selected>{%else%}<option value="Добыча ресурсов">{%endif%}Добыча ресурсов</option>
+													{%if item.sector == "Информация и телекомуникации"%}<option value="Информация и телекомуникации" selected>{%else%}<option value="Информация и телекомуникации">{%endif%}Информация и телекомуникации</option>
+													{%if item.sector == "Искусство, спорт, развлечение и отдых"%}<option value="Искусство, спорт, развлечение и отдых" selected>{%else%}<option value="Искусство, спорт, развлечение и отдых">{%endif%}Искусство, спорт, развлечение и отдых</option>
+													{%if item.sector == "Оборона"%}<option value="Оборона" selected>{%else%}<option value="Оборона">{%endif%}Оборона</option>
+													{%if item.sector == "Образование"%}<option value="Образование" selected>{%else%}<option value="Образование">{%endif%}Образование</option>
+													{%if item.sector == "Оптовая и розничная торговля"%}<option value="Оптовая и розничная торговля" selected>{%else%}<option value="Оптовая и розничная торговля">{%endif%}Оптовая и розничная торговля</option>
+													{%if item.sector == "Отели, рестораны, кафе"%}<option value="Отели, рестораны, кафе" selected>{%else%}<option value="Отели, рестораны, кафе">{%endif%}Отели, рестораны, кафе</option>
+													{%if item.sector == "Охрана здоровья"%}<option value="Охрана здоровья" selected>{%else%}<option value="Охрана здоровья">{%endif%}Охрана здоровья</option>
+													{%if item.sector == "Перерабатывающая промышленность"%}<option value="Перерабатывающая промышленность" selected>{%else%}<option value="Перерабатывающая промышленность">{%endif%}Перерабатывающая промышленность</option>
+													{%if item.sector == "Производство и поставка энергоносителей"%}<option value="Производство и поставка энергоносителей" selected>{%else%}<option value="Производство и поставка энергоносителей">{%endif%}Производство и поставка энергоносителей</option>
+													{%if item.sector == "Профессиональная, научная и техническая деятельность"%}<option value="Профессиональная, научная и техническая деятельность" selected>{%else%}<option value="Профессиональная, научная и техническая деятельность">{%endif%}Профессиональная, научная и техническая деятельность</option>
+													{%if item.sector == "Сельское хозяйство"%}<option value="Сельское хозяйство" selected>{%else%}<option value="Сельское хозяйство">{%endif%}Сельское хозяйство</option>
+													{%if item.sector == "Строительство"%}<option value="Строительство" selected>{%else%}<option value="Строительство">{%endif%}Строительство</option>
+													{%if item.sector == "Транспорт, складское хозяйство, почтовая деятельность"%}<option value="Транспорт, складское хозяйство, почтовая деятельность" selected>{%else%}<option value="Транспорт, складское хозяйство, почтовая деятельность">{%endif%}Транспорт, складское хозяйство, почтовая деятельность</option>
+													{%if item.sector == "Финансовая и страховая деятельность"%}<option value="Финансовая и страховая деятельность" selected>{%else%}<option value="Финансовая и страховая деятельность">{%endif%}Финансовая и страховая деятельность</option>
+												</select>
+										</td>
+										<td>
+												Вид продукции:
+											{%if item.type == "услуга"%}
+												<select name="selType" class="form-control">
+													<option value="товар" >товар</option>
+													<option value="услуга" selected>услуга</option>
+												</select>
+											{%else%}
+												<select name="selType" class="form-control">
+													<option value="товар" selected >товар</option>
+													<option value="услуга">услуга</option>
+												</select>
+											{%endif%}
+										</td>
+										<td>
+												Форма продукции:
+											{%if item.isreal == "виртуальная"%}
+												<select name="selIsReal" class="form-control">
+													<option value="реальная">реальная</option>
+													<option value="виртуальная" selected>виртуальная</option>
+												</select>
+											{%else%}
+												<select name="selIsReal" class="form-control">
+													<option value="реальная" selected >реальная</option>
+													<option value="виртуальная">виртуальная</option>
+												</select>
+											{%endif%}
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Тэги:
+											<select name="selTags{{item.num}}" size="5" class="form-control" multiple>
+												{%for item in taglist%}
+													<option value="{{item.id}}">{{item.word}}</option>
+												{%endfor%}
+											</select>
+										</td>
+										<td colspan="2">
+											Описание:<br>
+												<textarea rows="5" cols="85" name="taDescr">{{item.descr}}</textarea>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						{%endfor%}
+						<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=project&added=true&startuperID={{startuperID}}">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+				{%endif%}
+				{%endif%}
+
+                {%if loaded is True%}
+				    {%if inputOpt == 3%}
+						<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=investor&added=true">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<br>
+						<br>
+						<hr>
+						{%for item in inputList%}
+							<h3>{{item.num}}</h3>
+							<label>Инвестор: <input name="tbInvestor" type="text" class="form-control" required value="{{item.investor}}"  ></label>
+							<p></p>
+							<label>Описание:<br>
+                            	<textarea rows="8" cols="85" name="taDescr">{{item.descr}}</textarea>
+							</label>
+							<hr>
+						{%endfor%}
+						<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=investor&added=true">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+				{%endif%}
+				{%endif%}
+
+
+				{%if loaded is True%}
+				    {%if inputOpt == 4%}
+						<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=mentor&added=true&projectID={{projectID}}">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<br>
+						<br>
+						<hr>
+						{%for item in inputList%}
+							<h3>{{item.num}}</h3>
+							<label>Фамилия: <input name="tbSurname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.surname}}"  ></label>
+							<label>Имя: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.name}}" ></label>
+							<label>Отчество: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.midname}}" ></label>
+							<p></p>
+							<label>Телефон: <input name="tbPhone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="___-___-____" type="tel" class="form-control" value="{{item.phone}}"></label>
+							<label>Почта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}"></label>
+							<br>
+							<hr>
+						{%endfor%}
+						<div class="col-sm-10" align="right">
+							<table>
+								<tbody>
+									<tr>
+										<td><button type="submit" class="btn btn-success" formaction="add?obj=mentor&added=true&projectID={{projectID}}">Сохранить </button></td>
+										<td width="5"></td>
+										<td><a class="btn btn-success" href="\">Отмена</a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+				{%endif%}
+				{%endif%}
+				</form>
+			</div>
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div><!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+  </body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Sikorsky Challenge</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  	<script>
+		function readURL(input, id) {
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {
+						$('#selectedImg')
+							.attr('src', e.target.result)
+							.width(150)
+							.height(200);
+					};
+
+					reader.readAsDataURL(input.files[0]);
+				}
+		}
+	</script>
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="post">
+			{% csrf_token %}
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				</div>
+				<div class="form-group">
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+			</div>
+			{%endif%}
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			<div class="col-md-10">
+			<div class="col-md-9">
+			  <h3>Информация о стартапере:</h3>
+			</div>
+				<br>
+				<br>
+			<form method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+				<a class="btn btn-success" href="/infostartuper?id={{startuper.id}}">Отмена</a>
+				<button class="btn btn-success" type="submit">Сохранить</button>
+
+				<hr>
+				<div class="col-sm-3">
+					<img src="/{{startuper.avatar}}" id="selectedImg{{item.num}}" width="150" height="200">
+						<input name="fAvatar" type="file" accept="image/*" onchange="readURL(this);"/> Размер не должен привышать 100кб
+				</div>
+				<div align="right" class="col-sm-3">
+					<b>ФИО: </b>
+					<br>
+					<br>
+					<b>Телефон: </b>
+					<br>
+					<br>
+					<b>Почта: </b>
+					<br>
+					<br>
+					<hr>
+					<b>Обучение в Sikorsky Challenge: </b>
+				</div>
+				<div align="left" class="col-sm-4">
+					<input type="text" class="form-control" pattern="([А-ЯЁІЇ][а-яёії]+[\-\s]?){3,}" name="tbFIO" placeholder="{{startuper.surname}} {{startuper.name}} {{startuper.midname}}" />
+					<p></p>
+					<input type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="tbTel" class="form-control" placeholder="{{startuper.phone}}"  />
+					<p></p>
+					<input type="email" class="form-control" name="tbMail" placeholder="{{startuper.mail}}" />
+					<hr>
+					{%if startuper.fgrade is True%}
+						<input type="checkbox" name="cbFgrade" value="true" checked/> 1 ступень
+					{%endif%}
+					{%if startuper.fgrade is False%}
+						<input type="checkbox" name="cbFgrade" value="false" /> 1 ступень
+					{%endif%}
+					<p></p>
+					{%if startuper.sgrade is True%}
+						<input type="checkbox" name="cbSgrade" value="True" checked/> 2 ступень
+					{%endif%}
+					{%if startuper.sgrade is False%}
+						<input type="checkbox" name="cbSgrade" value="false" /> 2 ступень
+					{%endif%}
+				</div>
+
+				<div class="col-sm-12">
+					<hr>
+					<div class="col-sm-1">
+						<h4><b>Проекты:  </b></h4>
+					</div>
+					<div class="col-sm-10" align="left">
+						<br>
+						<br>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Название</i></th>
+								<th><i>Роль</i></th>
+								<th><i>Удалить</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in teams%}
+							<tr>
+								<td></td>
+								<td><a href="/infoproject?id={{item.projectID.id}}">{{item.projectID.title}}</a></td>
+								<td>
+									<input type="text" class="form-control" name="tbRole{{item.id}}" placeholder="{{item.role}}" />
+								</td>
+								<td>
+									<input type="checkbox" class="form-control" name="cbDel{{item.id}}" value="True"/>
+								</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+					</div>
+				</div>
+
+				<div class="col-sm-12">
+					<hr>
+					<div class="col-sm-2">
+						<h4><b>Документы:  </b></h4>
+					</div>
+					<div class="col-sm-12" align="left"><p></p>
+					</div>
+
+					<div align="left" class="col-sm-1">
+					</div>
+					<div class="col-sm-10" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Дата</i></th>
+								<th><i>Ссылка</i></th>
+								<th><i>Файл</i></th>
+								<th><i>Удалить</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in docs%}
+							<tr>
+								<td></td>
+								<td>{{item.date}}</td>
+								{%if item.url != ""%}
+									<td>{{item.title}}</td>
+									<td></td>
+								{%else%}
+									<td></td>
+									<td>{{item.title}}</td>
+								{%endif%}
+									<td>
+										<input type="checkbox" class="form-control" name="cbDelFile{{item.id}}" value="True"/>
+									</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+					</div>
+				</div>
+			</form>
+			</div>
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+  </body>
+</html>

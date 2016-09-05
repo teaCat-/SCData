@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Sikorsky Challenge</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="post">
+			{% csrf_token %}
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				</div>
+				<div class="form-group">
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+			</div>
+			{%endif%}
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			<div class="col-md-9">
+			  <h3>Информация о проекте:</h3>
+			<form method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class=".col-md-2" align="right">
+				<a class="btn btn-success" href="/infoproject?id={{project.id}}">Отмена</a>
+				<button class="btn btn-success" type="submit" formaction="/editproject?id={{project.id}}&redirect=true">Сохранить</button>
+			</div>
+			<hr>
+			<div class="col-md-10" align="right">
+			<table class = "table table">
+				<tbody>
+					<tr>
+						<td><b>Название: </b></td>
+						<td>
+							<input type="text" class="form-control" name="tbTitle" placeholder="{{project.title}}" />
+						</td>
+					</tr>
+					<tr>
+						<td><b>Отрасль: </b></td>
+						<td>
+							<select name="tbSector" class="form-control">
+									{%if project.sector == "Административное обслуживание"%}<option value="" selected>{%else%}<option value="Административное обслуживание">{%endif%}Административное обслуживание</option>
+									{%if project.sector == "Водоснабжение, очистка"%}<option value="" selected>{%else%}<option value="Водоснабжение, очистка">{%endif%}Водоснабжение, очистка</option>
+									{%if project.sector == "Государственное управление"%}<option value="" selected>{%else%}<option value="Государственное управление">{%endif%}Государственное управление</option>
+									{%if project.sector == "Добыча ресурсов"%}<option value="" selected>{%else%}<option value="Добыча ресурсов">{%endif%}Добыча ресурсов</option>
+									{%if project.sector == "Информация и телекомуникации"%}<option value="" selected>{%else%}<option value="Информация и телекомуникации">{%endif%}Информация и телекомуникации</option>
+									{%if project.sector == "Искусство, спорт, развлечение и отдых"%}<option value="" selected>{%else%}<option value="Искусство, спорт, развлечение и отдых">{%endif%}Искусство, спорт, развлечение и отдых</option>
+									{%if project.sector == "Оборона"%}<option value="" selected>{%else%}<option value="Оборона">{%endif%}Оборона</option>
+									{%if project.sector == "Образование"%}<option value="" selected>{%else%}<option value="Образование">{%endif%}Образование</option>
+									{%if project.sector == "Оптовая и розничная торговля"%}<option value="" selected>{%else%}<option value="Оптовая и розничная торговля">{%endif%}Оптовая и розничная торговля</option>
+									{%if project.sector == "Отели, рестораны, кафе"%}<option value="" selected>{%else%}<option value="Отели, рестораны, кафе">{%endif%}Отели, рестораны, кафе</option>
+									{%if project.sector == "Охрана здоровья"%}<option value="" selected>{%else%}<option value="Охрана здоровья">{%endif%}Охрана здоровья</option>
+									{%if project.sector == "Перерабатывающая промышленность"%}<option value="" selected>{%else%}<option value="Перерабатывающая промышленность">{%endif%}Перерабатывающая промышленность</option>
+									{%if project.sector == "Производство и поставка энергоносителей"%}<option value="" selected>{%else%}<option value="Производство и поставка энергоносителей">{%endif%}Производство и поставка энергоносителей</option>
+									{%if project.sector == "Профессиональная, научная и техническая деятельность"%}<option value="" selected>{%else%}<option value="Профессиональная, научная и техническая деятельность">{%endif%}Профессиональная, научная и техническая деятельность</option>
+									{%if project.sector == "Сельское хозяйство"%}<option value="" selected>{%else%}<option value="Сельское хозяйство">{%endif%}Сельское хозяйство</option>
+									{%if project.sector == "Строительство"%}<option value="" selected>{%else%}<option value="Строительство">{%endif%}Строительство</option>
+									{%if project.sector == "Транспорт, складское хозяйство, почтовая деятельность"%}<option value="" selected>{%else%}<option value="Транспорт, складское хозяйство, почтовая деятельность">{%endif%}Транспорт, складское хозяйство, почтовая деятельность</option>
+									{%if project.sector == "Финансовая и страховая деятельность"%}<option value="" selected>{%else%}<option value="Финансовая и страховая деятельность">{%endif%}Финансовая и страховая деятельность</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><b>Тип продукции: </b></td>
+						<td>{%if project.type == "услуга"%}
+					<select name="selType" class="form-control">
+						<option value="товар" >товар</option>
+						<option value="" selected>услуга</option>
+					</select>
+				{%else%}
+					<select name="selType" class="form-control">
+						<option value="" selected >товар</option>
+						<option value="услуга">услуга</option>
+					</select>
+				{%endif%}</td>
+					</tr>
+					<tr>
+						<td><b>Форма продукции: </b></td>
+						<td>{%if project.isreal == "виртуальная"%}
+					<select name="selIsReal" class="form-control">
+						<option value="реальная">реальная</option>
+						<option value="" selected>виртуальная</option>
+					</select>
+				{%else%}
+					<select name="selIsReal" class="form-control">
+						<option value="" selected >реальная</option>
+						<option value="виртуальная">виртуальная</option>
+					</select>
+				{%endif%}</td>
+					</tr>
+					<tr>
+						<td width="300"><b>Главный стартапер: </b></td>
+						<td>
+							<input type="text" class="form-control" list="leaders" name="tbLeader" placeholder="{{fioLead.mail}} ({{fioLead.surname}} {{fioLead.name}} {{fioLead.midname}})" />
+							<datalist id="leaders">
+								{%for item in possibleLeaders%}
+								 <option value="{{item.mail}}" label="({{item.surname}} {{item.name}} {{item.midname}})">
+								{%endfor%}
+							</datalist>
+							{%if errLead != ""%}
+								<i style="color:red">{{errLead}}</i>
+							{%endif%}
+						</td>
+					</tr>
+					<tr>
+						<td><b>Ментор <i>(текущий)</i>: </b></td>
+						<td>
+							<input type="email" class="form-control" list="mentorlist" name="tbMentor" placeholder="{{currMent.mail}} ({{currMent.surname}} {{currMent.name}} {{currMent.midname}})" />
+							<datalist id="mentorlist">
+								{%for item in mentorlist%}
+								 	<option value="{{item.mail}}" label="({{item.surname}} {{item.name}} {{item.midname}})">
+								{%endfor%}
+							</datalist>
+							{%if errMent != ""%}
+								<i style="color:red">{{errMent}}</i>
+							{%endif%}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+			<div class="col-sm-8">
+				<div align="left" class="col-sm-5">
+					<h4><b>Статус:</b></h4>
+				</div>
+				<div align="left" class="col-sm-10">
+					<table>
+						<thead>
+							<tr>
+								<th width="150"><i>Дата</i></th>
+								<th width="150"><i>Статус</i></th>
+								<th><i>Удалить</i></th>
+							</tr>
+						</thead>
+						<tbody>
+							{%for item in status%}
+							<tr>
+								<td>
+									<input type="text" class="form-control" name="tbStatDate{{item.id}}" placeholder="{{item.date.date}}"/>
+								</td>
+								<td>
+									<input type="text" class="form-control" name="tbStatTit{{item.id}}" placeholder="{{item.title}}"/>
+								</td>
+								<td>
+									<input type="checkbox" class="form-control" name="cbStatDel{{item.id}}" value="True"/>
+								</td>
+							</tr>
+							{%endfor%}
+						</tbody>
+					</table>
+				</div>
+				</div>
+
+
+			<div align="left" class="col-sm-8">
+				<hr>
+				<b>Описание: </b>
+				<textarea class="form-control" cols="80" name="taDescr" rows="5" placeholder="{{project.descr}}"></textarea>
+			</div>
+
+				<div class="col-sm-12">
+                <hr>
+                <div class="col-sm-3">
+                    <h4><b>Все менторы:  </b></h4>
+                </div>
+                    <br>
+                    <br>
+                <div class="col-sm-2">
+                </div>
+				<div class="col-sm-7" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>ФИО</i></th>
+								<th><i>Является ментором с</i></th>
+								<th><i>Удалить</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in mentors%}
+							<tr>
+								<td></td>
+								<td>
+									<a href="/infomentor?id={{item.mentorID.id}}">{{item.mentorID.surname}} {{item.mentorID.name}} {{item.mentorID.midname}}</a>
+								</td>
+								<td>
+									<input type="text" class="form-control" name="tbMentDate{{item.id}}" placeholder="{{item.date.date}}"/>
+								</td>
+								<td>
+									<input type="checkbox" class="form-control" name="cbMentDel{{item.id}}" value="True"/>
+								</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+              <div class="col-sm-12">
+                <hr>
+                <div class="col-sm-2">
+                    <h4><b>Учасники:  </b></h4>
+                </div>
+				<br>
+				<div class="col-sm-7" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>ФИО</i></th>
+								<th><i>Роль</i></th>
+								<th><i>Удалить</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in teams%}
+							<tr>
+								<td></td>
+								<td><a href="/infostartuper?id={{item.startuperID.id}}">{{item.startuperID.surname}} {{item.startuperID.name}} {{item.startuperID.midname}}</a></td>
+								<td>
+									<input type="text" class="form-control" name="tbRole{{item.id}}" placeholder="{{item.role}}"/>
+								</td>
+								<td>
+									<input type="checkbox" class="form-control" name="cbStartDel{{item.id}}" value="True"/>
+								</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-sm-12">
+				<hr>
+				<div class="col-sm-7">
+					<h4><b>Активность:  </b></h4>
+				</div>
+					<br>
+					<br>
+				<div class="col-sm-2">
+					</div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Дата</i></th>
+								<th><i>Мероприятие</i></th>
+								<th><i>Удалить</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in activities%}
+							<tr>
+								<td></td>
+								<td><input type="text" class="form-control" name="tbActDate{{item.id}}" placeholder="{{item.date}}"/></td>
+								<td><input type="text" class="form-control" name="tbActTit{{item.id}}" placeholder="{{item.title}}"/></td>
+								<td>
+									<input type="checkbox" class="form-control" name="cbActDel{{item.id}}" value="True"/>
+								</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-sm-12">
+				<hr>
+				<div class="col-sm-7">
+					<h4><b>Необходимые инвестиции: </b></h4>
+				</div>
+				<br>
+				<br>
+				<div class="col-sm-2">
+				</div>
+				<div class="col-sm-6" align="left"><p></p>
+				<table class ="table table-striped">
+					<thead>
+						<tr>
+							<th> <i>Вид финансирования</i> </th>
+							<th> <i>Ресурс \ Валюта</i> </th>
+							<th> <i>Сумма</i> </th>
+							<th> <i>Удалить</i> </th>
+						</tr>
+					</thead>
+					<tbody>
+					{%for item in reqInvests%}
+						  <tr>
+							<td>
+								<select name="tbReqInvType{{item.id}}" class="form-control">
+										{%if item.type == "Ангельские"%}<option value="" selected>{%else%}<option value="Ангельские">{%endif%}Ангельские</option>
+										{%if item.type == "Посевные"%}<option value="" selected>{%else%}<option value="Посевные">{%endif%}Посевные</option>
+										{%if item.type == "Венчурные"%}<option value="" selected>{%else%}<option value="Венчурные">{%endif%}Венчурные</option>
+										{%if item.type == "Гранты"%}<option value="" selected>{%else%}<option value="Гранты">{%endif%}Гранты</option>
+								</select>
+						    </td>
+							<td align="center"><input type="text" class="form-control" name="tbReqInvRes{{item.id}}" placeholder="{{item.res}}"/></td>
+							<td><input type="text" class="form-control" name="tbReqInvSum{{item.id}}" placeholder="{{item.sum}}"/></td>
+							<td>
+								<input type="checkbox" class="form-control" name="cbReqInvDel{{item.id}}" value="True"/>
+							</td>
+						  </tr>
+		  			{%endfor%}
+				</table>
+				</div>
+			</div>
+
+			<div class="col-sm-12">
+				<hr>
+				<div class="col-sm-7">
+					<h4><b>Доп. материалы: </b></h4>
+				</div>
+					<br>
+					<br>
+				<div class="col-sm-2">
+					</div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Ссылка</i></th>
+								<th><i>Файл</i></th>
+								<th><i>Удалить</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in addInfo%}
+							<tr>
+								<td></td>
+								{%if item.url != ""%}
+									<td><a href="/{{item.url}}">{{item.text}}</a></td>
+									<td></td>
+								{%else%}
+									<td></td>
+									<td><a href="/{{item.file}}" download>{{item.text}}</a></td>
+								{%endif%}
+								<td>
+									<input type="checkbox" class="form-control" name="cbAddInfoDel{{item.id}}" value="True"/>
+								</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			</form>
+			</div>
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+  </body>
+</html>

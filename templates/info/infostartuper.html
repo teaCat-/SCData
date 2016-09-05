@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Sikorsky Challenge</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="post">
+			{% csrf_token %}
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				</div>
+				<div class="form-group">
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+			</div>
+			{%endif%}
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<p></p>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<p></p>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<p></p>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<p></p>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			<div class="col-md-9">
+			  <h3>Информация о стартапере:</h3>
+			<div class=".col-md-2" align="right">
+			{%if entered == "worker"%}
+				<a href="/editstartuper?id={{startuper.id}}"><button class="btn btn-success" type="submit">Редактировать</button></a>
+			{%endif%}
+				<a href="/infostartuper?id={{startuper.id}}&print=true" class="btn btn-success">Печать</a>
+			</div>
+			<hr>
+			<div class="col-sm-3">
+				<img src="/{{startuper.avatar}}" width="150" height="200">
+			</div>
+			<div align="right" class="col-sm-7">
+				<table class="table table">
+					<tbody>
+						<tr>
+							<td width="200" align="right">
+								<b>ФИО: </b>
+							</td>
+							<td>
+								{{startuper.surname}} {{startuper.name}} {{startuper.midname}}
+							</td>
+						</tr>
+						<tr>
+							<td align="right">
+								<b>Телефон: </b>
+							</td>
+							<td>
+								{{startuper.phone}}
+							</td>
+						</tr>
+						<tr>
+							<td align="right">
+								<b>Почта: </b>
+							</td>
+							<td>
+								{{startuper.mail}}
+							</td>
+						</tr>
+						<tr>
+							<td align="right">
+								<b>Обучение в Sikorsky Challenge: </b>
+							</td>
+							<td>
+								{%if startuper.fgrade is True%}
+									<span class="glyphicon glyphicon-ok"> 1 ступень</span>
+								{%endif%}
+								<p></p>
+								{%if startuper.sgrade is True%}
+									<span class="glyphicon glyphicon-ok"> 2 ступень</span>
+								{%endif%}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="col-sm-12">
+				<hr>
+				<div class="col-sm-2">
+					<h4><b>Проекты:  </b></h4>
+				</div>
+				<div class="col-sm-10" align="left">
+				{%if entered == "worker"%}
+				<div class="col-sm-4" align="left">
+					<h4><a class="btn btn-success" href="/startuperstoproject?id={{startuper.id}}&page=1&entity=startuper"><span class="glyphicon glyphicon-plus"><i> добавить</i></span></a></h4>
+				</div>
+				<div class="col-sm-7" align="left">
+					<h4><a class="btn btn-success" href="/add?obj=project&startuperID={{startuper.id}}"><span class="glyphicon glyphicon-asterisk"><i> создать </i></span></a></h4>
+				</div>
+				{%endif%}
+				</div>
+				<div class="col-sm-12" align="left"><p></p>
+				</div>
+
+				<div align="left" class="col-sm-1">
+				</div>
+				<div class="col-sm-10" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Название</i></th>
+								<th><i>Роль</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in teams%}
+							<tr>
+								<td></td>
+								<td><a href="/infoproject?id={{item.projectID.id}}">{{item.projectID.title}}</a></td>
+								<td>
+									{{item.role}}
+								</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-sm-12">
+				<hr>
+				<div class="col-sm-2">
+					<h4><b>Доп. материалы:  </b></h4>
+				</div>
+				<div class="col-sm-10" align="left">
+				<div class="col-sm-4" align="left">
+				{%if entered == "worker"%}
+					<h4><a class="btn btn-success" href="/fileadd?id={{startuper.id}}&entity=startuper&addurl=true"><span class="glyphicon glyphicon-plus"><i> добавить ссылку</i></span></a></h4>
+				{%endif%}
+				</div>
+				<div class="col-sm-7" align="left">
+				{%if entered == "worker"%}
+					<h4><a class="btn btn-success" href="/fileadd?id={{startuper.id}}&entity=startuper"><span class="glyphicon glyphicon-plus"><i> добавить файл</i></span></a></h4>
+				{%endif%}
+				</div>
+				</div>
+				<div class="col-sm-12" align="left"><p></p>
+				</div>
+
+				<div align="left" class="col-sm-1">
+				</div>
+				<div class="col-sm-10" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Дата</i></th>
+								<th><i>Ссылка</i></th>
+								<th><i>Файл</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in docs%}
+							<tr>
+								<td></td>
+								<td>{{item.date}}</td>
+								{%if item.url != ""%}
+									<td><a href="{{item.url}}">{{item.title}}</a></td>
+									<td></td>
+								{%else%}
+									<td></td>
+									<td><a href="{{item.document}}" download>{{item.title}}</a></td>
+								{%endif%}
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			</div>
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+  </body>
+</html>

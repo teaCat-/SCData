@@ -1,0 +1,2347 @@
+# -*- coding: utf-8 -*-
+# Create your views here.
+
+from django.shortcuts import render
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User, Group
+from django.shortcuts import redirect
+from models import *
+from datetime import datetime
+from urlparse import *
+import xlrd
+import xlwt
+from django import forms
+
+
+class Object(object):
+    pass
+
+class FileUploadedForm(forms.Form):
+    uploaded_file = forms.FileField(required=False)
+
+
+def index(request):
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+
+    curruser = None
+    entered = 0
+    curruserName = request.session.get("curUser", False)
+    if curruserName:
+        curruser = User.objects.get(username = curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+
+    selTable = request.POST.get("selQSch", None)
+
+    queryList = []
+    val = ""
+    if selTable == "startuper":
+        val = request.POST.get("tbQSch", None)
+        queryList.extend(tStartuper.objects.filter(surname__icontains = val))
+
+    if selTable == "project":
+        val = request.POST.get("tbQSch", None)
+        queryList.extend(tProject.objects.filter(title__icontains = val))
+
+    if selTable == "investor":
+        val = request.POST.get("tbQSch", None)
+        queryList.extend(tInvestor.objects.filter(investor__icontains = val))
+
+    if selTable == "mentor":
+        val = request.POST.get("tbQSch", None)
+        queryList.extend(tMentor.objects.filter(surname__icontains = val))
+
+    return render(request, "index.html", {"name":curruser,
+                                          "entered":entered,
+                                          "queryList":queryList,
+                                          "schVal":val,
+                                          "selTable":selTable,
+                                          })
+
+def auth(request):
+    id = request.session.get("curUser", None)
+    logErr = 0
+    login = request.POST.get("txtLogin",False)
+    passwd = request.POST.get("txtPasswd",False)
+    user = authenticate(username = login, password = passwd)
+    if request.POST:
+        if user is not None:
+            request.session["curUser"] = user.username
+            return redirect("index")
+        else:
+            logErr = 1
+    return render(request, "auth.html", {"logErr":logErr})
+
+def regi(request):
+    nameErr = None
+    mailErr = None
+    passErr = None
+    repassErr = None
+    if request.session.get("curUser", None) != None:
+        currUser = User.objects.get(username=request.session.get("curUser", None))
+        if not currUser.groups.filter(name = "chief"):
+            return redirect("index")
+    else:
+            return redirect("index")
+
+    login = request.POST.get("txtLogin",False)
+    mail = request.POST.get("txtMail",False)
+    passwd = request.POST.get("txtPasswd",False)
+    repasswd = request.POST.get("txtRePasswd",False)
+    gname = request.POST.get("selGroup",False)
+    if request.POST:
+        if passwd != repasswd:
+            repassErr = ("Пароли не совпадают").decode("utf-8")
+        if User.objects.filter(username=login):
+            nameErr = ("Логин уже занят").decode("utf-8")
+        if User.objects.filter(email=mail):
+            mailErr = ("E-mail уже занят").decode("utf-8")
+        if passwd != False and login != False and nameErr == None and mailErr == None and mail != False and repasswd != False and repasswd == passwd:
+            if Group.objects.filter(name=gname):
+                group = Group.objects.get(name=gname)
+            else:
+                group = Group.objects.create(name=gname)
+                group.save()
+            user = User.objects.create_user(username=login, email=mail, password=passwd)
+            user.groups.add(group)
+            user.save()
+            return redirect("auth",)
+    return render(request, "regi.html", {"nameErr":nameErr,
+                                                    "mailErr":mailErr,
+                                                    "passErr":passErr,
+                                                    "repassErr":repassErr,})
+
+def logout(request):
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id != None:
+            request.session["curUser"] = None
+            return redirect("index")
+        else:
+            return redirect("auth")
+
+
+def fillFormsStartuper(excelList, excelKeys):
+    rezList = []
+    i=1
+    for startuper in excelList:
+        newStartuper = Object()
+        newStartuper.num = i
+        if u"имя" in excelKeys:
+            newStartuper.name = startuper[excelKeys.index(u"имя")]
+        if u"фамилия" in excelKeys:
+            newStartuper.surname = startuper[excelKeys.index(u"фамилия")]
+        if u"отчество" in excelKeys:
+            newStartuper.midname = startuper[excelKeys.index(u"отчество")]
+        if u"телефон" in excelKeys:
+            newStartuper.phone = startuper[excelKeys.index(u"телефон")]
+        if u"почта" in excelKeys:
+            newStartuper.mail = startuper[excelKeys.index(u"почта")]
+        if u"1ступень" in excelKeys:
+            if startuper[excelKeys.index(u"1ступень")] == u"да":
+                newStartuper.fgrade = True
+            else:
+                newStartuper.fgrade = False
+        if u"2ступень" in excelKeys:
+            if startuper[excelKeys.index(u"2ступень")] == u"да":
+                newStartuper.sgrade = True
+            else:
+                newStartuper.sgrade = False
+        rezList.append(newStartuper)
+        i+=1
+    return rezList
+
+def addStartuperToDB(request, index, projectID):
+    samephones = tStartuper.objects.filter(phone = request.POST.getlist('tbPhone')[index])
+    if len(samephones) != 0:
+        return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
+            " не был добавлен. Стартапер с таким номером телефона уже есть в базе.").decode("utf-8")
+    samemail = tStartuper.objects.filter(mail = request.POST.getlist('tbMail')[index])
+    if len(samemail) != 0:
+        return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
+            " не был добавлен. Стартапер с такой почтой уже есть в базе.").decode("utf-8")
+    newStartuper = tStartuper.objects.create(
+        name = request.POST.getlist('tbName')[index],
+        surname = request.POST.getlist('tbSurname')[index],
+        midname = request.POST.getlist('tbMidname')[index],
+        phone = request.POST.getlist('tbPhone')[index],
+        mail = request.POST.getlist('tbMail')[index],
+        fgrade = request.POST.get('cbFgrade'+str(index+1),False),
+        sgrade = request.POST.get('cbSgrade'+str(index+1),False),
+    )
+
+    form = FileUploadedForm(request.POST, request.FILES)
+    if form.is_valid():
+        input_file = request.FILES.get('fAvatar'+str(index+1), None)
+        if input_file != None:
+            tmpFName = input_file.name.split(".")
+            tmpFName = tmpFName.pop()
+            if input_file.size < 100000:
+                print tmpFName
+                if tmpFName == "jpg" or tmpFName == "jepg" or tmpFName == "png" or tmpFName == "gif":
+                    newStartuper.avatar = input_file
+                else:
+                    return newStartuper.name + " " + newStartuper.surname + " " + newStartuper.midname + (
+                    " добавлен! Ошибка при добавлении изображения. Изображение имеет неверный формат").decode("utf-8")
+            else:
+                newStartuper.save()
+                return newStartuper.name+" "+newStartuper.surname+" "+newStartuper.midname+(
+                    " добавлен! Ошибка при добавлении изображения. Размер изображения привышает 100кб").decode("utf-8")
+    newStartuper.save()
+    if projectID != "False":
+        project = tProject.objects.get(id = projectID)
+        team = tTeam.objects.create(startuperID = newStartuper, projectID = project)
+        team.save()
+    return newStartuper.name+" "+newStartuper.surname+" "+newStartuper.midname+(" добавлен!").decode("utf-8")
+
+def fillFormsProject(excelList, excelKeys):
+    rezList = []
+    i=1
+    for project in excelList:
+        newProject = Object()
+        newProject.num = i
+        if u"название" in excelKeys:
+            newProject.title = project[excelKeys.index(u"название")]
+        if u"почтаглавногостартапера" in excelKeys:
+            newProject.leader = project[excelKeys.index(u"почтаглавногостартапера")]
+        if u"отрасль" in excelKeys:
+            newProject.sector = project[excelKeys.index(u"отрасль")]
+        if u"описание" in excelKeys:
+            newProject.descr = project[excelKeys.index(u"описание")]
+        if u"почтаментора" in excelKeys:
+            newProject.mentor = project[excelKeys.index(u"почтаментора")]
+        if u"видпродукции" in excelKeys:
+            newProject.type = project[excelKeys.index(u"видпродукции")]
+        if u"формапродукции" in excelKeys:
+            newProject.isreal = project[excelKeys.index(u"формапродукции")]
+        rezList.append(newProject)
+        i+=1
+    return rezList
+
+def addProjectToDB(request, index, startuperID):
+    projIsExhist = 0
+    try:
+        projIsExhist = tProject.objects.filter(title = request.POST.getlist('tbTitle')[index])
+    except:
+        pass
+    print projIsExhist
+    if len(projIsExhist) >= 1:
+        return "Проект с таким названием уже есть в базе."
+    else:
+        mailLead = request.POST.getlist('tbLeader')[index]
+        try:
+            lead = tStartuper.objects.get(mail=mailLead)
+        except:
+            return request.POST.getlist('tbTitle')[index]+u". Стартапер с такой почтой не обнаружен. Выберете из списк или создайте нового."
+        mailMent = request.POST.getlist('tbMentor')[index]
+        try:
+            mentor = tMentor.objects.get(mail=mailMent)
+        except:
+            return request.POST.getlist('tbTitle')[index]+u". Ментор с такой почтой не обнаружен. Выберете из списк или создайте нового."
+        newProject = tProject.objects.create(
+            title = request.POST.getlist('tbTitle')[index],
+            sector = request.POST.getlist('tbSector')[index],
+            descr = request.POST.getlist('taDescr')[index],
+            type = request.POST.getlist('selType')[index],
+            isreal = request.POST.getlist('selIsReal')[index],
+        )
+        if startuperID != "False":
+            startuper = tStartuper.objects.get(id = startuperID)
+            team = tTeam.objects.create(startuperID = startuper, projectID = newProject)
+            team.save()
+        newProject.save()
+        team = tTeam.objects.create(projectID = newProject, startuperID = lead, role="Главный стартапер", islead = True)
+        team.save()
+        mentoproj = tMentoproj.objects.create(mentorID = mentor, projectID = newProject, date = datetime.strptime(datetime.now().date().__format__('%d.%m.%Y, %H:%M').__str__(), "%d.%m.%Y, %H:%M"))
+        mentoproj.save()
+        taglist = request.POST.getlist("selTags"+str(index+1), None)
+        keywordList = tKeyWord.objects.filter(id__in = taglist)
+        for item in keywordList:
+            tmp = tKeyWordToProject.objects.create(word = item, projectID = newProject)
+        return newProject.title+(" добавлен!").decode("utf-8")
+
+def fillFormsInvestor(excelList, excelKeys):
+    rezList = []
+    i=1
+    for investor in excelList:
+        newInvestor = Object()
+        newInvestor.num = i
+        if u"инвестор" in excelKeys:
+            newInvestor.title = investor[excelKeys.index(u"инвестор")]
+        if u"описание" in excelKeys:
+            newInvestor.descr = investor[excelKeys.index(u"описание")]
+        i+=1
+    return rezList
+
+def addInvestorToDB(request, index):
+    newInvestor = tInvestor.objects.create(
+        investor = request.POST.getlist('tbInvestor')[index],
+        descr = request.POST.getlist('taDescr')[index]
+    )
+    newInvestor.save()
+    return newInvestor.investor+(" добавлен!").decode("utf-8")
+
+def fillFormsInvContacts(excelList, excelKeys):
+    rezList = []
+    i=1
+    for investor in excelList:
+        newInvestor = Object()
+        newInvestor.num = i
+        if u"имя" in excelKeys:
+            newInvestor.name = investor[excelKeys.index(u"имя")]
+        if u"фамилия" in excelKeys:
+            newInvestor.surname = investor[excelKeys.index(u"фамилия")]
+        if u"отчество" in excelKeys:
+            newInvestor.midname = investor[excelKeys.index(u"отчество")]
+        if u"телефон" in excelKeys:
+            newInvestor.phone = investor[excelKeys.index(u"телефон")]
+        if u"почта" in excelKeys:
+            newInvestor.mail = investor[excelKeys.index(u"почта")]
+        if u"должность" in excelKeys:
+            newInvestor.mail = investor[excelKeys.index(u"должность")]
+        if u"компания" in excelKeys:
+            newInvestor.mail = investor[excelKeys.index(u"компания")]
+        rezList.append(newInvestor)
+        i+=1
+    return rezList
+
+def addInvContToDB(request, id, index):
+    newInvCont = tInvestorContacts.objects.create(
+        investorID = id,
+        name = request.POST.getlist('tbName')[index],
+        surname = request.POST.getlist('tbSurname')[index],
+        midname = request.POST.getlist('tbMidname')[index],
+        phone = request.POST.getlist('tbPhone')[index],
+        mail = request.POST.getlist('tbMail')[index],
+        company = request.POST.getlist('tbCompany')[index],
+        position = request.POST.getlist('tbPosition')[index],
+    )
+
+    newInvCont.save()
+    return newInvCont.surname+" "+newInvCont.name+" "+newInvCont.midname+(" добавлен!").decode("utf-8")
+
+def fillFormsMentor(excelList, excelKeys):
+    rezList = []
+    i=1
+    for mentor in excelList:
+        newMentor = Object()
+        newMentor.num = i
+        if u"имя" in excelKeys:
+            newMentor.name = mentor[excelKeys.index(u"имя")]
+        if u"фамилия" in excelKeys:
+            newMentor.surname = mentor[excelKeys.index(u"фамилия")]
+        if u"отчество" in excelKeys:
+            newMentor.midname = mentor[excelKeys.index(u"отчество")]
+        if u"телефон" in excelKeys:
+            newMentor.phone = mentor[excelKeys.index(u"телефон")]
+        if u"почта" in excelKeys:
+            newMentor.mail = mentor[excelKeys.index(u"почта")]
+        rezList.append(newMentor)
+        i+=1
+    return rezList
+
+def addMentorToDB(request, index, projectID):
+    samemail=tMentor.objects.filter(mail=request.POST.getlist('tbMail')[index])
+    if len(samemail) != 0:
+        return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
+            " не был добавлен. Ментор с такой почтой уже есть в базе.").decode("utf-8")
+    newMent = tMentor.objects.create(
+        name = request.POST.getlist('tbName')[index],
+        surname = request.POST.getlist('tbSurname')[index],
+        midname = request.POST.getlist('tbMidname')[index],
+        phone = request.POST.getlist('tbPhone')[index],
+        mail = request.POST.getlist('tbMail')[index],
+    )
+    if projectID != "False":
+        project = tProject.objects.get(id = projectID)
+        sig = tMentoproj.objects.create(mentorID = newMent, projectID = project, date = datetime.now())
+        sig.save()
+    newMent.save()
+    return newMent.surname+" "+newMent.name+" "+newMent.midname+(" добавлен!").decode("utf-8")
+
+def add(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    obj = urldata.get('obj', None)
+    if obj != None:
+        obj = obj.pop()
+    added = urldata.get('added', False)
+    if added != False:
+        added = added.pop()
+    startuperID = urldata.get('startuperID', False)
+    if startuperID != False:
+        startuperID = startuperID.pop()
+    projectID = urldata.get('projectID', False)
+    if projectID != False:
+        projectID = projectID.pop()
+
+
+    """Adding data to froms & database"""
+    inputList = []
+    inputsQty = int(request.POST.get("tbQuantity",1))
+    resultList = []
+    possibleLeaders = []
+    mentors = []
+    taglist = []
+    loaded = False
+    inputOpt = 0
+
+    """Loading and getting data from excel file"""
+    excelKeys = []
+    excelList = []
+    if request.method == 'POST':
+        form = FileUploadedForm(request.POST, request.FILES)
+        if form.is_valid():
+            input_file = request.FILES.get('excelImport')
+            if input_file != None:
+                tmpFName = input_file.name.split(".")
+                tmpFName = tmpFName.pop()
+                if tmpFName == "xlsx" or tmpFName == "xls":
+                    wb = xlrd.open_workbook(file_contents=input_file.read())
+                    wb_sheet = wb.sheet_by_index(0)
+                    row = wb_sheet.row_values(0)
+                    for item in row:
+                        excelKeys.append(unicode(item).lower().replace(" ",""))
+                    for rownum in range(1, wb_sheet.nrows):
+                        row = wb_sheet.row_values(rownum)
+                        row.append(rownum)
+                        excelList.append(row)
+                        inputsQty = 0
+
+    if obj == "startuper":
+        obj = "стартапера"
+        if request.FILES.get('excelImport', False):
+            inputList = fillFormsStartuper(excelList, excelKeys)
+            loaded = True
+            inputOpt = 1
+
+        for x in range(0,inputsQty):
+            tmpObj = Object()
+            tmpObj.num = x+1
+            tmpObj.fgrade = True
+            tmpObj.sgrade = True
+            inputList.append(tmpObj)
+            loaded = True
+            inputOpt = 1
+
+        if request.method == 'POST' and added == 'true':
+            tmpList = request.POST.getlist('tbSurname')
+            for item in tmpList:
+                resultList.append(addStartuperToDB(request, request.POST.getlist('tbSurname').index(item),projectID))
+
+    if obj == "project":
+        possibleLeaders = tStartuper.objects.all()
+        mentors = tMentor.objects.all()
+        obj = "проект"
+        taglist = tKeyWord.objects.all()
+
+        if request.FILES.get('excelImport', False):
+            inputList = fillFormsProject(excelList, excelKeys)
+            loaded = True
+            inputOpt = 2
+
+        for x in range(0,inputsQty):
+            tmpObj = Object()
+            tmpObj.num = x+1
+            inputList.append(tmpObj)
+            loaded = True
+            inputOpt = 2
+
+        if request.method == 'POST' and added == 'true':
+            tmpList = request.POST.getlist('tbTitle')
+            for item in tmpList:
+                resultList.append(addProjectToDB(request, request.POST.getlist('tbTitle').index(item), startuperID))
+
+    if obj == "investor":
+        obj = "инвестора"
+        if request.FILES.get('excelImport', False):
+            inputList = fillFormsInvestor(excelList, excelKeys)
+            loaded = True
+            inputOpt = 3
+
+        for x in range(0,inputsQty):
+            tmpObj = Object()
+            tmpObj.num = x+1
+            inputList.append(tmpObj)
+            loaded = True
+            inputOpt = 3
+
+        if request.method == 'POST' and added == 'true':
+            tmpList = request.POST.getlist('tbInvestor')
+            for item in tmpList:
+                resultList.append(addInvestorToDB(request, request.POST.getlist('tbInvestor').index(item)))
+
+    if obj == "mentor":
+        obj = "ментора"
+        if request.FILES.get('excelImport', False):
+            inputList = fillFormsMentor(excelList, excelKeys)
+            loaded = True
+            inputOpt = 4
+
+        for x in range(0,inputsQty):
+            tmpObj = Object()
+            tmpObj.num = x+1
+            inputList.append(tmpObj)
+            loaded = True
+            inputOpt = 4
+
+        if request.method == 'POST' and added == 'true':
+            tmpList = request.POST.getlist('tbSurname')
+            for item in tmpList:
+                resultList.append(addMentorToDB(request, request.POST.getlist('tbSurname').index(item),projectID))
+
+    err = 0
+    for item in resultList:
+        if "!" not in item:
+            err = 1
+            break
+    return render(request, "adding/add.html", {"obj": obj,
+                                        "name":curruser,
+                                        "entered":entered,
+                                        "inputList":inputList,
+                                        "loaded":loaded,
+                                        "inputOpt":inputOpt,
+                                        "added":added,
+                                        "resultList":resultList,
+                                        "startuperID":startuperID,
+                                        "projectID":projectID,
+                                        "possibleLeaders":possibleLeaders,
+                                        "mentors":mentors,
+                                        "inputsQty":inputsQty,
+                                        "err":err,
+                                        "taglist":taglist,
+                                        })
+
+
+
+def search(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+            if curruser.groups.filter(name="chief"):
+                entered = "chief"
+    if entered != "worker" and entered != "chief":
+        return redirect("index")
+
+
+    return render(request, "search/search.html", {"name":curruser,
+                                          "entered":entered,
+                                          })
+
+def startupersearch(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+            if curruser.groups.filter(name="chief"):
+                entered = "chief"
+    if entered != "worker" and entered != "chief":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    export = urldata.get('export', None)
+    if export != None:
+        export = export.pop()
+
+    resultList = []
+    searchObj = Object
+    file=datetime.now().time().__format__("%H%M%S").__str__()
+    if request.method == "POST":
+        searchObj.surname = request.POST.get("tbSurname", "")
+        searchObj.name = request.POST.get("tbName", "")
+        searchObj.midname = request.POST.get("tbMidname", "")
+        searchObj.phone = request.POST.get("tbPhone", "")
+        searchObj.mail = request.POST.get("tbMail", "")
+        searchObj.fgrade = request.POST.get("cbFgrade", False)
+        searchObj.sgrade = request.POST.get("cbSgrade", False)
+        searchObj.projects = request.POST.getlist("tbProjects", "")
+
+        projectIDs = tProject.objects.filter(title__in=searchObj.projects)
+        teamIDs = tTeam.objects.filter(projectID__in = projectIDs)
+        tmpTeamIDs =[]
+        for item in teamIDs:
+            tmpTeamIDs.append(item.startuperID.id)
+        resultList = tStartuper.objects.filter(
+            surname__icontains = searchObj.surname,
+            name__icontains = searchObj.name,
+            midname__icontains = searchObj.midname,
+            phone__icontains = searchObj.phone,
+            mail__icontains = searchObj.mail,
+        )
+        if len(tmpTeamIDs) != 0:
+            resultList = resultList.filter(id__in=tmpTeamIDs,)
+        if bool(searchObj.fgrade) == True:
+            resultList = resultList.filter(fgrade=True)
+        if bool(searchObj.sgrade) == True:
+            resultList = resultList.filter(sgrade=True)
+
+        if export == "true":
+
+            wb = xlwt.Workbook()
+            ws = wb.add_sheet('Startupers')
+
+            ws.write(0, 0, u"Фамилия")
+            ws.write(0, 1, u"Имя")
+            ws.write(0, 2, u"Отчество")
+            ws.write(0, 3, u"Телефон")
+            ws.write(0, 4, u"Почта")
+            ws.write(0, 5, u"1 ступень")
+            ws.write(0, 6, u"2 ступень")
+
+            tmpRowCnt = 1
+            for item in resultList:
+                ws.write(int(tmpRowCnt), 0, item.surname)
+                ws.write(int(tmpRowCnt), 1, item.name)
+                ws.write(int(tmpRowCnt), 2, item.midname)
+                ws.write(int(tmpRowCnt), 3, item.phone)
+                ws.write(int(tmpRowCnt), 4, item.mail)
+                if item.fgrade is True:
+                    ws.write(int(tmpRowCnt), 5, u"да")
+                else:
+                    ws.write(int(tmpRowCnt), 5, u"нет")
+                if item.sgrade is True:
+                    ws.write(int(tmpRowCnt), 6, u"да")
+                else:
+                    ws.write(int(tmpRowCnt), 6, u"нет")
+                tmpRowCnt += 1
+            wb.save("files/export/export"+file+".xls")
+
+    return render(request, "search/startupersearch.html", {"name":curruser,
+                                          "entered":entered,
+                                          "resultList":resultList,
+                                          "searchObj":searchObj,
+                                          "export":export,
+                                          "file":file,
+                                          })
+
+def projectsearch(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+            if curruser.groups.filter(name="chief"):
+                entered = "chief"
+    if entered != "worker" and entered != "chief":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    export = urldata.get('export', None)
+    if export != None:
+        export = export.pop()
+
+    resultList = []
+    searchObj = Object
+    file=datetime.now().time().__format__("%H%M%S").__str__()
+
+    taglist = tKeyWord.objects.all()
+    if request.method == "POST":
+        searchObj.title = request.POST.get("tbTitle", "")
+        searchObj.sector = request.POST.get("tbSector", "")
+        searchObj.type = request.POST.get("selType", "")
+        searchObj.isreal = request.POST.get("selIsReal", "")
+        searchObj.descr = request.POST.get("tbDescr", "")
+
+        resultList = tProject.objects.filter(
+            title__icontains = searchObj.title,
+            sector__icontains = searchObj.sector,
+            type__icontains = searchObj.type,
+            isreal__icontains = searchObj.isreal,
+            descr__icontains = searchObj.descr,
+        )
+
+        tags = tKeyWord.objects.filter(id__in=request.POST.getlist("selTags", ""))
+        projWithTags = tKeyWordToProject.objects.filter(word__in=tags)
+        for item in tags:
+            projWithTags = projWithTags.filter(word=item)
+        tmpProjIDs = []
+        for item in projWithTags:
+            tmpProjIDs.append(item.projectID.id)
+        if len(tmpProjIDs)!=0:
+            resultList = resultList.filter(id__in=tmpProjIDs)
+
+        tmpMent = Object()
+        tmpMent.mail = ""
+
+        tmpLead = Object()
+        tmpLead.mail = ""
+
+
+        if export == "true":
+            wb = xlwt.Workbook()
+            ws = wb.add_sheet('Projects')
+
+            ws.write(0, 0, u"Название")
+            ws.write(0, 1, u"Отрасль")
+            ws.write(0, 2, u"Вид продукции")
+            ws.write(0, 3, u"Форма продукции")
+            ws.write(0, 4, u"Почта ментора")
+            ws.write(0, 5, u"Почта главного стартапера")
+            ws.write(0, 6, u"Описание")
+
+            tmpRowCnt = 1
+            for item in resultList:
+                ws.write(int(tmpRowCnt), 0, item.title)
+                ws.write(int(tmpRowCnt), 1, item.sector)
+                ws.write(int(tmpRowCnt), 2, item.type)
+                ws.write(int(tmpRowCnt), 3, item.isreal)
+
+                tmpMent = tMentoproj.objects.filter(projectID = item.id).order_by("-date")
+                if len(tmpMent) !=0:
+                    tmpMent = tmpMent[0].mentorID
+                ws.write(int(tmpRowCnt), 4, tmpMent.mail)
+
+                tmpLead = tTeam.objects.filter(projectID=item.id, islead=True)
+                if len(tmpLead) != 0:
+                    tmpLead = tmpLead[0].startuperID
+                ws.write(int(tmpRowCnt), 5, tmpLead.mail)
+
+                ws.write(int(tmpRowCnt), 6, item.descr)
+                tmpRowCnt += 1
+            wb.save("files/export/export"+file+".xls")
+
+    return render(request, "search/projectsearch.html", {"name":curruser,
+                                          "entered":entered,
+                                          "resultList":resultList,
+                                          "searchObj":searchObj,
+                                          "taglist":taglist,
+                                          "export":export,
+                                          "file":file,
+                                          })
+
+def investorsearch(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+            if curruser.groups.filter(name="chief"):
+                entered = "chief"
+    if entered != "worker" and entered != "chief":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    export = urldata.get('export', None)
+    if export != None:
+        export = export.pop()
+
+    resultList = []
+    searchObj = Object
+    file=datetime.now().time().__format__("%H%M%S").__str__()
+    taglist = tKeyWord.objects.all()
+    if request.method == "POST":
+        searchObj.investor = request.POST.get("tbInvestor", "")
+        searchObj.descr = request.POST.get("tbDescr", "")
+
+        resultList = tInvestor.objects.filter(
+            investor__icontains = searchObj.investor,
+            descr__icontains = searchObj.descr,
+        )
+
+        if export == "true":
+
+            wb = xlwt.Workbook()
+            ws = wb.add_sheet('Investors')
+
+            ws.write(0, 0, u"Инвестор")
+            ws.write(0, 1, u"Описание")
+
+            tmpRowCnt = 1
+            for item in resultList:
+                ws.write(int(tmpRowCnt), 0, item.investor)
+                ws.write(int(tmpRowCnt), 1, item.descr)
+                tmpRowCnt += 1
+            wb.save("files/export/export"+file+".xls")
+
+    return render(request, "search/investorsearch.html", {"name":curruser,
+                                          "entered":entered,
+                                          "resultList":resultList,
+                                          "searchObj":searchObj,
+                                          "export":export,
+                                          "file":file
+                                          })
+
+def mentorsearch(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+            if curruser.groups.filter(name="chief"):
+                entered = "chief"
+    if entered != "worker" and entered != "chief":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    export = urldata.get('export', None)
+    if export != None:
+        export = export.pop()
+
+    resultList = []
+    searchObj = Object
+    file=datetime.now().time().__format__("%H%M%S").__str__()
+    if request.method == "POST":
+        searchObj.surname = request.POST.get("tbSurname", "")
+        searchObj.name = request.POST.get("tbName", "")
+        searchObj.midname = request.POST.get("tbMidname", "")
+        searchObj.phone = request.POST.get("tbPhone", "")
+        searchObj.mail = request.POST.get("tbMail", "")
+        searchObj.projects = request.POST.getlist("tbProjects", "")
+
+        projectIDs = tProject.objects.filter(title__in=searchObj.projects)
+        teamIDs = tMentoproj.objects.filter(projectID__in=projectIDs)
+        tmpTeamIDs = []
+        for item in teamIDs:
+            tmpTeamIDs.append(item.mentorID.id)
+        resultList = tMentor.objects.filter(
+            surname__icontains=searchObj.surname,
+            name__icontains=searchObj.name,
+            midname__icontains=searchObj.midname,
+            phone__icontains=searchObj.phone,
+            mail__icontains=searchObj.mail,
+        )
+        print resultList
+        if len(tmpTeamIDs) != 0:
+            resultList = resultList.filter(id__in=tmpTeamIDs, )
+
+        if export == "true":
+
+            wb = xlwt.Workbook()
+            ws = wb.add_sheet('Mentors')
+
+            ws.write(0, 0, u"Фамилия")
+            ws.write(0, 1, u"Имя")
+            ws.write(0, 2, u"Отчество")
+            ws.write(0, 3, u"Телефон")
+            ws.write(0, 4, u"Почта")
+
+            tmpRowCnt = 1
+            for item in resultList:
+                ws.write(int(tmpRowCnt), 0, item.surname)
+                ws.write(int(tmpRowCnt), 1, item.name)
+                ws.write(int(tmpRowCnt), 2, item.midname)
+                ws.write(int(tmpRowCnt), 3, item.phone)
+                ws.write(int(tmpRowCnt), 4, item.mail)
+                tmpRowCnt += 1
+            wb.save("files/export/export"+file+".xls")
+
+    return render(request, "search/mentorsearch.html", {"name":curruser,
+                                          "entered":entered,
+                                          "resultList":resultList,
+                                          "searchObj":searchObj,
+                                          "export":export,
+                                          "file":file,
+                                          })
+
+
+def infostartuper(request):
+    curruser = None
+    entered = 0
+    curruserName = request.session.get("curUser", False)
+    if curruserName:
+        curruser = User.objects.get(username=curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _print = urldata.get('print', None)
+    if _print != None:
+        _print = _print.pop()
+    startuper = ""
+    teams = []
+    projects = []
+    docs = []
+    addfile =""
+    if _id != None:
+        _id = _id.pop()
+        addfile = urldata.get('addfile', "")
+        if addfile != "":
+            addfile = addfile.pop()
+        try:
+            startuper = tStartuper.objects.get(id = _id)
+            if startuper.avatar == "":
+                startuper.avatar = "files/imgs/avatars/noimg.png"
+            teams = tTeam.objects.filter(startuperID = _id)
+            for party in teams:
+                projects.extend(tProject.objects.filter(id = party.projectID.id))
+
+            docs.extend(tDoc.objects.filter(startuperID = _id))
+        except:
+            pass
+
+        if _print == "true":
+            return render(request, "info/printstartuper.html", {"name":curruser,
+                                                  "entered":entered,
+                                                  "startuper":startuper,
+                                                  "teams":teams,
+                                                  "projects":projects,
+                                                  "docs":docs,
+                                                  "addfile":addfile,
+                                                  })
+
+    return render(request, "info/infostartuper.html", {"name":curruser,
+                                          "entered":entered,
+                                          "startuper":startuper,
+                                          "teams":teams,
+                                          "projects":projects,
+                                          "docs":docs,
+                                          "addfile":addfile,
+                                          })
+
+def infoproject(request):
+    curruser = None
+    entered = 0
+    curruserName = request.session.get("curUser", False)
+    if curruserName:
+        curruser = User.objects.get(username=curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _print = urldata.get('print', None)
+    if _print != None:
+        _print = _print.pop()
+    project = ""
+    teams = []
+    startupers = []
+    investitions =[]
+    addInfo = []
+    status = []
+    investors =[]
+    activities = []
+    mentors = []
+    taglist = []
+    if _id != None:
+        _id = _id.pop()
+        project = tProject.objects.get(id = _id)
+
+        teams = tTeam.objects.filter(projectID = _id)
+        for party in teams:
+            startupers.extend(tStartuper.objects.filter(id = party.startuperID.id))
+            if party.islead == True:
+                project.leader = party.startuperID
+
+        investitions = tInvestition.objects.filter(projectID = _id)
+        for investition in investitions:
+            investors.extend(tInvestor.objects.filter(id = investition.investorID.id))
+
+        addInfo.extend(tAddInfoProj.objects.filter(projectID = _id))
+        status.extend(tStatus.objects.filter(projectID = _id).order_by("date"))
+        activities.extend(tActivities.objects.filter(projectID = _id))
+        mentors.extend(tMentoproj.objects.filter(projectID = _id).order_by("-date"))
+
+        taglist = tKeyWordToProject.objects.filter(projectID = project)
+
+        reqInvests = tReqInvests.objects.filter(projectID = project)
+    currStat = ""
+    if len(status) > 0:
+        currStat = status.pop()
+    currMent = ""
+    if len(mentors) > 0:
+        currMent = mentors[0]
+
+    if _print == "true":
+        return render(request, "info/printproject.html", {"name":curruser,
+                                              "entered":entered,
+                                              "project":project,
+                                              "teams":teams,
+                                              "startupers":startupers,
+                                              "investitions":investitions,
+                                              "investors":investors,
+                                              "addInfo":addInfo,
+                                              "status":status,
+                                              "activities":activities,
+                                              "currStat":currStat,
+                                              "mentors":mentors,
+                                              "currMent":currMent,
+                                              "taglist":taglist,
+                                              "reqInvests":reqInvests,
+                                              })
+    return render(request, "info/infoproject.html", {"name":curruser,
+                                          "entered":entered,
+                                          "project":project,
+                                          "teams":teams,
+                                          "startupers":startupers,
+                                          "investitions":investitions,
+                                          "investors":investors,
+                                          "addInfo":addInfo,
+                                          "status":status,
+                                          "activities":activities,
+                                          "currStat":currStat,
+                                          "mentors":mentors,
+                                          "currMent":currMent,
+                                          "taglist":taglist,
+                                          "reqInvests":reqInvests,
+                                          })
+
+def infoinvestor(request):
+    curruser = 0
+    entered = 0
+    staff = False
+    curruserName = request.session.get("curUser", False)
+    if curruserName == None:
+        return redirect("index")
+    if curruserName:
+        curruser = User.objects.get(username=curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+            staff = True
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+            staff = True
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _print = urldata.get('print', None)
+    if _print != None:
+        _print = _print.pop()
+    investor = ""
+    investitions = []
+    projects = []
+    contacts = []
+    addInfo = []
+    if _id != None:
+        _id = _id.pop()
+        try:
+            investor = tInvestor.objects.get(id = _id)
+            investitions = tInvestition.objects.filter(investorID = _id)
+            for inv in investitions:
+                projects.extend(tProject.objects.filter(id = inv.investorID.id))
+
+            contacts.extend(tInvestorContacts.objects.filter(investorID = _id))
+            addInfo.extend(tAddInfoInv.objects.filter(investorID = _id))
+        except:
+            pass
+
+    if _print == "true":
+        return render(request, "info/printinvestor.html", {"name":curruser,
+                                                  "entered":entered,
+                                                  "investor":investor,
+                                                  "investitions":investitions,
+                                                  "projects":projects,
+                                                  "contacts":contacts,
+                                                  "addInfo":addInfo,
+                                                  "staff":staff,
+                                                  })
+    return render(request, "info/infoinvestor.html", {"name":curruser,
+                                          "entered":entered,
+                                          "investor":investor,
+                                          "investitions":investitions,
+                                          "projects":projects,
+                                          "contacts":contacts,
+                                          "addInfo":addInfo,
+                                          "staff":staff,
+                                          })
+
+def infoinvcontact(request):
+    curruser = 0
+    entered = 0
+    staff = False
+    curruserName = request.session.get("curUser", False)
+    if curruserName == None:
+        return redirect("index")
+    if curruserName:
+        curruser = User.objects.get(username=curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+            staff = True
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+            staff = True
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _print = urldata.get('print', None)
+    if _print != None:
+        _print = _print.pop()
+    contact = ""
+    if _id != None:
+        _id = _id.pop()
+        try:
+            contact = tInvestorContacts.objects.get(id = _id)
+        except:
+            pass
+    if _print == "true":
+        return render(request, "info/printinvcontact.html", {"name":curruser,
+                                                  "entered":entered,
+                                                  "contact":contact,
+                                                  })
+    return render(request, "info/infoinvcontact.html", {"name":curruser,
+                                          "entered":entered,
+                                          "contact":contact,
+                                          })
+
+def infomentor(request):
+    curruser = 0
+    entered = 0
+    staff = False
+    curruserName = request.session.get("curUser", False)
+    if curruserName == None:
+        return redirect("index")
+    if curruserName:
+        curruser = User.objects.get(username=curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+            staff = True
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+            staff = True
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _print = urldata.get('print', None)
+    if _print != None:
+        _print = _print.pop()
+    mentor = ""
+    projects=[]
+    if _id != None:
+        _id = _id.pop()
+        try:
+            mentor = tMentor.objects.get(id = _id)
+            projects = tMentoproj.objects.filter(mentorID = mentor)
+        except:
+            pass
+    if _print == "true":
+        return render(request, "info/printmentor.html", {"name":curruser,
+                                                  "entered":entered,
+                                                  "mentor":mentor,
+                                                  "projects":projects,
+                                                  })
+    return render(request, "info/infomentor.html", {"name":curruser,
+                                          "entered":entered,
+                                          "mentor":mentor,
+                                          "projects":projects,
+                                          })
+
+
+
+def signadd(request):
+    """Worker validation"""
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _entity = urldata.get('entity', None)
+    redir = urldata.get('redir', None)
+    if redir != None:
+        redir = redir.pop()
+    result = "Событие добавлено!"
+    added = False
+
+    if _id != None:
+        _id = _id.pop()
+        if _entity is not None:
+            _entity = _entity.pop()
+
+        if request.method == "POST":
+            project = tProject.objects.get(id = _id)
+            if _entity == "act":
+                try:
+                    act = tActivities.objects.create(projectID=project, date = datetime.strptime(
+                        request.POST.get("tbDate", datetime.now().date().__format__('%d.%m.%Y').__str__()), "%d.%m.%Y"))
+                    act.title = request.POST.get("tbTitle", "")
+                    act.save()
+                    added = True
+                except:
+                    pass
+
+            if _entity == "stat":
+                stat = tStatus.objects.create(projectID=project, date=datetime.strptime(
+                    request.POST.get("tbDate", datetime.now().date().__format__('%d.%m.%Y, %H:%M').__str__()), "%d.%m.%Y, %H:%M"))
+                stat.title = request.POST.get("tbTitle", "")
+                stat.save()
+                added = True
+                result = "Статус добавлен!"
+
+        if redir == "true":
+            return redirect("/infoproject?id="+_id)
+
+
+    return render(request, "adding/signadd.html", {"name":curruser,
+                                          "entered":entered,
+                                          "id":_id,
+                                          "added":added,
+                                          "result":result,
+                                          "entity":_entity,
+                                          })
+
+def addfile(request):
+    """Worker validation"""
+    entered = 0
+    curruser = 0
+    id = None
+    addurl = ""
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _entity = urldata.get('entity', None)
+    addurl = urldata.get('addurl', "")
+    if addurl != "":
+        addurl = addurl.pop()
+    result = "Файл добавлен!"
+    added = False
+
+    if _id != None:
+        _id = _id.pop()
+        if _entity is not None:
+            _entity = _entity.pop()
+
+        if _entity == "startuper":
+            startuper = tStartuper.objects.get(id = _id)
+            if request.method == "POST":
+                if addurl == "":
+                    form = FileUploadedForm(request.POST, request.FILES)
+                    if form.is_valid():
+                        input_file = request.FILES.get('loadFile')
+                        if input_file != None:
+                            if input_file.size < 500000:
+                                doc = tDoc.objects.create(startuperID=startuper, date = datetime.now().date())
+                                doc.document = input_file
+                                tmpFName = input_file.name.split(".")[0]
+                                doc.title = tmpFName
+                                doc.save()
+                                added = True
+                            else:
+                                result = "Размер Файла больше 5мб!"
+                else:
+                    someUrl = tDoc.objects.create(startuperID=startuper,)
+                    someUrl.title = request.POST.get("tbTitle")
+                    someUrl.url = request.POST.get("tbUrl")
+                    someUrl.save()
+                    added = True
+                    result = "Ссылка добавлена!"
+
+        if _entity == "project":
+            project = tProject.objects.get(id = _id)
+            if request.method == "POST":
+                if  addurl == "":
+                    form = FileUploadedForm(request.POST, request.FILES)
+                    if form.is_valid():
+                        input_file = request.FILES.get('loadFile')
+                        if input_file != None:
+                            if input_file.size < 500000:
+                                file = tAddInfoProj.objects.create(projectID=project,)
+                                file.file = input_file
+                                file.text = input_file.name.split(".")[0]
+                                file.save()
+                                added = True
+                            else:
+                                result = "Размер Файла больше 5мб!"
+                else:
+                    someUrl = tAddInfoProj.objects.create(projectID=project,)
+                    someUrl.text = request.POST.get("tbTitle")
+                    someUrl.url = request.POST.get("tbUrl")
+                    someUrl.save()
+                    added = True
+                    result = "Ссылка добавлена!"
+
+        if _entity == "investor":
+            investor = tInvestor.objects.get(id = _id)
+            if request.method == "POST":
+                if addurl == "":
+                    form = FileUploadedForm(request.POST, request.FILES)
+                    if form.is_valid():
+                        input_file = request.FILES.get('loadFile')
+                        if input_file != None:
+                            if input_file.size < 500000:
+                                file = tAddInfoInv.objects.create(investorID=investor,)
+                                file.file = input_file
+                                file.text = input_file.name.split(".")[0]
+                                file.save()
+                                added = True
+                            else:
+                                result = "Размер Файла больше 5мб!"
+                else:
+                    someUrl = tAddInfoInv.objects.create(investorID=investor,)
+                    someUrl.text = request.POST.get("tbTitle")
+                    someUrl.url = request.POST.get("tbUrl")
+                    someUrl.save()
+                    added = True
+                    result = "Ссылка добавлена!"
+
+    return render(request, "adding/addfile.html", {"name":curruser,
+                                          "entered":entered,
+                                          "id":_id,
+                                          "added":added,
+                                          "addurl":addurl,
+                                          "result":result,
+                                          "entity":_entity,
+                                          })
+
+
+
+def startuperstoproject(request):
+    """Worker validation"""
+    entered = 0
+    curruser = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    if _id != None:
+        _id = _id.pop()
+    page = urldata.get('page', None)
+    if page != None:
+        page = int(page.pop())
+    entity = urldata.get('entity', None)
+    if entity != None:
+        entity = entity.pop()
+    queryList = []
+    queryListCount = 0
+    added = False
+    blackIDs=[]
+    project = Object()
+    startuper = Object()
+    val = request.POST.get("tbQSch", "")
+
+    if entity == "project":
+        project = tProject.objects.get(id = _id)
+
+        if _id != None:
+            if request.method == "POST":
+                valToAdd = request.POST.getlist("cbChoosed", None)
+                if valToAdd != []:
+                    for item in valToAdd:
+                        startuper = tStartuper.objects.get(id = item)
+                        _role = request.POST.get("tbRole"+str(item),None)
+                        if list(tTeam.objects.filter(startuperID = startuper, projectID = project)) == [] :
+                            tmp = tTeam.objects.create(startuperID = startuper, projectID = project, role = _role)
+                            tmp.save()
+                    redir = urldata.get('redirect', None)
+                    if redir != None:
+                        redir = redir.pop()
+                    if redir == "true":
+                        return  redirect("/infoproject?id="+_id )
+
+        start=(page-1)*10
+        end =10*page
+        curPrjMembersIDs = tTeam.objects.filter(projectID = project)
+        for item in curPrjMembersIDs:
+            blackIDs.append(item.startuperID.id)
+        queryList = tStartuper.objects.exclude(id__in = blackIDs,).filter(surname__icontains = val)[start:end]
+        queryListCount = len(tStartuper.objects.exclude(id__in = blackIDs,).filter(surname__icontains = val)[start:end+1])
+
+
+
+    if entity == "startuper":
+        startuper = tStartuper.objects.get(id = _id)
+
+        if _id != None:
+            if request.method == "POST":
+                valToAdd = request.POST.getlist("cbChoosed", None)
+                if valToAdd != []:
+                    for item in valToAdd:
+                        project = tProject.objects.get(id = item)
+                        _role = request.POST.get("tbRole"+str(item),None)
+                        if list(tTeam.objects.filter(startuperID = startuper, projectID = project)) == [] :
+                            tmp = tTeam.objects.create(startuperID = startuper, projectID = project, role = _role)
+                            tmp.save()
+                    redir = urldata.get('redirect', None)
+                    if redir != None:
+                        redir = redir.pop()
+                    if redir == "true":
+                        return redirect("/infostartuper?id="+_id)
+
+        start=(page-1)*10
+        end =10*page
+        curPrjMembersIDs = tTeam.objects.filter(startuperID = startuper)
+        for item in curPrjMembersIDs:
+            blackIDs.append(item.projectID.id)
+        queryList = tProject.objects.exclude(id__in = blackIDs,).filter(title__icontains = val)[start:end]
+        queryListCount = len(tProject.objects.exclude(id__in = blackIDs,).filter(title__icontains = val)[start:end+1])
+
+    schVal = request.POST.get("tbQSch", "")
+    return render(request, "adding/startupertoproject.html", {
+                                          "name":curruser,
+                                          "entered":entered,
+                                          "entity":entity,
+                                          "id":_id,
+                                          "queryList":queryList,
+                                          "queryListCount":queryListCount,
+                                          "page":page,
+                                          "prevpage":int(page-1),
+                                          "nextpage":int(page+1),
+                                          "added":added,
+                                          "project":project,
+                                          "startuper":startuper,
+                                          "schVal":schVal,
+                                          })
+
+def mentorstoproject(request):
+    """Worker validation"""
+    entered = 0
+    curruser = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    if _id != None:
+        _id = _id.pop()
+    page = urldata.get('page', None)
+    if page != None:
+        page = int(page.pop())
+    entity = urldata.get('entity', None)
+    if entity != None:
+        entity = entity.pop()
+    queryList = []
+    queryListCount = 0
+    added = False
+    blackIDs=[]
+    project = Object()
+    startuper = Object()
+    val = request.POST.get("tbQSch", "")
+
+    if entity == "project":
+        project = tProject.objects.get(id = _id)
+
+        if _id != None:
+            if request.method == "POST":
+                valToAdd = request.POST.getlist("cbChoosed", None)
+                if valToAdd != []:
+                    for item in valToAdd:
+                        mentor = tMentor.objects.get(id = item)
+                        _date = Object
+                        _date.date = request.POST.get("tbDate"+str(item), datetime.now().date())
+                        _date.time = datetime.now().time().__format__("%H:%M")
+                        if list(tMentoproj.objects.filter(mentorID = mentor, projectID = project)) == [] :
+                            tmp = tMentoproj.objects.create(mentorID = mentor, projectID = project, date = datetime.strptime(_date.date.__str__()+", "+_date.time.__str__(), "%d.%m.%Y, %H:%M"))
+                            tmp.save()
+                    redir = urldata.get('redirect', None)
+                    if redir != None:
+                        redir = redir.pop()
+                    print redir
+                    if redir == "true":
+                        return redirect("/infoproject?id="+_id)
+
+        start=(page-1)*10
+        end =10*page
+        curPrjMembersIDs = tMentoproj.objects.filter(projectID = project)
+        for item in curPrjMembersIDs:
+            blackIDs.append(item.mentorID.id)
+        queryList = tMentor.objects.exclude(id__in = blackIDs,).filter(surname__icontains = val)[start:end]
+        queryListCount = len(tMentor.objects.exclude(id__in = blackIDs,).filter(surname__icontains = val)[start:end+1])
+
+    schVal = request.POST.get("tbQSch", "")
+    return render(request, "adding/mentortoproject.html", {
+                                          "name":curruser,
+                                          "entered":entered,
+                                          "entity":entity,
+                                          "id":_id,
+                                          "queryList":queryList,
+                                          "queryListCount":queryListCount,
+                                          "page":page,
+                                          "prevpage":int(page-1),
+                                          "nextpage":int(page+1),
+                                          "added":added,
+                                          "project":project,
+                                          "startuper":startuper,
+                                          "schVal":schVal,
+                                          })
+
+
+def invcontactsadd(request):
+    """Worker validation"""
+    entered = 0
+    curruser = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    added = urldata.get('added', False)
+    if added != False:
+        added = added.pop()
+    _id = urldata.get('id', None)
+    if _id != None:
+        _id = _id.pop()
+
+
+    inputList = []
+    resultList = []
+    loaded = False
+    investor = Object()
+    if _id != None:
+        investor = tInvestor.objects.get(id = _id)
+
+        """Loading and getting data from excel file"""
+        excelKeys = []
+        excelList = []
+        if request.method == 'POST':
+            form = FileUploadedForm(request.POST, request.FILES)
+            if form.is_valid():
+                input_file = request.FILES.get('excelImport')
+                if input_file != None:
+                    tmpFName = input_file.name.split(".")
+                    tmpFName = tmpFName.pop()
+                    if tmpFName == "xlsx" or tmpFName == "xls":
+                        wb = xlrd.open_workbook(file_contents=input_file.read())
+                        wb_sheet = wb.sheet_by_index(0)
+                        row = wb_sheet.row_values(0)
+                        for item in row:
+                            excelKeys.append(unicode(item).lower().replace(" ", ""))
+                        for rownum in range(1, wb_sheet.nrows):
+                            row = wb_sheet.row_values(rownum)
+                            row.append(rownum)
+                            excelList.append(row)
+
+        """Adding data to froms & database"""
+        if request.FILES.get('excelImport', False):
+            inputList = fillFormsInvContacts(excelList, excelKeys)
+            loaded = True
+
+        else:
+            for x in range(0, 1):
+                tmpObj = Object()
+                tmpObj.num = x + 1
+                inputList.append(tmpObj)
+                loaded = True
+
+        if request.method == 'POST' and added == 'true':
+            tmpList = request.POST.getlist('tbSurname')
+            for item in tmpList:
+                resultList.append(addInvContToDB(request, investor, request.POST.getlist('tbSurname').index(item)))
+
+    return render(request, "adding/invcontactsadd.html", {
+                                          "name":curruser,
+                                          "entered":entered,
+                                          "id":_id,
+                                          "investor":investor,
+                                          "inputList":inputList,
+                                          "added":added,
+                                          "loaded":loaded,
+                                          "resultList":resultList,
+                                          })
+
+def investitions(request):
+    """Worker validation"""
+    entered = 0
+    curruser = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    added = urldata.get('added', False)
+    if added != False:
+        added = added.pop()
+    _id = urldata.get('id', None)
+    if _id != None:
+        _id = _id.pop()
+    redir = urldata.get('redirect', None)
+    if redir != None:
+        redir = redir.pop()
+
+    inputList=[]
+
+    inputList = []
+    resultList = []
+    loaded = False
+    projErr=""
+    investor = Object()
+    if _id != None:
+        investor = tInvestor.objects.get(id = _id)
+        if request.method == 'POST':
+            try:
+                investition = tInvestition.objects.create(
+                    investorID = tInvestor.objects.get(id = _id),
+                    projectID = tProject.objects.get(title = request.POST.get("tbProject", None)),
+                    date = datetime.strptime(request.POST.get("tbDate", None), '%d.%m.%Y, %H:%M'),
+                    type = request.POST.get("selType", None),
+                    res = request.POST.get("tbRes", None),
+                    sum = request.POST.get("tbSum", None),
+                    descr = request.POST.get("taDescr", None),
+                )
+                investition.save()
+                if redir == "true":
+                    return  redirect("/infoinvestor?id="+_id )
+            except:
+                projErr="Такого проекта нет."
+                pass
+
+    projects = tProject.objects.all()
+    return render(request, "adding/investitions.html", {
+                                          "name":curruser,
+                                          "entered":entered,
+                                          "id":_id,
+                                          "investor":investor,
+                                          "inputList":inputList,
+                                          "added":added,
+                                          "resultList":resultList,
+                                          "now":datetime.now().__format__('%d.%m.%Y, %H:%M'),
+                                          "projects":projects,
+                                          "projErr":projErr,
+                                          })
+
+def reqinvadd(request):
+    """Worker validation"""
+    entered = 0
+    curruser = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    added = urldata.get('added', False)
+    if added != False:
+        added = added.pop()
+    _id = urldata.get('id', None)
+    if _id != None:
+        _id = _id.pop()
+    redir = urldata.get('redirect', None)
+    if redir != None:
+        redir = redir.pop()
+
+    inputList = []
+    resultList = []
+    projErr=""
+    investor = Object()
+    if _id != None:
+        project = tProject.objects.get(id = _id)
+        if request.method == 'POST':
+            try:
+                investition = tReqInvests.objects.create(
+                    projectID = project,
+                    type = request.POST.get("selType", None),
+                    res = request.POST.get("tbRes", None),
+                    sum = request.POST.get("tbSum", None),
+                )
+                investition.save()
+                if redir == "true":
+                    return  redirect("/infoproject?id="+_id )
+            except:
+                pass
+
+    projects = tProject.objects.all()
+    return render(request, "adding/reqinvadd.html", {
+                                          "name":curruser,
+                                          "entered":entered,
+                                          "id":_id,
+                                          "investor":investor,
+                                          "inputList":inputList,
+                                          "added":added,
+                                          "resultList":resultList,
+                                          "now":datetime.now().__format__('%d.%m.%Y, %H:%M'),
+                                          "projects":projects,
+                                          "projErr":projErr,
+                                          })
+
+
+
+def editstartuper(request):
+    curruser = None
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    startuper = ""
+    teams = []
+    projects = []
+    docs = []
+    if _id != None:
+        _id = _id.pop()
+        startuper = tStartuper.objects.get(id = _id)
+        teams = tTeam.objects.filter(startuperID = startuper)
+        docs = tDoc.objects.filter(startuperID = startuper)
+        if request.method == "POST":
+            if request.POST.get("tbFIO", "") != "":
+                fio = request.POST.get("tbFIO", None)
+                fio = fio.split(" ")
+                if len(fio)>=1:
+                    startuper.surname = fio[0]
+                else:
+                    startuper.surname = ""
+                if len(fio)>=2:
+                    startuper.name = fio[1]
+                else:
+                    startuper.name = ""
+                if len(fio)>=3:
+                    startuper.midname = fio[2]
+                else:
+                    startuper.midname = ""
+            if request.POST.get("tbTel", "") != "":
+                startuper.phone = request.POST.get("tbTel", "")
+            if request.POST.get("tbMail", "") != "":
+                startuper.mail = request.POST.get("tbMail", "")
+            startuper.fgrade = bool(request.POST.get("cbFgrade", False))
+            startuper.sgrade = bool(request.POST.get("cbSgrade", False))
+            form = FileUploadedForm(request.POST, request.FILES)
+            if form.is_valid():
+                input_file = request.FILES.get('fAvatar', None)
+                if input_file != None:
+                    tmpFName = input_file.name.split(".")
+                    tmpFName = tmpFName.pop()
+                    if input_file.size < 100000:
+                        if tmpFName == "jpg" or tmpFName == "jepg" or tmpFName == "png" or tmpFName == "gif":
+                            startuper.avatar = input_file
+            startuper.save()
+            for item in teams:
+                if request.POST.get("tbRole"+str(item.id), "") != "":
+                    item.role = request.POST.get("tbRole"+str(item.id), "")
+                item.save()
+            for item in teams:
+                if request.POST.get("cbDel"+str(item.id), False):
+                    item.delete()
+            for item in docs:
+                if request.POST.get("cbDelFile"+str(item.id), False):
+                    item.delete()
+
+            return redirect("/infostartuper?id="+_id)
+
+    return render(request, "editing/editstartuper.html", {"name":curruser,
+                                          "entered":entered,
+                                          "startuper":startuper,
+                                          "teams":teams,
+                                          "projects":projects,
+                                          "docs":docs,
+                                          })
+
+def editproject(request):
+    curruser = None
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    redir = urldata.get('redirect', None)
+    if redir != None:
+        redir = redir.pop()
+    project = ""
+    teams = []
+    addInfo = []
+    activities = []
+    status = []
+    mentors = []
+    possibleLeaders = []
+    mentorlist = []
+    mentor = ""
+    fioLead = ""
+    errLead = ""
+    currMent = ""
+    errMent = ""
+    if _id != None:
+        _id = _id.pop()
+        project = tProject.objects.get(id = _id)
+
+        teams = tTeam.objects.filter(projectID = project)
+        for item in teams:
+            if item.islead == True:
+                fioLead = item.startuperID
+        addInfo = tAddInfoProj.objects.filter(projectID = project)
+        status = tStatus.objects.filter(projectID = project).order_by("date")
+        activities = tActivities.objects.filter(projectID = project)
+        mentors = tMentoproj.objects.filter(projectID = project).order_by("-date")
+        possibleLeaders = tStartuper.objects.all()
+        mentorlist = tMentor.objects.all()
+        reqInvests = tReqInvests.objects.filter(projectID=project)
+
+        if len(mentors) != 0:
+            mentor = mentors[0]
+            currMent = mentor.mentorID
+        if request.method == "POST":
+            mailLead = request.POST.get("tbLeader", "")
+            if mailLead != "":
+                leader = tStartuper.objects.filter(mail = mailLead)
+                if len(leader) == 0:
+                    errLead = "Стартапер с такими ФИО не обнаружен."
+                    redir = False
+                else:
+                    leader = leader[0]
+                    if len(tTeam.objects.filter(projectID = project, startuperID = leader)) == 0:
+                        newLead = tTeam.objects.create(projectID = project, startuperID = leader, role="Главный стартапер", islead = True)
+                        newLead.save()
+                    else:
+                        tmpTeam = tTeam.objects.get(projectID = project, startuperID = leader)
+                        tmpTeam.islead = True
+                        tmpTeam.save()
+
+            currMentMail = request.POST.get("tbMentor", "")
+            if currMentMail != "":
+                ment = tMentor.objects.filter(mail = currMentMail)
+                if len(ment) == 0:
+                    errMent = "Ментор с такими ФИО не обнаружен."
+                    redir = False
+                else:
+                    ment = ment[0]
+                    if len(tMentoproj.objects.filter(projectID = project, mentorID =ment)) == 0:
+                        newMent = tMentoproj.objects.create(mentorID = ment, projectID = project, date = datetime.now())
+                        newMent.save()
+
+            if request.POST.get("tbTitle", "") != "":
+                project.title = request.POST.get("tbTitle", "")
+            if request.POST.get("tbSector", "") != "":
+                project.sector = request.POST.get("tbSector", "")
+            if request.POST.get("tbDescr", "") != "":
+                project.descr = request.POST.get("tbDescr", "")
+            if request.POST.get("selType", "") != "":
+                project.type = request.POST.get("selType", "")
+            if request.POST.get("selIsReal", "") != "":
+                project.isreal = request.POST.get("selIsReal", "")
+            project.save()
+            for item in teams:
+                if request.POST.get("tbRole"+str(item.id), "") != "":
+                    item.role = request.POST.get("tbRole"+str(item.id), "")
+                    item.save()
+            for item in status:
+                if request.POST.get("tbStatDate"+str(item.id), "") != "":
+                    item.date = datetime.strptime(request.POST.get("tbStatDate"+str(item.id),  datetime.now().date().__str__()) + ", "+datetime.now().time().__format__("%H:%M").__str__(), '%d.%m.%Y, %H:%M')
+                if request.POST.get("tbStatTit" + str(item.id), "") != "":
+                    item.title = request.POST.get("tbStatTit"+str(item.id), "")
+                item.save()
+            for item in activities:
+                if request.POST.get("tbActDate"+str(item.id), "") != "":
+                    item.date = datetime.strptime(request.POST.get("tbActDate"+str(item.id),  datetime.now().date().__format__('%d.%m.%Y').__str__()), '%d.%m.%Y')
+                if request.POST.get("tbActTit"+str(item.id), "") != "":
+                    item.title = request.POST.get("tbActTit"+str(item.id), "")
+                item.save()
+            for item in mentors:
+                if request.POST.get("tbMentDate"+str(item.id), "") != "":
+                    item.date = datetime.strptime(request.POST.get("tbMentDate"+str(item.id),  datetime.now().date().__str__()) + ", "+datetime.now().time().__format__("%H:%M").__str__(), '%d.%m.%Y, %H:%M')
+                item.save()
+            for item in reqInvests:
+                if request.POST.get("tbReqInvType"+str(item.id), "") != "":
+                    item.type = request.POST.get("tbReqInvType"+str(item.id), "")
+                if request.POST.get("tbReqInvRes"+str(item.id), "") != "":
+                    item.res = request.POST.get("tbReqInvRes"+str(item.id), "")
+                if request.POST.get("tbReqInvSum"+str(item.id), "") != "":
+                    item.sum = request.POST.get("tbReqInvSum"+str(item.id), "")
+                item.save()
+
+            for item in teams:
+                if request.POST.get("cbStartDel"+str(item.id), False):
+                    item.delete()
+            for item in status:
+                if request.POST.get("cbStatDel"+str(item.id), False):
+                    item.delete()
+            for item in activities:
+                if request.POST.get("cbActDel"+str(item.id), False):
+                    item.delete()
+            for item in addInfo:
+                if request.POST.get("cbAddInfoDel"+str(item.id), False):
+                    item.delete()
+            for item in mentors:
+                if request.POST.get("cbMentDel"+str(item.id), False):
+                    item.delete()
+            for item in reqInvests:
+                if request.POST.get("cbReqInvDel"+str(item.id), False):
+                    item.delete()
+
+            if redir == "true":
+                return redirect("/infoproject?id="+_id)
+
+    return render(request, "editing/editproject.html", {"name":curruser,
+                                          "entered":entered,
+                                          "project":project,
+                                          "teams":teams,
+                                          "addInfo":addInfo,
+                                          "status":status,
+                                          "activities":activities,
+                                          "mentors":mentors,
+                                          "mentor":mentor,
+                                          "possibleLeaders":possibleLeaders,
+                                          "mentorlist":mentorlist,
+                                          "fioLead":fioLead,
+                                          "errLead":errLead,
+                                          "currMent":currMent,
+                                          "errMent":errMent,
+                                          "reqInvests":reqInvests,
+                                          })
+
+def editinvestor(request):
+    curruser = None
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    investor = ""
+    addInfo = []
+    contacts = []
+    investitions = []
+    if _id != None:
+        _id = _id.pop()
+        investor = tInvestor.objects.get(id = _id)
+        investitions = tInvestition.objects.filter(investorID = investor)
+        addInfo = tAddInfoInv.objects.filter(investorID = investor)
+        contacts = tInvestorContacts.objects.filter(investorID = investor)
+        if request.method == "POST":
+            if request.POST.get("tbInv", "") != "":
+                investor.investor = request.POST.get("tbInv", "")
+            if request.POST.get("taDescr", "") != "":
+                investor.descr = request.POST.get("taDescr", "")
+            investor.save()
+            for item in investitions:
+                if request.POST.get("tbInvsDate"+str(item.id), "") != "":
+                    item.date = datetime.strptime(request.POST.get("tbInvsDate"+str(item.id),  datetime.now().date().__format__('%d.%m.%Y, %H:%M').__str__()), '%d.%m.%Y, %H:%M')
+                if request.POST.get("tbInvsRes"+str(item.id), "") != "":
+                    item.res = request.POST.get("tbInvsRes" + str(item.id), "")
+                if request.POST.get("tbInvsSum"+str(item.id), "") != "":
+                    item.sum = request.POST.get("tbInvsSum"+str(item.id), "")
+                if request.POST.get("taInvsDescr"+str(item.id), "") != "":
+                    item.descr = request.POST.get("taInvsDescr" + str(item.id), "")
+                if request.POST.get("tbType"+str(item.id), "") != "":
+                    item.type = request.POST.get("tbType" + str(item.id), "")
+                item.save()
+            for item in contacts:
+                if request.POST.get("cbContDel"+str(item.id), False):
+                    item.delete()
+            for item in investitions:
+                if request.POST.get("cbInvsDel"+str(item.id), False):
+                    item.delete()
+            for item in addInfo:
+                if request.POST.get("cbAddInfoDel"+str(item.id), False):
+                    item.delete()
+
+            return redirect("/infoinvestor?id="+_id)
+
+    return render(request, "editing/editinvestor.html", {"name":curruser,
+                                          "entered":entered,
+                                          "investor":investor,
+                                          "addInfo":addInfo,
+                                          "contacts":contacts,
+                                          "investitions":investitions,
+                                          })
+
+def editinvcontact(request):
+    curruser = None
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    contact = ""
+    addInfo = []
+    contacts = []
+    investitions = []
+    if _id != None:
+        _id = _id.pop()
+        contact = tInvestorContacts.objects.get(id = _id)
+        if request.method == "POST":
+            if request.POST.get("tbFIO", "") != "":
+                fio = request.POST.get("tbFIO", None)
+                fio = fio.split(" ")
+                if len(fio)>=1:
+                    contact.surname = fio[0]
+                else:
+                    contact.surname = ""
+                if len(fio)>=2:
+                    contact.name = fio[1]
+                else:
+                    contact.name = ""
+                if len(fio)>=3:
+                    contact.midname = fio[2]
+                else:
+                    contact.midname = ""
+
+            if request.POST.get("tbPhone", "") != "":
+                contact.phone = request.POST.get("tbPhone", "")
+            if request.POST.get("tbMail", "") != "":
+                contact.mail = request.POST.get("tbMail", "")
+            if request.POST.get("tbCompany", "") != "":
+                contact.company = request.POST.get("tbCompany", "")
+            if request.POST.get("tbPosition", "") != "":
+                contact.position = request.POST.get("tbPosition", "")
+            contact.save()
+
+            return redirect("/infoinvcontact?id="+_id)
+
+    return render(request, "editing/editinvcontact.html", {"name":curruser,
+                                          "entered":entered,
+                                          "contact":contact,
+                                          "addInfo":addInfo,
+                                          "contacts":contacts,
+                                          "investitions":investitions,
+                                          })
+
+def editmentor(request):
+    curruser = None
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    contact = ""
+    mentor = []
+    projects = []
+
+
+    if _id != None:
+        _id = _id.pop()
+        mentor = tMentor.objects.get(id = _id)
+        projects = tMentoproj.objects.filter(mentorID=mentor)
+        if request.method == "POST":
+            if request.POST.get("tbFIO", "") != "":
+                fio = request.POST.get("tbFIO", None)
+                fio = fio.split(" ")
+                if len(fio)>=1:
+                    mentor.surname = fio[0]
+                else:
+                    mentor.surname = ""
+                if len(fio)>=2:
+                    mentor.name = fio[1]
+                else:
+                    mentor.name = ""
+                if len(fio)>=3:
+                    mentor.midname = fio[2]
+                else:
+                    mentor.midname = ""
+            if request.POST.get("tbPhone", "") != "":
+                mentor.phone = request.POST.get("tbPhone", "")
+            if request.POST.get("tbMail", "") != "":
+                mentor.mail = request.POST.get("tbMail", "")
+            mentor.save()
+
+            for item in projects:
+                if request.POST.get("tbProjDate"+str(item.id), "") != "":
+                    item.date = datetime.strptime(request.POST.get("tbProjDate"+str(item.id),  datetime.now().date().__str__()) + ", "+datetime.now().time().__format__("%H:%M").__str__(), '%d.%m.%Y, %H:%M')
+                item.save()
+
+            for item in projects:
+                if request.POST.get("cbProjDel"+str(item.id), False):
+                    item.delete()
+
+            return redirect("/infomentor?id="+_id)
+
+
+    return render(request, "editing/editmentor.html", {"name":curruser,
+                                          "entered":entered,
+                                          "contact":contact,
+                                          "mentor":mentor,
+                                          "projects":projects,
+                                          })
+
+def tagadd(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    obj = urldata.get('obj', None)
+    if obj != None:
+        obj = obj.pop()
+    added = urldata.get('added', False)
+    if added != False:
+        added = added.pop()
+    startuperID = urldata.get('startuperID', False)
+    if startuperID != False:
+        startuperID = startuperID.pop()
+    projectID = urldata.get('projectID', False)
+    if projectID != False:
+        projectID = projectID.pop()
+
+
+    """Adding data to database"""
+    tag = request.POST.get("tbTag", None)
+    tags = tKeyWord.objects.filter(word = tag)
+    message = ""
+    if request.method == "POST":
+        if len(tags) == 0:
+            newTag = tKeyWord.objects.create(word = tag)
+            newTag.save()
+            message = "Тэг '".decode("utf-8")+tag+("' добавлен!").decode("utf-8")
+        else:
+            message = "Тэг '".decode("utf-8")+tag+"' уже существует в базе данных.".decode("utf-8")
+
+
+    return render(request, "adding/tagadd.html", {"obj": obj,
+                                        "name":curruser,
+                                        "entered":entered,
+                                        "message":message,
+                                        })

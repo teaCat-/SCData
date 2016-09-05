@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Sikorsky Challenge</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="post">
+			{% csrf_token %}
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				</div>
+				<div class="form-group">
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+			</div>
+			{%endif%}
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			<div class="col-md-9">
+			  <h3>Информация о менторе:</h3>
+			<form method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class=".col-md-2" align="right">
+				<a class="btn btn-success" href="/infomentor?id={{mentor.id}}">Отмена</a>
+				<button class="btn btn-success" type="submit">Сохранить</button>
+			</div>
+			<hr>
+			<div class="col-sm-3">
+			</div>
+			<div align="right" class="col-sm-5">
+				<table class = "table table">
+					<tbody>
+						<tr><td>ФИО:</td>
+							<td>
+								<input type="text" pattern="([А-ЯЁІЇ][а-яёії]+[\-\s]?){3,}" class="form-control" name="tbFIO" placeholder="{{mentor.surname}} {{mentor.name}} {{mentor.midname}}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Телефон:</td>
+							<td>
+									<input type="text" class="form-control" name="tbPhone" placeholder="{{mentor.phone}}"  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" />
+							</td>
+						</tr>
+						<tr><td>Почта:</td> <td> <input type="email" class="form-control" name="tbMail" placeholder="{{mentor.mail}}" /></td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="col-sm-12">
+				<hr>
+				<div class="col-sm-1">
+					<h4><b>Проекты:  </b></h4>
+				</div>
+				<div class="col-sm-10" align="left">
+					<br>
+					<br>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th><i></i></th>
+							<th><i>Название</i></th>
+							<th><i>Является ментором с</i></th>
+							<th><i>Удалить</i></th>
+						</tr>
+					</thead>
+					<tbody>
+					{%for item in projects%}
+						<tr>
+							<td></td>
+							<td><a href="/infoproject?id={{item.projectID.id}}">{{item.projectID.title}}</a></td>
+							<td>
+								<input type="text" class="form-control" name="tbProjDate{{item.id}}" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4}" placeholder="{{item.date.date}}"/>
+							</td>
+							<td>
+								<input type="checkbox" class="form-control" name="cbProjDel{{item.id}}" placeholder="True"/>
+							</td>
+						</tr>
+					{%endfor%}
+					</tbody>
+				</table>
+				</div>
+			</div>
+
+			</form>
+			</div>
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+  </body>
+</html>

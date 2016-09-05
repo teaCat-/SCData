@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title> Поиск</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+				<div class="form-group" style = "color:white">
+					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+				</div>
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<p></p>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<p></p>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<p></p>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<p></p>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		<div class="row">
+			<div class="col-md-10">
+				<h3>Поиск менторов</h3>
+				<hr>
+			<form method="post">
+				{% csrf_token %}
+				<br>
+				<a href="/search" class="btn btn-success">Назад</a>
+				<br>
+				<br>
+				<br>
+				<div>
+					<table>
+						<tbody id="field">
+							<tr>
+								<td>
+									<label>Фамилия: <input name="tbSurname"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.surname}}" /> </label>
+								</td>
+								<td>
+									<label>Имя: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.name}}" /></label>
+								</td>
+								<td>
+									<label>Отчество: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.midname}}" /></label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Телефон: <input name="tbPhone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="___-___-____" type="tel" class="form-control" value="{{searchObj.phone}}"/></label>
+								</td>
+								<td>
+									<label>Почта:<input name="tbMail" type="email" class="form-control" value="{{searchObj.mail}}"></label>
+								</td>
+								<td>
+									<label>Проект:<input name="tbProjects" type="text" class="form-control" value="{{searchObj.mail}}"></label>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<br>
+				<br>
+				<div class="col-md-5">
+					<button type="submit" class="btn btn-success btn-block"  formaction="?export=false">Найти </button>
+				</div>
+				<div class="col-sm-3" align="right">
+					<button type="submit" class="btn btn-success" formaction="?export=true">Экспорт</button>
+				{%if export == "true"%}
+					<a href="/files/export/export{{file}}.xls"  download>Скачать export.xls</a>
+				{%endif%}
+				</div>
+			</form>
+			<br>
+			<br>
+			<hr>
+			{%for item in resultList%}
+				<h4><a href="/infomentor?id={{item.id}}"> {{item.surname}} {{item.name}} {{item.midname}}</a></h4>
+				<hr>
+			{%endfor%}
+			</div>
+		</div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div><!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+  </body>
+</html>

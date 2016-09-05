@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Sikorsky Challenge</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="post">
+			{% csrf_token %}
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				</div>
+				<div class="form-group">
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+			</div>
+			{%endif%}
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<p></p>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<p></p>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<p></p>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<p></p>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			<div class="col-md-10">
+			  <h3>Информация о проекте:</h3>
+			<div class=".col-md-2" align="right">
+			{%if entered == "worker"%}
+				<a href="\editproject?id={{project.id}}"><button class="btn btn-success" type="submit">Редактировать</button></a>
+			{%endif%}
+				<a href="/infoproject?id={{project.id}}&print=true" class="btn btn-success">Печать</a>
+			</div>
+			  <details>
+			   		<summary style="outline: none;"> Показать тэги</summary>
+					{%for item in taglist%}
+						[<b>{{item.word.word}}</b>]
+					{%endfor%}
+			  </details>
+			<hr>
+			<div class="col-md-6" align="right">
+			<table class = "table table">
+				<tbody>
+					<tr>
+						<td><b>Название: </b></td>
+						<td>
+							{{project.title}}
+						</td>
+					</tr>
+					<tr>
+						<td><b>Отрасль: </b></td>
+						<td>{{project.sector}}</td>
+					</tr>
+					<tr>
+						<td><b>Тип продукции: </b></td>
+						<td>{{project.type}}</td>
+					</tr>
+					<tr>
+						<td><b>Форма продукции: </b></td>
+						<td>{{project.isreal}}</td>
+					</tr>
+					<tr>
+						<td><b>Главный стартапер: </b></td>
+						<td><a href = "/infostartuper?id={{project.leader.id}}">{{project.leader.surname}} {{project.leader.name}} {{project.leader.midname}}</a></td>
+					</tr>
+					<tr>
+						<td><b>Ментор <i>(текущий)</i>: </b></td>
+						<td><a href = "/infomentor?id={{currMent.mentorID.id}}">{{currMent.mentorID.surname}} {{currMent.mentorID.name}} {{currMent.mentorID.midname}}</a></td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+
+			<div class="col-sm-6">
+				<div align="left" class="col-sm-3">
+					<h4><b>Статус:</b></h4>
+				</div>
+				<div align="left" class="col-sm-9">
+					{%if entered == "worker"%}
+						<h4><a class="btn btn-success" href="signadd?id={{project.id}}&entity=stat"><span class="glyphicon glyphicon-plus"><i> добавить</i></span></a></h4>
+					{%endif%}
+					<p></p>
+				</div>
+				<div align="left" class="col-sm-2">
+				</div>
+				<div align="left" class="col-sm-10">
+					{%if currStat != ""%}
+			  <details>
+			   		<summary style="outline: none;">- {{currStat.date.date}} - {{currStat.title}} <i>(текущий)</i></summary>
+				  <br>
+					{%for item in status%}
+						<p> - {{item.date.date}} - {{item.title}}</p>
+					{%endfor%}
+			  </details>
+					{%endif%}
+				</div>
+				</div>
+			</div>
+
+			<div align="left" class="col-sm-7">
+				<hr>
+				<b>Описание: </b>
+				<textarea class="form-control" cols="80" rows="5" disabled>{{project.descr}}</textarea>
+			</div>
+
+		  	<div class="col-sm-10">
+                <hr>
+                <div class="col-sm-2">
+                    <h4><b>Все менторы:  </b></h4>
+                </div>
+                <div class="col-sm-10" align="left">
+                {%if entered == "worker"%}
+					<div class="col-sm-4" align="left">
+                    	<h4><a class="btn btn-success" href="mentorstoproject?id={{project.id}}&page=1&entity=project"><span class="glyphicon glyphicon-plus"><i> добавить</i></span></a></h4>
+					</div>
+					<div class="col-sm-7" align="left">
+						<h4><a class="btn btn-success" href="/add?obj=mentor&projectID={{project.id}}"><span class="glyphicon glyphicon-asterisk"><i> создать </i></span></a></h4>
+					</div>
+				{%endif%}
+                </div>
+                    <br>
+                    <br>
+                <div class="col-sm-2">
+                </div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>ФИО</i></th>
+								<th><i>Является ментором с</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in mentors%}
+							<tr>
+								<td></td>
+								<td><a href="/infomentor?id={{item.mentorID.id}}">{{item.mentorID.surname}} {{item.mentorID.name}} {{item.mentorID.midname}}</a></td>
+								<td>{{item.date.date}}</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+              <div class="col-sm-10">
+                <hr>
+                <div class="col-sm-2">
+                    <h4><b>Учасники:  </b></h4>
+                </div>
+                <div class="col-sm-10" align="left">
+                {%if entered == "worker"%}
+					<div class="col-sm-4" align="left">
+                    	<h4><a class="btn btn-success" href="startuperstoproject?id={{project.id}}&page=1&entity=project"><span class="glyphicon glyphicon-plus"><i> добавить</i></span></a></h4>
+					</div>
+					<div class="col-sm-7" align="left">
+						<h4><a class="btn btn-success" href="/add?obj=startuper&projectID={{project.id}}"><span class="glyphicon glyphicon-asterisk"><i> создать </i></span></a></h4>
+					</div>
+				{%endif%}
+                </div>
+                <div class="col-sm-2" ><br>
+                </div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>ФИО</i></th>
+								<th><i>Роль</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in teams%}
+							<tr>
+								<td></td>
+								<td><a href="/infostartuper?id={{item.startuperID.id}}">{{item.startuperID.surname}} {{item.startuperID.name}} {{item.startuperID.midname}}</a></td>
+								<td>{{item.role}}</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-sm-10">
+				<hr>
+				<div class="col-sm-2">
+					<h4><b>Активность:  </b></h4>
+				</div>
+				<div class="col-sm-10" align="left">
+				{%if entered == "worker"%}
+					<h4><a class="btn btn-success" href="signadd?id={{project.id}}&entity=act"><span class="glyphicon glyphicon-plus"><i> добавить</i></span></a></h4>
+				{%endif%}
+				</div>
+					<br>
+				<div class="col-sm-2">
+					</div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Дата</i></th>
+								<th><i>Мероприятие</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in activities%}
+							<tr>
+								<td></td>
+								<td>{{item.date}}</td>
+								<td>{{item.title}}</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-sm-10">
+				<hr>
+				<div class="col-sm-2">
+					<h4><b>Необходимые инвестиции: </b></h4>
+				</div>
+				<div class="col-sm-9" align="left">
+				{%if entered == "worker"%}
+					<h4><a class="btn btn-success" href="\reqinvadd?id={{project.id}}"><span class="glyphicon glyphicon-plus"><i> добавить</i></span></a></h4>
+				{%endif%}
+				</div>
+				<div class="col-sm-6" align="left"><p></p>
+				<table class ="table table-striped">
+					<thead>
+						<tr>
+							<th> <i>Вид финансирования</i> </th>
+							<th> <i>Ресурс \ Валюта</i> </th>
+							<th> <i>Сумма</i> </th>
+						</tr>
+					</thead>
+					<tbody>
+					{%for inv in reqInvests%}
+						  <tr>
+							<td>{{inv.type}}</td>
+							<td align="center">{{inv.res}}</td>
+							<td>{{inv.sum}}</td>
+						  </tr>
+		  			{%endfor%}
+				</table>
+				</div>
+			</div>
+
+			<div class="col-sm-10">
+				<hr>
+				<div class="col-sm-2">
+					<h4><b>Доп. материалы: </b></h4>
+				</div>
+				<div class="col-sm-3" align="left">
+				{%if entered == "worker"%}
+					<h4><a class="btn btn-success" href="/fileadd?id={{project.id}}&entity=project&addurl=true"><span class="glyphicon glyphicon-plus"><i> добавить ссылку</i></span></a></h4>
+				{%endif%}
+				</div>
+				<div class="col-sm-7" align="left">
+				{%if entered == "worker"%}
+					<h4><a class="btn btn-success" href="/fileadd?id={{project.id}}&entity=project"><span class="glyphicon glyphicon-plus"><i> добавить файл</i></span></a></h4>
+				{%endif%}
+				</div>
+
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Ссылка</i></th>
+								<th><i>Файл</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in addInfo%}
+							<tr>
+								<td></td>
+								{%if item.url != ""%}
+									<td><a href="{{item.url}}">{{item.text}}</a></td>
+									<td></td>
+								{%else%}
+									<td></td>
+									<td><a href="{{item.file}}" download>{{item.text}}</a></td>
+								{%endif%}
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			</div>
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+  </body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title> Поиск</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<script>
+		window.onmousedown = function (e) {
+		var el = e.target;
+		if (el.tagName.toLowerCase() == 'option' && el.parentNode.hasAttribute('multiple')) {
+			e.preventDefault();
+
+			// toggle selection
+			if (el.hasAttribute('selected')) el.removeAttribute('selected');
+			else el.setAttribute('selected', '');
+
+			// hack to correct buggy behavior
+			var select = el.parentNode.cloneNode(true);
+			el.parentNode.parentNode.replaceChild(select, el.parentNode);
+		}
+	}
+	</script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+				<div class="form-group" style = "color:white">
+					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+				</div>
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<p></p>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<p></p>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<p></p>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<p></p>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		<div class="row">
+			<div class="col-md-10">
+				<h3>Поиск проектов</h3>
+				<hr>
+			<form method="post">
+				{% csrf_token %}
+				<br>
+				<a href="/search" class="btn btn-success">Назад</a>
+				<br>
+				<br>
+				<br>
+				<div>
+					<table>
+						<tbody id="field">
+							<tr>
+								<td width="200">
+									Название: <input name="tbTitle"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.title}}" />
+								</td>
+								<td width="200">
+									Отрасль:
+									<select name="tbSector" class="form-control">
+										{%if searchObj.sector is None%}<option value="" selected>{%else%}<option value="">{%endif%}...</option>
+										{%if searchObj.sector == "Энергетика"%}<option value="Энергетика" selected>{%else%}<option value="Энергетика">{%endif%}Энергетика</option>
+										{%if searchObj.sector == "Металлургия"%}<option value="Металлургия" selected>{%else%}<option value="Металлургия">{%endif%}Металлургия</option>
+									</select>
+								</td>
+								<td width="200">
+									Вид продукции:
+									<select name="selType" class="form-control">
+										{%if searchObj.type is None%}<option value="" selected>{%else%}<option value="">{%endif%}...</option>
+										{%if searchObj.type == "товар"%}<option value="товар" selected>{%else%}<option value="товар">{%endif%}товар</option>
+										{%if searchObj.type == "услуга"%}<option value="услуга" selected>{%else%}<option value="услуга">{%endif%}услуга</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									Форма продукции:
+									<select name="selIsReal" class="form-control">
+										{%if searchObj.isreal is None%}<option value="" selected>{%else%}<option value="">{%endif%}...</option>
+										{%if searchObj.isreal == "реальная"%}<option value="реальная" selected>{%else%}<option value="реальная">{%endif%}реальная</option>
+										{%if searchObj.isreal == "виртуальная"%}<option value="виртуальная" selected>{%else%}<option value="виртуальная">{%endif%}виртуальная</option>
+									</select>
+								</td>
+								<td>
+									Слова в описании:<input name="tbDescr" type="text" class="form-control" value="{{searchObj.descr}}">
+								</td>
+								<td>
+									Тэги:
+								<select name="selTags" size="5" class="form-control" multiple>
+									{%for item in taglist%}
+										<option value="{{item.id}}">{{item.word}}</option>
+									{%endfor%}
+								</select>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<br>
+				<br>
+				<div class="col-md-5">
+					<button type="submit" class="btn btn-success btn-block" formaction="?export=false" >Найти </button>
+				</div>
+				<div class="col-sm-3" align="right">
+					<button type="submit" class="btn btn-success" formaction="?export=true">Экспорт</button>
+				{%if export == "true"%}
+					<a href="/files/export/export{{file}}.xls"  download>Скачать export.xls</a>
+				{%endif%}
+				</div>
+			</form>
+			<br>
+			<br>
+			<hr>
+			{%for item in resultList%}
+				<h4><a href="/infoproject?id={{item.id}}"> {{item.title}}</a></h4>
+				<hr>
+			{%endfor%}
+			</div>
+		</div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div><!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+  </body>
+</html>

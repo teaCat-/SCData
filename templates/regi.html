@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<style type = "text/css">
+	body {
+	  padding-top: 40px;
+	  padding-bottom: 40px;
+	  background-color: #eee;
+	}
+	
+	.form-regi {
+	  max-width: 330px;
+	  padding: 15px;
+	  margin: 0 auto;
+	}
+	
+	.form-regi .form-regi-heading,
+	.form-regi .checkbox {
+	  margin-bottom: 10px;
+	}
+	.form-regi .checkbox {
+	  font-weight: normal;
+	}
+	.form-regi .form-control {
+	  position: relative;
+	  height: auto;
+	  -webkit-box-sizing: border-box;
+		 -moz-box-sizing: border-box;
+			  box-sizing: border-box;
+	  padding: 10px;
+	  font-size: 16px;
+	}
+	.form-regi .form-control:focus {
+	  z-index: 2;
+	}
+	.form-regi input[type="login"] {
+	  margin-bottom: -1px;
+	  border-bottom-right-radius: 0;
+	  border-bottom-left-radius: 0;
+	}
+	.form-regi input[type="password"] {
+	  margin-bottom: 10px;
+	  border-top-left-radius: 0;
+	  border-top-right-radius: 0;
+	}
+	button {
+	  max-width: 330px;
+	  padding: 15px;
+	  margin: 0 auto;
+	  color: #eee
+	}
+	
+	</style>
+
+</head>
+<body>
+
+    <form class="form-regi" action = "regi" method = "POST">
+    {% csrf_token %}
+        <h2 class="form-regi-heading">Регистрация нового пользователя:</h2>
+        <hr>
+        <input type="hidden" name="selGroup" class="form-control .col-lg-6" value="worker"/>
+        <p></p>
+        <label for="inputLogin" class="sr-only">Логин</label>
+        <input name="txtLogin" type="text" id="inputLogin" class="form-control" placeholder="Логин" required autofocus>
+        <p style="color:red">
+            {%if nameErr != None%}
+             Ошибка: {{ nameErr }}
+            {%endif%}
+        </p>
+        <label for="inputMail" class="sr-only">Почта</label>
+        <input name="txtMail" type="email" id="inputMail" class="form-control" placeholder="Почта" required >
+        <p style="color:red">
+            {%if mailErr != None%}
+             Ошибка: {{ mailErr }}
+            {%endif%}
+        </p>
+        <label for="inputPassword" class="sr-only">Пароль</label>
+        <input name="txtPasswd" title="от 8 до 16 знаков" pattern=".{8,16}" type="password" id="inputPassword" class="form-control" placeholder="Пароль" required>
+        <p style="color:red">
+            {%if passErr != None%}
+             Ошибка: {{ passErr }}
+            {%endif%}
+        </p>
+        <label for="inputRePassword" class="sr-only">Повторите пароль</label>
+        <input name="txtRePasswd" type="password" id="inputRePassword" class="form-control" placeholder="Повторите пароль" required>
+        <p style="color:red">
+            {%if repassErr != None%}
+                Ошибка: {{ repassErr }}
+            {%endif%}
+        </p>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
+    </form>
+    <form class="form-regi" method = "get">
+    {% csrf_token %}
+        <button class="btn btn-success" formaction="auth">Назад</button>
+    </form>
+
+</body>
+</html>

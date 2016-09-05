@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Sikorsky Challenge</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="post">
+			{% csrf_token %}
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				</div>
+				<div class="form-group">
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+			</div>
+			{%endif%}
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "chief"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<hr>
+				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<p></p>
+			{%endif%}
+			{%if entered == "worker"%}
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			  {%if entity == "project"%}
+					<div class="col-md-10">
+					  	<h3>Добавить менторов в проект "{{project.title}}":</h3>
+						<hr>
+						{%if added is False%}
+							<form method="post">
+							{% csrf_token %}
+								<div class="col-sm-12">
+									<div class="col-sm-7">
+										<input type = "text" class="form-control .col-lg-6" name = "tbQSch" value="{{schVal}}"/>
+									</div>
+									<div class="col-sm-2">
+										<button class="btn btn-success btn-block" type="submit">Поиск</button>
+									</div>
+								</div>
+							</form>
+							<div class="col-sm-10">
+								<hr>
+								<form method="post">
+								{% csrf_token %}
+										<table>
+											<thead>
+												<tr>
+													<th></th>
+													<th></th>
+													<th>Является ментором с</th>
+												</tr>
+											</thead>
+											<tbody>
+											{%for item in queryList%}
+												<tr>
+													<td width="30">
+														<input type="checkbox" name="cbChoosed" value="{{item.id}}">
+													</td>
+													<td width="250" align="center">
+														<a href="infomentor?id={{item.id}}"> {{item.surname}} {{item.name}} {{item.midname}}</a>
+													</td>
+													<td width="170">
+														<input type="text" class="form-control" name="tbDate{{item.id}}" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4}" value="{%now 'd.m.Y'%}" required/>
+													</td>
+												</tr>
+											{%endfor%}
+											</tbody>
+										</table>
+
+										<br>
+										{%if queryListCount != 0%}
+											<p> Страница:</p>
+										{%endif%}
+										{%if page != 1%}
+											<a href="/mentorstoproject?id={{id}}&page={{prevpage}}&entity=project"> Назад </a>...
+										{%endif%}
+										{%if queryListCount != 0%}
+											{{page}}
+										{%endif%}
+										{%if queryListCount == 0%}
+											Нечего добавить.
+										{%endif%}
+										{%if queryListCount > 10%}
+											... <a href="/mentorstoproject?id={{id}}&page={{nextpage}}&entity=project">Вперед </a>
+										{%endif%}
+										<p></p>
+										<div class="col-sm-3">
+										<hr>
+											<button class="btn btn-success btn-block" type="submit">Добавить</button>
+											<button class="btn btn-success btn-block" type="submit" formaction="?id={{id}}&page={{page}}&entity=project&redirect=true">Добавить и вернутся</button>
+										</div>
+								</form>
+								<div class="col-sm-3">
+									<hr>
+									<a href="/infoproject?id={{id}}">
+										<button class="btn btn-success btn-block" type="submit">Отмена</button>
+									</a>
+								</div>
+							</div>
+						{%endif%}
+						{%if added is True%}
+							<p>Менторы добавлены к проекту</p>
+						{%endif%}
+					</div>
+			  {%endif%}
+			  {%if added is True%}
+			  		<p>Проекты добавлены</p>
+			  {%endif%}
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+  </body>
+</html>

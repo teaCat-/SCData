@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Добавить {{obj}}</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+				<div class="form-group" style = "color:white">
+					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+				</div>
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+			{%if entered == "worker"%}
+			{%endif%}
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			{%if entity == "act"%}
+			  	<h3>Добавить мероприятие:</h3>
+		  	{%endif%}
+			{%if entity == "stat"%}
+			  	<h3>Обновить статус:</h3>
+		  	{%endif%}
+				<hr>
+		  </div>
+		<p></p>
+		<div class="row">
+			<form class="form-regi" method = "POST">
+			{% csrf_token %}
+					<div class="col-sm-4">
+						<input type="datetime" class="form-control" name="tbDate" value="{{now}}" required/>
+					<p></p>
+						<input type="text" class="form-control" name="tbProject" placeholder="Проект" list="projects"  required/><i style="color:red">{{projErr}}</i>
+						<datalist id="projects">
+							{%for item in projects%}
+								<option>{{item.title}}</option>
+							{%endfor%}
+					    </datalist>
+					<p></p>
+						<select class="form-control" name="selType">
+							<option>Ангельские</option>
+							<option>Посевные</option>
+							<option>Венчурные</option>
+							<option>Гранты</option>
+						</select>
+					<p></p>
+						<input type="text" class="form-control" name="tbRes" placeholder="Ресурс \ Валюта" required/>
+					<p></p>
+						<input type="number" class="form-control" name="tbSum" placeholder="Сумма" required/>
+					<p></p>
+						<textarea class="form-control" maxlength="300" name="taDescr" ></textarea>
+					<p></p>
+						<button type="submit" class="btn btn-success"> Сохранить</button>
+						<button type="submit" class="btn btn-success" formaction="?id={{id}}&redirect=true"> Сохранить и вернуться</button>
+					</div>
+			</form>
+			<div class="col-md-10">
+				<p></p>
+				<a href="/infoinvestor?id={{id}}"><button type="submit" class="btn btn-success"> Отмена </button></a>
+			</div>
+		{%if added is not False%}
+			<h4>Результат:</h4>
+			<p></p>
+				<p style="text-indent:30px;">{{result}}</p>
+		{%endif%}
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div><!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+  </body>
+</html>

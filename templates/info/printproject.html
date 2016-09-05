@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Sikorsky Challenge</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
+	</style>
+	
+  </head>
+
+  <body onload="window.print(); window.location = '/infoproject?id={{project.id}}';">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+			<form class="navbar-form navbar-right" method="post">
+			{% csrf_token %}
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				</div>
+				<div class="form-group">
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+			</div>
+			{%endif%}
+			</form>
+			
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>База клиентов Sikorsky Challenge</h1>
+      </div>
+    </div>
+
+	<div class = "menu">
+		<div class="navbar-form navbar-right">
+		</div>
+	</div>
+
+    <div class="container">
+		  <!-- Example row of columns -->
+		  <div class="row">
+			<div class="col-md-10">
+			  <h3>Информация о проекте:</h3>
+			<div class=".col-md-2" align="right">
+			</div>
+			<hr>
+			<div class="col-md-6" align="right">
+			<table class = "table table">
+				<tbody>
+					<tr>
+						<td><b>Название: </b></td>
+						<td>
+							{{project.title}}
+						</td>
+					</tr>
+					<tr>
+						<td><b>Отрасль: </b></td>
+						<td>{{project.sector}}</td>
+					</tr>
+					<tr>
+						<td><b>Тип продукции: </b></td>
+						<td>{{project.type}}</td>
+					</tr>
+					<tr>
+						<td><b>Форма продукции: </b></td>
+						<td>{{project.isreal}}</td>
+					</tr>
+					<tr>
+						<td><b>Главный стартапер: </b></td>
+						<td>{{project.leader.surname}} {{project.leader.name}} {{project.leader.midname}}</td>
+					</tr>
+					<tr>
+						<td><b>Ментор <i>(текущий)</i>: </b></td>
+						<td>{{currMent.mentorID.surname}} {{currMent.mentorID.name}} {{currMent.mentorID.midname}}</td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+
+			<div class="col-sm-6">
+				<div align="left" class="col-sm-3">
+					<h4><b>Статус:</b></h4>
+				</div>
+				<div align="left" class="col-sm-9">
+					<p></p>
+				</div>
+				<div align="left" class="col-sm-2">
+				</div>
+				<div align="left" class="col-sm-10">
+					{%if currStat != ""%}
+			 		- {{currStat.date.date}} - {{currStat.title}} <i>(текущий)</i>
+				  <br>
+					{%for item in status%}
+						<p> - {{item.date.date}} - {{item.title}}</p>
+					{%endfor%}
+					{%endif%}
+				</div>
+				</div>
+			</div>
+
+			<div align="left" class="col-sm-7">
+				<hr>
+				<b>Описание: </b>
+				<textarea class="form-control" cols="80" rows="5" disabled>{{project.descr}}</textarea>
+			</div>
+
+		  	<div class="col-sm-10">
+                <hr>
+                <div class="col-sm-2">
+                    <h4><b>Все менторы:  </b></h4>
+                </div>
+                <div class="col-sm-10" align="left">
+                {%if entered == "worker"%}
+				{%endif%}
+                </div>
+                    <br>
+                    <br>
+                <div class="col-sm-2">
+                </div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>ФИО</i></th>
+								<th><i>Является ментором с</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in mentors%}
+							<tr>
+								<td></td>
+								<td>{{item.mentorID.surname}} {{item.mentorID.name}} {{item.mentorID.midname}}</td>
+								<td>{{item.date.date}}</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+              <div class="col-sm-10">
+                <hr>
+                <div class="col-sm-2">
+                    <h4><b>Учасники:  </b></h4>
+                </div>
+                <div class="col-sm-10" align="left">
+                </div>
+                <div class="col-sm-2" ><br>
+                </div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>ФИО</i></th>
+								<th><i>Роль</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in teams%}
+							<tr>
+								<td></td>
+								<td>{{item.startuperID.surname}} {{item.startuperID.name}} {{item.startuperID.midname}}</td>
+								<td>{{item.role}}</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-sm-10">
+				<hr>
+				<div class="col-sm-2">
+					<h4><b>Активность:  </b></h4>
+				</div>
+				<div class="col-sm-10" align="left">
+				</div>
+					<br>
+				<div class="col-sm-2">
+					</div>
+				<div class="col-sm-6" align="left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th><i></i></th>
+								<th><i>Дата</i></th>
+								<th><i>Мероприятие</i></th>
+							</tr>
+						</thead>
+						<tbody>
+						{%for item in activities%}
+							<tr>
+								<td></td>
+								<td>{{item.date}}</td>
+								<td>{{item.title}}</td>
+							</tr>
+						{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+
+			</div>
+		  </div>
+		  <footer>
+			<p></p>
+		  </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+  </body>
+</html>
