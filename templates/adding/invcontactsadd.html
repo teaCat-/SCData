@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,6 +19,19 @@
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	  <script>
+		function telAutoFill(){
+			var phones = document.getElementsByName("tbPhone");
+			for (var i = 0; i < phones.length; i++)
+			{
+				if (phones.item(i).value.length == 3)
+					phones.item(i).value += "-";
+				if (phones.item(i).value.length == 7)
+					phones.item(i).value += "-";
+			}
+		}
+	</script>
 
 	<style type = "text/css">
 	body {
@@ -55,10 +68,10 @@
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 				<div class="form-group" style = "color:white">
-					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+					Доброго дня, <i style="color:lightgreen">{{name}}! </i>
 				</div>
 				<div class="form-group">
-					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+					<button class="btn btn-fail" formaction = "logout">Вийти</button>
 				</div>
 			</form>
 			
@@ -67,10 +80,7 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
@@ -83,18 +93,18 @@
     <div class="container">
 		  <!-- Example row of columns -->
 		  <div class="row">
-			  	<h3>Добавить контакты к инвестору({{investor.investor}}):</h3>
+			  	<h3>Додати контакти до інвестора({{investor.investor}}):</h3>
 				<hr>
 		  </div>
 		<p></p>
 		<div class="row">
-			<a class="btn btn-success" href="\infoinvestor?id={{investor.id}}">Отмена</a>
+			<a class="btn btn-success" href="\infoinvestor?id={{investor.id}}">Відміна</a>
 			<hr>
 			<form class="form-regi" method = "POST" enctype="multipart/form-data">
 			{% csrf_token %}
 			  	<input type="file" name="excelImport" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/x-excel, application/excel, application/x-msexcel, application/vnd.ms-excel"/>
 				<p></p>
-				<button type="submit" class="btn btn-success"> Загрузить файл </button>
+				<button type="submit" class="btn btn-success"> Завантажити файл </button>
 			</form>
 			<hr>
 			<div class="col-md-8">
@@ -105,28 +115,28 @@
 							<p style="text-indent:30px;">{{item}}</p>
 						{%endfor%}
 					{%endif%}
-					<a class="btn btn-success" href="\infoinvestor?id={{investor.id}}">На главную</a>
+					<a class="btn btn-success" href="\infoinvestor?id={{investor.id}}">На главну сторінку</a>
 				<hr>
 				<form class="form-regi" method = "POST">
 				{% csrf_token %}
 				{%if loaded is True%}
-						<button type="submit" class="btn btn-success" formaction="invcontactsadd?added=true&id={{investor.id}}">Сохранить </button>
+						<button type="submit" class="btn btn-success" formaction="invcontactsadd?added=true&id={{investor.id}}">Зберегти </button>
 						<hr>
 						{%for item in inputList%}
 							<h3>{{item.num}}</h3>
-							<label>Фамилия: <input name="tbSurname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.surname}}" required></label>
-							<label>Имя: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.name}}" required></label>
-							<label>Отчество: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.midname}}" required></label>
+							<label>Прізвище: <input name="tbSurname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.surname}}" required></label>
+							<label>Ім'я: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.name}}" required></label>
+							<label>По батькові: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.midname}}" required></label>
 							<p></p>
-							<label>Телефон: <input name="tbPhone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" type="tel" placeholder="___-___-____" class="form-control" value="{{item.phone}}" required></label>
-							<label>Почта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}" required></label>
+							<label>Телефон: <input name="tbPhone" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" type="tel" placeholder="___-___-____" class="form-control" value="{{item.phone}}" required></label>
+							<label>Пошта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}" required></label>
 							<p></p>
-							<label>Компания:<input name="tbCompany" type="text" class="form-control" value="{{item.company}}"></label>
-							<label>Должность:<input name="tbPosition" type="text" class="form-control" value="{{item.position}}"></label>
+							<label>Компанія:<input name="tbCompany" type="text" class="form-control" value="{{item.company}}"></label>
+							<label>Должність:<input name="tbPosition" type="text" class="form-control" value="{{item.position}}"></label>
 							<p></p>
 							<hr>
 						{%endfor%}
-						<button type="submit" class="btn btn-success" formaction="invcontactsadd?added=true&id={{investor.id}}">Сохранить </button>
+						<button type="submit" class="btn btn-success" formaction="invcontactsadd?added=true&id={{investor.id}}">Зберігти </button>
 				{%endif%}
 
 				</form>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Добавить {{obj}}</title>
+    <title>Додати {{obj}}</title>
 
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -55,10 +55,10 @@
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 				<div class="form-group" style = "color:white">
-					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+					Доброго дня, <i style="color:lightgreen">{{name}} !</i>
 				</div>
 				<div class="form-group">
-					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+					<button class="btn btn-fail" formaction = "logout">Вийти</button>
 				</div>
 			</form>
 			
@@ -67,10 +67,7 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
@@ -84,10 +81,10 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			{%if entity == "act"%}
-			  	<h3>Добавить мероприятие:</h3>
+			  	<h3>Додати захід:</h3>
 		  	{%endif%}
 			{%if entity == "stat"%}
-			  	<h3>Обновить статус:</h3>
+			  	<h3>Обновити статус:</h3>
 		  	{%endif%}
 				<hr>
 		  </div>
@@ -98,7 +95,7 @@
 					<div class="col-sm-4">
 						<input type="datetime" class="form-control" name="tbDate" value="{{now}}" required/>
 					<p></p>
-						<input type="text" class="form-control" name="tbProject" placeholder="Проект" list="projects"  required/><i style="color:red">{{projErr}}</i>
+						<input type="text" class="form-control" name="tbProject" placeholder="Проєкт" list="projects"  required/><i style="color:red">{{projErr}}</i>
 						<datalist id="projects">
 							{%for item in projects%}
 								<option>{{item.title}}</option>
@@ -106,25 +103,25 @@
 					    </datalist>
 					<p></p>
 						<select class="form-control" name="selType">
-							<option>Ангельские</option>
-							<option>Посевные</option>
-							<option>Венчурные</option>
-							<option>Гранты</option>
+							<option>Ангельскі</option>
+							<option>Посівні</option>
+							<option>Венчурні</option>
+							<option>Гранти</option>
 						</select>
 					<p></p>
 						<input type="text" class="form-control" name="tbRes" placeholder="Ресурс \ Валюта" required/>
 					<p></p>
-						<input type="number" class="form-control" name="tbSum" placeholder="Сумма" required/>
+						<input type="number" class="form-control" name="tbSum" placeholder="Сума" required/>
 					<p></p>
 						<textarea class="form-control" maxlength="300" name="taDescr" ></textarea>
 					<p></p>
-						<button type="submit" class="btn btn-success"> Сохранить</button>
-						<button type="submit" class="btn btn-success" formaction="?id={{id}}&redirect=true"> Сохранить и вернуться</button>
+						<button type="submit" class="btn btn-success"> Зберігти</button>
+						<button type="submit" class="btn btn-success" formaction="?id={{id}}&redirect=true"> Зберігти і повернутись</button>
 					</div>
 			</form>
 			<div class="col-md-10">
 				<p></p>
-				<a href="/infoinvestor?id={{id}}"><button type="submit" class="btn btn-success"> Отмена </button></a>
+				<a href="/infoinvestor?id={{id}}"><button type="submit" class="btn btn-success"> Відміити </button></a>
 			</div>
 		{%if added is not False%}
 			<h4>Результат:</h4>

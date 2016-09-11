@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Добавить {{obj}}</title>
+    <title>Додати {{obj}}</title>
 
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -55,10 +55,10 @@
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 				<div class="form-group" style = "color:white">
-					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+					Доброго дня, <i style="color:lightgreen">{{name}} !</i>
 				</div>
 				<div class="form-group">
-					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+					<button class="btn btn-fail" formaction = "logout">Вийти</button>
 				</div>
 			</form>
 			
@@ -67,29 +67,12 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
-				<hr>
-				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
-				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
-				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
-				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
-				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
-				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -97,7 +80,7 @@
     <div class="container">
 		  <!-- Example row of columns -->
 		  <div class="row">
-			  	<h3>Добавить {{obj}}:</h3>
+			  	<h3>Додати:</h3>
 				<hr>
 		  </div>
 		<p></p>
@@ -107,29 +90,29 @@
 				{%if addurl == ""%}
 					<input type="file" name="loadFile"/>
 					<p></p>
-					<button type="submit" class="btn btn-success"> Загрузить файл </button>
-					<h5>Размер файла не должен привышать 5мб!</h5>
+					<button type="submit" class="btn btn-success"> Завантажити файл </button>
+					<h5>Размір файлу не має перівишчувати 5мб!</h5>
 				{%endif%}
 				{%if addurl == "true"%}
 					<div class="col-sm-4">
-						<input type="text" class="form-control" name="tbTitle" placeholder="Название"/>
+						<input type="text" class="form-control" name="tbTitle" placeholder="Названня"/>
 					<p></p>
-						<input type="text" class="form-control" name="tbUrl" placeholder="Ссылка" required/>
+						<input type="text" class="form-control" name="tbUrl" placeholder="Посилання" required/>
 					<p></p>
-						<button type="submit" class="btn btn-success"> Сохранить</button>
+						<button type="submit" class="btn btn-success"> Зберігти</button>
 					</div>
 				{%endif%}
 			</form>
 			<div class="col-md-10">
 				<p></p>
 				{%if entity == "startuper"%}
-					<a href="/infostartuper?id={{id}}"><button type="submit" class="btn btn-success"> Вернутся </button></a>
+					<a href="/infostartuper?id={{id}}"><button type="submit" class="btn btn-success"> Повернутися </button></a>
 				{%endif%}
 				{%if entity == "project"%}
-					<a href="/infoproject?id={{id}}"><button type="submit" class="btn btn-success"> Вернутся </button></a>
+					<a href="/infoproject?id={{id}}"><button type="submit" class="btn btn-success"> Повернутися </button></a>
 				{%endif%}
 				{%if entity == "investor"%}
-					<a href="/infoinvestor?id={{id}}"><button type="submit" class="btn btn-success"> Вернутся </button></a>
+					<a href="/infoinvestor?id={{id}}"><button type="submit" class="btn btn-success"> Повернутися </button></a>
 				{%endif%}
 			</div>
 			<hr>

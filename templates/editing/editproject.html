@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,22 +56,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -81,20 +81,12 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
-				<hr>
-				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
-				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
 			{%endif%}
@@ -105,59 +97,78 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о проекте:</h3>
+			  <h3>Інформація о проєкте:</h3>
 			<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
-			<div class=".col-md-2" align="right">
-				<a class="btn btn-success" href="/infoproject?id={{project.id}}">Отмена</a>
-				<button class="btn btn-success" type="submit" formaction="/editproject?id={{project.id}}&redirect=true">Сохранить</button>
+			<div class=".col-md-2">
+				<a class="btn btn-success" href="/infoproject?id={{project.id}}">Відмінити</a>
+				<button class="btn btn-success" type="submit" formaction="/editproject?id={{project.id}}&redirect=true">Зберігти</button>
 			</div>
 			<hr>
 			<div class="col-md-10" align="right">
 			<table class = "table table">
 				<tbody>
 					<tr>
-						<td><b>Название: </b></td>
+						<td><b>Назва: </b></td>
 						<td>
 							<input type="text" class="form-control" name="tbTitle" placeholder="{{project.title}}" />
 						</td>
-					</tr>
 					<tr>
-						<td><b>Отрасль: </b></td>
+						<td><b>Активність: </b></td>
 						<td>
-							<select name="tbSector" class="form-control">
-									{%if project.sector == "Административное обслуживание"%}<option value="" selected>{%else%}<option value="Административное обслуживание">{%endif%}Административное обслуживание</option>
-									{%if project.sector == "Водоснабжение, очистка"%}<option value="" selected>{%else%}<option value="Водоснабжение, очистка">{%endif%}Водоснабжение, очистка</option>
-									{%if project.sector == "Государственное управление"%}<option value="" selected>{%else%}<option value="Государственное управление">{%endif%}Государственное управление</option>
-									{%if project.sector == "Добыча ресурсов"%}<option value="" selected>{%else%}<option value="Добыча ресурсов">{%endif%}Добыча ресурсов</option>
-									{%if project.sector == "Информация и телекомуникации"%}<option value="" selected>{%else%}<option value="Информация и телекомуникации">{%endif%}Информация и телекомуникации</option>
-									{%if project.sector == "Искусство, спорт, развлечение и отдых"%}<option value="" selected>{%else%}<option value="Искусство, спорт, развлечение и отдых">{%endif%}Искусство, спорт, развлечение и отдых</option>
-									{%if project.sector == "Оборона"%}<option value="" selected>{%else%}<option value="Оборона">{%endif%}Оборона</option>
-									{%if project.sector == "Образование"%}<option value="" selected>{%else%}<option value="Образование">{%endif%}Образование</option>
-									{%if project.sector == "Оптовая и розничная торговля"%}<option value="" selected>{%else%}<option value="Оптовая и розничная торговля">{%endif%}Оптовая и розничная торговля</option>
-									{%if project.sector == "Отели, рестораны, кафе"%}<option value="" selected>{%else%}<option value="Отели, рестораны, кафе">{%endif%}Отели, рестораны, кафе</option>
-									{%if project.sector == "Охрана здоровья"%}<option value="" selected>{%else%}<option value="Охрана здоровья">{%endif%}Охрана здоровья</option>
-									{%if project.sector == "Перерабатывающая промышленность"%}<option value="" selected>{%else%}<option value="Перерабатывающая промышленность">{%endif%}Перерабатывающая промышленность</option>
-									{%if project.sector == "Производство и поставка энергоносителей"%}<option value="" selected>{%else%}<option value="Производство и поставка энергоносителей">{%endif%}Производство и поставка энергоносителей</option>
-									{%if project.sector == "Профессиональная, научная и техническая деятельность"%}<option value="" selected>{%else%}<option value="Профессиональная, научная и техническая деятельность">{%endif%}Профессиональная, научная и техническая деятельность</option>
-									{%if project.sector == "Сельское хозяйство"%}<option value="" selected>{%else%}<option value="Сельское хозяйство">{%endif%}Сельское хозяйство</option>
-									{%if project.sector == "Строительство"%}<option value="" selected>{%else%}<option value="Строительство">{%endif%}Строительство</option>
-									{%if project.sector == "Транспорт, складское хозяйство, почтовая деятельность"%}<option value="" selected>{%else%}<option value="Транспорт, складское хозяйство, почтовая деятельность">{%endif%}Транспорт, складское хозяйство, почтовая деятельность</option>
-									{%if project.sector == "Финансовая и страховая деятельность"%}<option value="" selected>{%else%}<option value="Финансовая и страховая деятельность">{%endif%}Финансовая и страховая деятельность</option>
+							<select name="sbActive" class="form-control">
+								{%if project.isactive is True%}<option value="" selected>{%else%}<option value="True">{%endif%}Активний</option>
+								{%if project.isactive is False%}<option value="" selected>{%else%}<option value="False">{%endif%}Неактивний</option>
 							</select>
 						</td>
 					</tr>
 					<tr>
-						<td><b>Тип продукции: </b></td>
+						<td><b>Розмір фінансування: </b></td>
+						<td>
+							<select name="tbFinScale" class="form-control">
+								{%if project.financeScale == "до 10 тис."%}<option value="" selected>{%else%}<option value="до 10 тис.">{%endif%}до 10 тис.</option>
+								{%if project.financeScale == "від 10 тис до 50 тис."%}<option value="" selected>{%else%}<option value="від 10 тис до 50 тис.">{%endif%}від 10 тис до 50 тис.</option>
+								{%if project.financeScale == "від 50 тис."%}<option value="" selected>{%else%}<option value="від 50 тис.">{%endif%}від 50 тис.</option>
+							</select>
+						</td>
+					</tr>
+					</tr>
+					<tr>
+						<td><b>Галузь: </b></td>
+						<td>
+							<select name="tbSector" class="form-control">
+								{%if project.sector == "Адміністратівне обслуговування"%}<option value="" selected>{%else%}<option value="Адміністратівне обслуговування">{%endif%}Адміністратівне обслуговування</option>
+								{%if project.sector == "Водопостачання, очистка"%}<option value="" selected>{%else%}<option value="Водопостачання, очистка">{%endif%}Водопостачання, очистка</option>
+								{%if project.sector == "Державне управління"%}<option value="" selected>{%else%}<option value="Державне управління">{%endif%}Державне управління</option>
+								{%if project.sector == "Видобуток ресурсів"%}<option value="" selected>{%else%}<option value="Видобуток ресурсів">{%endif%}Видобуток ресурсів</option>
+								{%if project.sector == "Інформація та телеАунікації"%}<option value="" selected>{%else%}<option value="Інформація та телекомунікації">{%endif%}Інформація та телекомунікації</option>
+								{%if project.sector == "Мистецтво, спорт, розваги та відпочинок"%}<option value="" selected>{%else%}<option value="Мистецтво, спорт, розваги та відпочинок">{%endif%}Мистецтво, спорт, розваги та відпочинок</option>
+								{%if project.sector == "Оборона"%}<option value="" selected>{%else%}<option value="Оборона">{%endif%}Оборона</option>
+								{%if project.sector == "Освіта"%}<option value="" selected>{%else%}<option value="Освіта">{%endif%}Освіта</option>
+								{%if project.sector == "Оптова та роздрібна торгівля"%}<option value="" selected>{%else%}<option value="Оптова та роздрібна торгівля">{%endif%}Оптова та роздрібна торгівля</option>
+								{%if project.sector == "Готелі, ресторани, кафе"%}<option value="" selected>{%else%}<option value="Готелі, ресторани, кафе">{%endif%}Готелі, ресторани, кафе</option>
+								{%if project.sector == "Охорона здоров'я"%}<option value="" selected>{%else%}<option value="Охорона здоров'я">{%endif%}Охорона здоров'я</option>
+								{%if project.sector == "Переробна промисловість"%}<option value="" selected>{%else%}<option value="Переробна промисловість">{%endif%}Переробна промисловість</option>
+								{%if project.sector == "Виробництво і постачання енергоносіїв"%}<option value="" selected>{%else%}<option value="Виробництво і постачання енергоносіїв">{%endif%}Виробництво і постачання енергоносіїв</option>
+								{%if project.sector == "Професійна, наукова та технічна діяльність"%}<option value="" selected>{%else%}<option value="Професійна, наукова та технічна діяльність">{%endif%}Професійна, наукова та технічна діяльність</option>
+								{%if project.sector == "Сільське господарство"%}<option value="" selected>{%else%}<option value="Сільське господарство">{%endif%}Сільське господарство</option>
+								{%if project.sector == "Будівництво"%}<option value="" selected>{%else%}<option value="Будівництво">{%endif%}Будівництво</option>
+								{%if project.sector == "Транспорт, складське господарство, поштова діяльність"%}<option value="" selected>{%else%}<option value="Транспорт, складське господарство, поштова діяльність">{%endif%}Транспорт, складське господарство, поштова діяльність</option>
+								{%if project.sector == "Фінансова та страхова діяльність"%}<option value="" selected>{%else%}<option value="Фінансова та страхова діяльність">{%endif%}Фінансова та страхова діяльність</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><b>Тип продукції: </b></td>
 						<td>{%if project.type == "услуга"%}
 					<select name="selType" class="form-control">
 						<option value="товар" >товар</option>
-						<option value="" selected>услуга</option>
+						<option value="" selected>послуга</option>
 					</select>
 				{%else%}
 					<select name="selType" class="form-control">
 						<option value="" selected >товар</option>
-						<option value="услуга">услуга</option>
+						<option value="послуга">послуга</option>
 					</select>
 				{%endif%}</td>
 					</tr>
@@ -165,42 +176,34 @@
 						<td><b>Форма продукции: </b></td>
 						<td>{%if project.isreal == "виртуальная"%}
 					<select name="selIsReal" class="form-control">
-						<option value="реальная">реальная</option>
-						<option value="" selected>виртуальная</option>
+						<option value="реальна">реальна</option>
+						<option value="" selected>віртуальна</option>
 					</select>
 				{%else%}
 					<select name="selIsReal" class="form-control">
-						<option value="" selected >реальная</option>
-						<option value="виртуальная">виртуальная</option>
+						<option value="" selected >реальна</option>
+						<option value="віртуальна">віртуальна</option>
 					</select>
 				{%endif%}</td>
 					</tr>
 					<tr>
-						<td width="300"><b>Главный стартапер: </b></td>
+						<td><b>Головний стартапер:</b></td>
 						<td>
-							<input type="text" class="form-control" list="leaders" name="tbLeader" placeholder="{{fioLead.mail}} ({{fioLead.surname}} {{fioLead.name}} {{fioLead.midname}})" />
-							<datalist id="leaders">
-								{%for item in possibleLeaders%}
-								 <option value="{{item.mail}}" label="({{item.surname}} {{item.name}} {{item.midname}})">
+							<select name="tbLeader" class="form-control" id="leader">
+								{%for lead in possibleLeaders%}
+									{%if lead.surname in fioLead.surname and lead.name in fioLead.name%}<option value="" selected>{%else%}<option value="{{lead.id}}">{%endif%}{{lead.surname}} {{lead.name}} {{lead.midname}}</option>
 								{%endfor%}
-							</datalist>
-							{%if errLead != ""%}
-								<i style="color:red">{{errLead}}</i>
-							{%endif%}
+							</select>
 						</td>
 					</tr>
 					<tr>
-						<td><b>Ментор <i>(текущий)</i>: </b></td>
+						<td><b>Ментор:</b></td>
 						<td>
-							<input type="email" class="form-control" list="mentorlist" name="tbMentor" placeholder="{{currMent.mail}} ({{currMent.surname}} {{currMent.name}} {{currMent.midname}})" />
-							<datalist id="mentorlist">
-								{%for item in mentorlist%}
-								 	<option value="{{item.mail}}" label="({{item.surname}} {{item.name}} {{item.midname}})">
+							<select name="tbMentor" class="form-control" id="mentors">
+								{%for ment in mentorlist%}
+									{%if ment.surname in currMent.surname and ment.name in currMent.name%}<option value="" selected>{%else%}<option value="{{ment.id}}">{%endif%}{{ment.surname}} {{ment.name}} {{ment.midname}}</option>
 								{%endfor%}
-							</datalist>
-							{%if errMent != ""%}
-								<i style="color:red">{{errMent}}</i>
-							{%endif%}
+							</select>
 						</td>
 					</tr>
 				</tbody>
@@ -216,7 +219,7 @@
 							<tr>
 								<th width="150"><i>Дата</i></th>
 								<th width="150"><i>Статус</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -241,14 +244,14 @@
 
 			<div align="left" class="col-sm-8">
 				<hr>
-				<b>Описание: </b>
+				<b>Опис: </b>
 				<textarea class="form-control" cols="80" name="taDescr" rows="5" placeholder="{{project.descr}}"></textarea>
 			</div>
 
 				<div class="col-sm-12">
                 <hr>
                 <div class="col-sm-3">
-                    <h4><b>Все менторы:  </b></h4>
+                    <h4><b>Усі ментори:  </b></h4>
                 </div>
                     <br>
                     <br>
@@ -259,9 +262,9 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>ФИО</i></th>
-								<th><i>Является ментором с</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>ПІБ</i></th>
+								<th><i>Є ментором з</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -295,9 +298,9 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>ФИО</i></th>
+								<th><i>ПІБ</i></th>
 								<th><i>Роль</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -321,7 +324,7 @@
 			<div class="col-sm-12">
 				<hr>
 				<div class="col-sm-7">
-					<h4><b>Активность:  </b></h4>
+					<h4><b>Активність:  </b></h4>
 				</div>
 					<br>
 					<br>
@@ -333,8 +336,8 @@
 							<tr>
 								<th><i></i></th>
 								<th><i>Дата</i></th>
-								<th><i>Мероприятие</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>Захід</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -356,7 +359,7 @@
 			<div class="col-sm-12">
 				<hr>
 				<div class="col-sm-7">
-					<h4><b>Необходимые инвестиции: </b></h4>
+					<h4><b>Необхідні інвестиціЇ: </b></h4>
 				</div>
 				<br>
 				<br>
@@ -366,10 +369,10 @@
 				<table class ="table table-striped">
 					<thead>
 						<tr>
-							<th> <i>Вид финансирования</i> </th>
+							<th> <i>Вид фінансування</i> </th>
 							<th> <i>Ресурс \ Валюта</i> </th>
-							<th> <i>Сумма</i> </th>
-							<th> <i>Удалить</i> </th>
+							<th> <i>Сума</i> </th>
+							<th> <i>Видалити</i> </th>
 						</tr>
 					</thead>
 					<tbody>
@@ -377,10 +380,10 @@
 						  <tr>
 							<td>
 								<select name="tbReqInvType{{item.id}}" class="form-control">
-										{%if item.type == "Ангельские"%}<option value="" selected>{%else%}<option value="Ангельские">{%endif%}Ангельские</option>
-										{%if item.type == "Посевные"%}<option value="" selected>{%else%}<option value="Посевные">{%endif%}Посевные</option>
-										{%if item.type == "Венчурные"%}<option value="" selected>{%else%}<option value="Венчурные">{%endif%}Венчурные</option>
-										{%if item.type == "Гранты"%}<option value="" selected>{%else%}<option value="Гранты">{%endif%}Гранты</option>
+										{%if item.type == "Ангельскі"%}<option value="" selected>{%else%}<option value="Ангельскі">{%endif%}Ангельскі</option>
+										{%if item.type == "Посівні"%}<option value="" selected>{%else%}<option value="Посівні">{%endif%}Посівні</option>
+										{%if item.type == "Венчурні"%}<option value="" selected>{%else%}<option value="Венчурні">{%endif%}Венчурні</option>
+										{%if item.type == "Гранти"%}<option value="" selected>{%else%}<option value="Гранти">{%endif%}Гранти</option>
 								</select>
 						    </td>
 							<td align="center"><input type="text" class="form-control" name="tbReqInvRes{{item.id}}" placeholder="{{item.res}}"/></td>
@@ -397,7 +400,7 @@
 			<div class="col-sm-12">
 				<hr>
 				<div class="col-sm-7">
-					<h4><b>Доп. материалы: </b></h4>
+					<h4><b>Дод. матеріали: </b></h4>
 				</div>
 					<br>
 					<br>
@@ -408,9 +411,9 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>Ссылка</i></th>
+								<th><i>Посилання</i></th>
 								<th><i>Файл</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>

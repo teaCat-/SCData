@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,22 +56,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -82,9 +82,6 @@
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
     </div>
 
 	<div class = "menu">
@@ -96,7 +93,7 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о менторе:</h3>
+			  <h3>Інформація про ментора:</h3>
 			<div class=".col-md-2" align="right">
 			</div>
 			<hr>
@@ -105,9 +102,9 @@
 			<div align="right" class="col-sm-5">
 				<table class = "table table">
 					<tbody>
-						<tr><td>ФИО:</td> <td>{{mentor.surname}} {{mentor.name}} {{mentor.midname}}</td></tr>
+						<tr><td>ПІБ:</td> <td>{{mentor.surname}} {{mentor.name}} {{mentor.midname}}</td></tr>
 						<tr><td>Телефон:</td> <td> {{mentor.phone}}</td></tr>
-						<tr><td>Почта:</td> <td> {{mentor.mail}}</td></tr>
+						<tr><td>Пошта:</td> <td> {{mentor.mail}}</td></tr>
 					</tbody>
 				</table>
 			</div>
@@ -115,7 +112,7 @@
 			<div class="col-sm-12">
 				<hr>
 				<div class="col-sm-1">
-					<h4><b>Проекты:  </b></h4>
+					<h4><b>Проєкти:  </b></h4>
 				</div>
 				<div class="col-sm-10" align="left">
 					<br>
@@ -124,8 +121,8 @@
 					<thead>
 						<tr>
 							<th><i></i></th>
-							<th><i>Название</i></th>
-							<th><i>Является ментором с</i></th>
+							<th><i>Назва</i></th>
+							<th><i>Є ментором з</i></th>
 						</tr>
 					</thead>
 					<tbody>

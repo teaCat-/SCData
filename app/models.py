@@ -45,6 +45,7 @@ class tStartuper(models.Model):
     avatar = models.ImageField(upload_to='files/imgs/avatars/', default="")
     fgrade = models.BooleanField(default=False)
     sgrade = models.BooleanField(default=False)
+    finyear = models.TextField(max_length=5, default="-")
     def __unicode__(self):
         return self.name+" "+self.surname+" "+self.midname+" |"+str(self.id)
     class Meta:
@@ -63,6 +64,8 @@ class tProject(models.Model):
     descr = models.TextField(max_length=500, default="")
     type = models.TextField(max_length=50, default="")
     isreal = models.TextField(max_length=50, default="")
+    financeScale = models.TextField(max_length=50, default="")
+    isactive = models.BooleanField(default=True)
     def __unicode__(self):
         return self.title+" |"+str(self.id)
     class Meta:
@@ -158,9 +161,4 @@ class tMentoproj(models.Model):
     class Meta:
         verbose_name = u'Mentor to Project'
 
-class tReqInvests(models.Model):
-    projectID = models.ForeignKey(tProject)
-    res = models.TextField(max_length=50, default="")
-    sum = models.TextField(max_length=15, default="")
-    type = models.TextField(max_length=50, default="")
 

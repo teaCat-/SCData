@@ -30,7 +30,6 @@ urlpatterns = [
     url(r'^infoinvestor', views.infoinvestor, name='infoinvestor'),
     url(r'^infoinvcontact', views.infoinvcontact, name='infoinvcontact'),
     url(r'^infomentor', views.infomentor, name='infomentor'),
-    url(r'^reqinvadd', views.reqinvadd, name='reqinvadd'),
     url(r'^startuperstoproject', views.startuperstoproject, name='startuperstoproject'),
     url(r'^mentorstoproject', views.mentorstoproject, name='mentorstoproject'),
     url(r'^invcontactsadd', views.invcontactsadd, name='invcontactsadd'),

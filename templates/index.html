@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,6 +20,17 @@
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
+	 <script>
+		function DetectMob()
+		{
+		   var uagent = navigator.userAgent.toLowerCase();
+		   if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent))
+		   {
+			  document.getElementById("menu").style.visibility = "hidden";
+		   }
+		}
+	</script>
+
 	<style type = "text/css">
 	body {
 	  padding-top: 10px;
@@ -33,12 +44,13 @@
 		height: 100px;
 		backgroundcolor:#395610;
 		padding: 10px;
+		clear: both
 		}
 	</style>
 	
   </head>
 
-  <body>
+  <body onload="DetectMob()">
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -56,21 +68,21 @@
 			{% csrf_token %}
 				{%if entered == 0%}
 					<div class="form-group">
-					  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+					  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 					</div>
 					<div class="form-group">
 					<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 					</div>
-						<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+						<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 				{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -82,32 +94,32 @@
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
+        <h1>База клиєнтів Sikorsky Challenge</h1>
       </div>
     </div>
 
-	<div class = "menu">
+	<div class = "menu" id="menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
 				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
 				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
 			{%endif%}
 		</div>
 	</div>
@@ -116,53 +128,124 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-10">
-			  <h3>Быстрый поиск:</h3>
+			  <h3>Швидкий пошук:</h3>
 				<hr>
 				<form method="post">
 				{% csrf_token %}
 				<div class="col-sm-12">
-				  <label class="col-sm-1 control-label"><h4>Найти:</h4></label>
 				  	<div class="col-sm-2">
 						<select name="selQSch" class="form-control .col-lg-6">
-						  {%if selTable == "startuper"%}<option selected value="startuper">{%else%}<option value="startuper">{%endif%}Стартапера</option>
-						  {%if selTable == "project"%}<option selected value="project">{%else%}<option value="project">{%endif%}Проект</option>
-						  {%if selTable == "investor"%}<option selected value="investor">{%else%}<option value="investor">{%endif%}Инвестора</option>
-						  {%if selTable == "mentor"%}<option selected value="mentor">{%else%}<option value="mentor">{%endif%}Ментора</option>
+						  {%if selTable == "startuper"%}<option selected value="startuper">{%else%}<option value="startuper">{%endif%}Стартапер</option>
+						  {%if selTable == "project"%}<option selected value="project">{%else%}<option value="project">{%endif%}Проєкт</option>
+						  {%if selTable == "investor"%}<option selected value="investor">{%else%}<option value="investor">{%endif%}Інвестор</option>
+						  {%if selTable == "mentor"%}<option selected value="mentor">{%else%}<option value="mentor">{%endif%}Ментор</option>
 						</select>
 				  	</div>
 				  	<div class="col-sm-7">
 						<input type = "text" class="form-control .col-lg-6" name = "tbQSch" value="{{schVal}}"/>
 					</div>
 						<div class="col-sm-2">
-							<button class="btn btn-success btn-block" type="submit">Поиск</button>
+							<button class="btn btn-success btn-block" type="submit">Пошук</button>
 						</div>
 					</div>
 				</form>
 			<div class="col-sm-10">
 				<hr>
 				{%if selTable == "startuper"%}
-					{%for item in queryList%}
-						<a href="infostartuper?id={{item.id}}"><h4>{{item.surname}} {{item.name}} {{item.midname}}</h4></a>
-						<hr>
-					{%endfor%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>ФІО</th>
+							<th>Рік закінчення 2ї ступені</th>
+							<th>Проєкти</th>
+							<th>Повнота інформація</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in queryList%}
+						<tr>
+							<td><a href="infostartuper?id={{item.startuper.id}}"><h4>{{item.startuper.surname}} {{item.startuper.name}} {{item.startuper.midname}}</h4></a></td>
+							<td>{{item.startuper.finyear}} {%if item.startuper.finyear != "-"%}р.{%endif%}</td>
+							<td>
+								<table>
+									<tbody>
+										{%for proj in item.projects%}
+										<tr>
+											<td><h5><a href="infoproject?id={{proj.projectID.id}}"> {{proj.projectID.title}}</a></h5></td>
+										</tr>
+										{%endfor%}
+									</tbody>
+								</table>
+							</td>
+							<td>
+								{% if item.startuper.midname == "" or item.startuper.phone == "" or item.startuper.mail == "" or item.startuper.avatar == ""%}
+									Не повна
+								{%else%}
+									Повна
+								{%endif%}
+							</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
 				{%endif%}
 				{%if selTable == "project"%}
-					{%for item in queryList%}
-						<a href="infoproject?id={{item.id}}"><h4>{{item.title}}</h4></a>
-						<hr>
-					{%endfor%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Проєкт</th>
+							<th>Активний</th>
+							<th>Повнота інформація</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in queryList%}
+						<tr>
+							<td><a href="infoproject?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
+							<td>{{item.isactive}}</td>
+							<td>
+								{% if item.sector == "" or item.type == "" or item.isreal == "" or item.descr == "" or item.financeScale == ""%}
+									Не повна
+								{%else%}
+									Повна
+								{%endif%}
+							</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
 				{%endif%}
 				{%if selTable == "investor"%}
-					{%for item in queryList%}
-						<a href="infoinvestor?id={{item.id}}"><h4>{{item.investor}}</h4></a>
-						<hr>
-					{%endfor%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Інвестор</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in queryList%}
+						<tr>
+							<td><a href="infoinvestor?id={{item.id}}"><h4>{{item.investor}}</h4></a></td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
 				{%endif%}
 				{%if selTable == "mentor"%}
-					{%for item in queryList%}
-						<a href="infomentor?id={{item.id}}"><h4>{{item.surname}} {{item.name}} {{item.midname}}</h4></a>
-						<hr>
-					{%endfor%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>ФІО</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in queryList%}
+						<tr>
+							<td><a href="infomentor?id={{item.id}}"><h4>{{item.surname}} {{item.name}} {{item.midname}}</h4></a></td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
 				{%endif%}
 			</div>
 			</div>

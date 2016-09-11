@@ -109,7 +109,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'ru-RU'
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+
+LANGUAGE_CODE = 'uk-UA'
 
 TIME_ZONE = 'UTC'
 
@@ -128,4 +131,8 @@ DATETIME_FORMAT = 'd.m.Y, H:i'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+MEDIA_ROOT = '/var/www/static/media'
+MEDIA_URL = '/media/'
+
+STATIC_ROOT = '/var/www/static/static'
 STATIC_URL = '/static/'

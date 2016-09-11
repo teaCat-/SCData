@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -55,10 +55,10 @@
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 				<div class="form-group" style = "color:white">
-					Добро пожаловать, <i style="color:lightgreen">{{name}}!</i>
+					Доброго дня, <i style="color:lightgreen">{{name}} !</i>
 				</div>
 				<div class="form-group">
-					<button class="btn btn-fail" formaction = "logout">Выйти</button>
+					<button class="btn btn-fail" formaction = "logout">Вийти</button>
 				</div>
 			</form>
 			
@@ -67,29 +67,12 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
-				<hr>
-				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
-				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
-				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
-				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
-				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
-				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -97,7 +80,7 @@
     <div class="container">
 		  <!-- Example row of columns -->
 		  <div class="row">
-			  	<h3>Добавить тэг:</h3>
+			  	<h3>Додати ключові слова:</h3>
 				<hr>
 		  </div>
 		<p></p>
@@ -106,7 +89,10 @@
 				<form method="post">
 				{% csrf_token %}
 					<label><input name="tbTag"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required autofocus/> </label>
-					<label><button class="btn btn-success btn-block" type="submit">Добавить</button></label>
+					<br>
+					<br>
+					<label><button class="btn btn-success btn-block" type="submit">Додати</button></label>
+					<a class="btn btn-success" href="\">Відмінити</a>
 				</form>
             	{%if message != ""%}
 				<h4>Результат:</h4>

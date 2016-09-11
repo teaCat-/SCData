@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,22 +56,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Війти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -81,36 +81,28 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
-				<hr>
-				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
-				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
 				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
 				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -120,7 +112,7 @@
 		  <div class="row">
 			  {%if entity == "project"%}
 					<div class="col-md-10">
-					  <h3>Добавить учасников в проект "{{project.title}}":</h3>
+					  <h3>Додати учасників до проєкту "{{project.title}}":</h3>
 						<hr>
 						{%if added is False%}
 							<form method="post">
@@ -130,7 +122,7 @@
 									<input type = "text" class="form-control .col-lg-6" name = "tbQSch" value="{{schVal}}"/>
 								</div>
 									<div class="col-sm-2">
-										<button class="btn btn-success btn-block" type="submit">Поиск</button>
+										<button class="btn btn-success btn-block" type="submit">Пошук</button>
 									</div>
 								</div>
 							</form>
@@ -151,7 +143,7 @@
 											</h4>
 										</td>
 										<td width="170">
-											<input type="text" class="form-control" name="tbRole{{item.id}}" placeholder="Роль в проекте"/>
+											<input type="text" class="form-control" name="tbRole{{item.id}}" placeholder="Роль"/>
 										</td>
 									</tr>
 									{%endfor%}
@@ -160,7 +152,7 @@
 
 								<br>
 								{%if queryListCount != 0%}
-									<p> Страница:</p>
+									<p> Сторінка:</p>
 								{%endif%}
 								{%if page != 1%}
 									<a href="/startuperstoproject?id={{id}}&page={{prevpage}}&entity=project"> Назад </a>...
@@ -169,7 +161,7 @@
 									{{page}}
 								{%endif%}
 								{%if queryListCount == 0%}
-									Нечего добавить.
+									Нема чого додати.
 								{%endif%}
 								{%if queryListCount > 10%}
 									... <a href="/startuperstoproject?id={{id}}&page={{nextpage}}&entity=project">Вперед </a>
@@ -188,13 +180,13 @@
 							</div>
 						{%endif%}
 						{%if added is True%}
-							<p>Учасники добавлены к проекту</p>
+							<p>Учасники додані до проекту</p>
 						{%endif%}
 					</div>
 			  {%endif%}
 			  {%if entity == "startuper"%}
 				  <div class="col-md-10">
-				  <h3>Добавить проекты к стартаперу ({{startuper.surname}}):</h3>
+				  <h3>Додати проекти до стартапера ({{startuper.surname}}):</h3>
 					<hr>
 					{%if added is False%}
 						<form method="post">
@@ -204,7 +196,7 @@
 								<input type = "text" class="form-control .col-lg-6" name = "tbQSch" value="{{schVal}}"/>
 							</div>
 								<div class="col-sm-2">
-									<button class="btn btn-success btn-block" type="submit">Поиск</button>
+									<button class="btn btn-success btn-block" type="submit">Пошук</button>
 								</div>
 							</div>
 						</form>
@@ -226,7 +218,7 @@
 											</h4>
 										</td>
 										<td width="300">
-											<input type="text" class="form-control" name="tbRole{{item.id}}" placeholder="Роль в проекте"/>
+											<input type="text" class="form-control" name="tbRole{{item.id}}" placeholder="Роль"/>
 										</td>
 									</tr>
 									{%endfor%}
@@ -234,7 +226,7 @@
 								</table>
 								<br>
 								{%if queryListCount != 0%}
-									<p> Страница:</p>
+									<p> Сторінка:</p>
 								{%endif%}
 								{%if page != 1%}
 									<a href="/startuperstoproject?id={{id}}&page={{prevpage}}&entity=startuper"> Назад </a>...
@@ -243,7 +235,7 @@
 									{{page}}
 								{%endif%}
 								{%if queryListCount == 0%}
-									Доступных проектов нет
+									Доступных проєктів нема
 								{%endif%}
 								{%if queryListCount > 10%}
 									... <a href="/startuperstoproject?id={{id}}&page={{nextpage}}&entity=startuper">Вперед </a>
@@ -251,16 +243,16 @@
 								<p></p>
 								<div class="col-sm-6">
 								<hr>
-									<a class="btn btn-success btn-block" href="/infostartuper?id={{id}}">Отмена</a>
-									<button class="btn btn-success btn-block" type="submit"  formaction="?id={{id}}&page={{page}}&entity=startuper">Добавить</button>
-									<button class="btn btn-success btn-block" type="submit"  formaction="?id={{id}}&page={{page}}&entity=startuper&redirect=true">Добавить и вернутся</button>
+									<a class="btn btn-success btn-block" href="/infostartuper?id={{id}}">Відмінити</a>
+									<button class="btn btn-success btn-block" type="submit"  formaction="?id={{id}}&page={{page}}&entity=startuper">Додати</button>
+									<button class="btn btn-success btn-block" type="submit"  formaction="?id={{id}}&page={{page}}&entity=startuper&redirect=true">Додати і повернутись</button>
 								</div>
 								</div>
 							</form>
 						</div>
 					{%endif%}
 					{%if added is True%}
-						<p>Проекты добавлены</p>
+						<p>Проєкти додані</p>
 					{%endif%}
 				</div>
 

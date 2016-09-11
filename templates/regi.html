@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
+<head lang="uk">
     <meta charset="UTF-8">
     <title>Регистрация</title>
 <!-- Latest compiled and minified CSS -->
@@ -68,19 +68,19 @@
 
     <form class="form-regi" action = "regi" method = "POST">
     {% csrf_token %}
-        <h2 class="form-regi-heading">Регистрация нового пользователя:</h2>
+        <h2 class="form-regi-heading">Регістрація нового робітника:</h2>
         <hr>
         <input type="hidden" name="selGroup" class="form-control .col-lg-6" value="worker"/>
         <p></p>
-        <label for="inputLogin" class="sr-only">Логин</label>
-        <input name="txtLogin" type="text" id="inputLogin" class="form-control" placeholder="Логин" required autofocus>
+        <label for="inputLogin" class="sr-only">Логін</label>
+        <input name="txtLogin" type="text" id="inputLogin" class="form-control" placeholder="Логін" required autofocus>
         <p style="color:red">
             {%if nameErr != None%}
              Ошибка: {{ nameErr }}
             {%endif%}
         </p>
-        <label for="inputMail" class="sr-only">Почта</label>
-        <input name="txtMail" type="email" id="inputMail" class="form-control" placeholder="Почта" required >
+        <label for="inputMail" class="sr-only">Пошта</label>
+        <input name="txtMail" type="email" id="inputMail" class="form-control" placeholder="Пошта" required >
         <p style="color:red">
             {%if mailErr != None%}
              Ошибка: {{ mailErr }}
@@ -93,14 +93,14 @@
              Ошибка: {{ passErr }}
             {%endif%}
         </p>
-        <label for="inputRePassword" class="sr-only">Повторите пароль</label>
-        <input name="txtRePasswd" type="password" id="inputRePassword" class="form-control" placeholder="Повторите пароль" required>
+        <label for="inputRePassword" class="sr-only">Повторіть пароль</label>
+        <input name="txtRePasswd" type="password" id="inputRePassword" class="form-control" placeholder="Повторіть пароль" required>
         <p style="color:red">
             {%if repassErr != None%}
                 Ошибка: {{ repassErr }}
             {%endif%}
         </p>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Зареєструватись</button>
     </form>
     <form class="form-regi" method = "get">
     {% csrf_token %}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,22 +56,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}}! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -81,20 +81,12 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
-				<hr>
-				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
-				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
 			{%endif%}
@@ -105,18 +97,18 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о инвесторе:</h3>
+			  <h3>Інформація про інвестора:</h3>
 			</div>
 			  <br>
 			<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
-			<div class=".col-md-2" align="left">
-				<a class="btn btn-success" href="/infoinvestor?id={{investor.id}}">Отмена</a>
-				<button class="btn btn-success" type="submit">Сохранить</button>
+			<div class=".col-md-2">
+				<a class="btn btn-success" href="/infoinvestor?id={{investor.id}}">Відміна</a>
+				<button class="btn btn-success" type="submit">Зберігти</button>
 			</div>
 			<hr>
 			<div align="right" class="col-sm-2">
-				<b>Инвестор: </b>
+				<b>Інвестор: </b>
 			</div>
 			<div align="left" class="col-sm-4">
 				<input type="text" class="form-control" name="tbInv" placeholder="{{investor.investor}}" />
@@ -124,14 +116,14 @@
 
 			<div align="left" class="col-sm-7">
 				<hr>
-				<b>Описание: </b>
+				<b>Опис: </b>
 				<textarea class="form-control" name="taDescr" cols="80" rows="5" placeholder="{{investor.descr}}"></textarea>
 			</div>
 
               <div class="col-sm-10">
                 <hr>
                 <div class="col-sm-2">
-                    <h4><b>Контакты:  </b></h4>
+                    <h4><b>Контакти:  </b></h4>
                 </div>
                 <div class="col-sm-10" align="left"><p></p>
                 </div>
@@ -143,10 +135,10 @@
 					<thead>
 						<tr>
 							<th> <i></i> </th>
-							<th> <i>ФИО</i> </th>
-							<th> <i>Компания</i> </th>
-							<th> <i>Должность</i> </th>
-							<th> <i>Удалить</i> </th>
+							<th> <i>Піб</i> </th>
+							<th> <i>Компанія</i> </th>
+							<th> <i>Должність</i> </th>
+							<th> <i>Видалити</i> </th>
 						</tr>
 					</thead>
 					<tbody>
@@ -173,19 +165,19 @@
 			<div class="col-sm-11">
 				<hr>
 				<div class="col-sm-2">
-					<h4><b>Инвестиции:  </b></h4>
+					<h4><b>Інвестиції:  </b></h4>
 				</div>
 				<div class="col-sm-11" align="left"><p></p>
 				<table class ="table table-striped">
 					<thead>
 						<tr>
 							<th> <i>Дата</i> </th>
-							<th> <i>Проект</i> </th>
+							<th> <i>Проєкт</i> </th>
 							<th> <i>Ресурс \ Валюта</i> </th>
-							<th> <i>Сумма</i> </th>
-							<th> <i>Вид финансирования</i> </th>
-							<th> <i>Описание</i> </th>
-							<th><i>Удалить</i></th>
+							<th> <i>Сума</i> </th>
+							<th> <i>Вид фінансування</i> </th>
+							<th> <i>Опис</i> </th>
+							<th><i>Видалити</i></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -205,10 +197,10 @@
 							</td>
 							<td>
 								<select name="tbType{{inv.id}}" class="form-control">
-									{%if inv.type == "Ангельские"%}<option value="Ангельские" selected>{%else%}<option value="Ангельские">{%endif%}Ангельские</option>
-									{%if inv.type == "Посевные"%}<option value="Посевные" selected>{%else%}<option value="Посевные">{%endif%}Посевные</option>
-									{%if inv.type == "Венчурные"%}<option value="Венчурные" selected>{%else%}<option value="Венчурные">{%endif%}Венчурные</option>
-									{%if inv.type == "Гранты"%}<option value="Гранты" selected>{%else%}<option value="Гранты">{%endif%}Гранты</option>
+									{%if inv.type == "Ангельські"%}<option value="Ангельські" selected>{%else%}<option value="Ангельські">Ангельські</option>
+									{%if inv.type == "Посівні"%}<option value="Посівні" selected>{%else%}<option value="Посівні">{%endif%}Посівні</option>
+									{%if inv.type == "Венчурні"%}<option value="Венчурні" selected>{%else%}<option value="Венчурні">{%endif%}Венчурні</option>
+									{%if inv.type == "Гранти"%}<option value="Гранти" selected>{%else%}<option value="Гранти">{%endif%}Гранти</option>
 								</select>
 							</td>
 							<td>
@@ -225,7 +217,7 @@
 			<div class="col-sm-11">
 				<hr>
 				<div class="col-sm-2">
-					<h4><b>Доп. материалы: </b></h4>
+					<h4><b>Дод. матеріали: </b></h4>
 				</div>
 				<div class="col-sm-10" align="left"><p></p>
 				</div>
@@ -237,9 +229,9 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>Ссылка</i></th>
+								<th><i>Посилання</i></th>
 								<th><i>Файл</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>

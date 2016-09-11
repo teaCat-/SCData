@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,7 +19,20 @@
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-  	<script>
+
+	  <script>
+		function telAutoFill(){
+			var phones = document.getElementsByName("tbPhone");
+			for (var i = 0; i < phones.length; i++)
+			{
+				if (phones.item(i).value.length == 3)
+					phones.item(i).value += "-";
+				if (phones.item(i).value.length == 7)
+					phones.item(i).value += "-";
+			}
+		}
+	</script>
+	  <script>
 		function readURL(input, id) {
 				if (input.files && input.files[0]) {
 					var reader = new FileReader();
@@ -27,12 +40,18 @@
 					reader.onload = function (e) {
 						$('#selectedImg')
 							.attr('src', e.target.result)
-							.width(150)
-							.height(200);
 					};
 
 					reader.readAsDataURL(input.files[0]);
 				}
+		}
+
+		function addYear(){
+		  if (document.getElementById('cbSgrade').checked){
+			  document.getElementById("tbFinYear").disabled = false;
+		  } else {
+			  document.getElementById("tbFinYear").disabled = true;
+		  }
 		}
 	</script>
 	<style type = "text/css">
@@ -71,22 +90,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}}! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -96,20 +115,12 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
-				<hr>
-				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
-				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
 			{%endif%}
@@ -120,38 +131,40 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-10">
-			<div class="col-md-9">
-			  <h3>Информация о стартапере:</h3>
-			</div>
-				<br>
-				<br>
+			  <h3>Інформація о стартапере:</h3>
 			<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
-				<a class="btn btn-success" href="/infostartuper?id={{startuper.id}}">Отмена</a>
-				<button class="btn btn-success" type="submit">Сохранить</button>
+				<div class=".col-md-2">
+					<a class="btn btn-success" href="/infostartuper?id={{startuper.id}}">Відмінити</a>
+					<button class="btn btn-success" type="submit">Зберігти</button>
+				</div>
 
 				<hr>
 				<div class="col-sm-3">
-					<img src="/{{startuper.avatar}}" id="selectedImg{{item.num}}" width="150" height="200">
-						<input name="fAvatar" type="file" accept="image/*" onchange="readURL(this);"/> Размер не должен привышать 100кб
+			    {%if startuper.avatar == ""%}
+					<img src="/static/files/imgs/avatars/noimg.png" id="selectedImg{{item.num}}" width="100%" height="100%">
+			    {%else%}
+					<img src="/media/{{startuper.avatar}}" id="selectedImg{{item.num}}" width="100%" height="100%">
+				{%endif%}
+						<input name="fAvatar" type="file" accept="image/*" onchange="readURL(this);"/> Розмір файлу не повинен перевищувати 100кб
 				</div>
 				<div align="right" class="col-sm-3">
-					<b>ФИО: </b>
+					<b>ПІБ: </b>
 					<br>
 					<br>
 					<b>Телефон: </b>
 					<br>
 					<br>
-					<b>Почта: </b>
+					<b>Пошта: </b>
 					<br>
 					<br>
 					<hr>
-					<b>Обучение в Sikorsky Challenge: </b>
+					<b>Навчання в Sikorsky Challenge: </b>
 				</div>
 				<div align="left" class="col-sm-4">
 					<input type="text" class="form-control" pattern="([А-ЯЁІЇ][а-яёії]+[\-\s]?){3,}" name="tbFIO" placeholder="{{startuper.surname}} {{startuper.name}} {{startuper.midname}}" />
 					<p></p>
-					<input type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="tbTel" class="form-control" placeholder="{{startuper.phone}}"  />
+					<input type="tel" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="tbTel" class="form-control" placeholder="{{startuper.phone}}"  />
 					<p></p>
 					<input type="email" class="form-control" name="tbMail" placeholder="{{startuper.mail}}" />
 					<hr>
@@ -163,17 +176,24 @@
 					{%endif%}
 					<p></p>
 					{%if startuper.sgrade is True%}
-						<input type="checkbox" name="cbSgrade" value="True" checked/> 2 ступень
+						<input type="checkbox" name="cbSgrade" id="cbSgrade" onclick="addYear();" value="True" checked/> 2 ступень
 					{%endif%}
 					{%if startuper.sgrade is False%}
-						<input type="checkbox" name="cbSgrade" value="false" /> 2 ступень
+						<input type="checkbox" name="cbSgrade" id="cbSgrade" onclick="addYear();" value="false" /> 2 ступень
 					{%endif%}
+					<br>
+						<label>
+							 Рік закінчення
+							{%if startuper.sgrade is True %}<input id="tbFinYear" name="tbFinYear" type="text"  placeholder="{{startuper.finyear}}" pattern="[0-9]{4}"  class="form-control"/>
+							{%else%}<input name="tbFinYear" id="tbFinYear" type="text"  pattern="[0-9]{4}" class="form-control" placeholder="{{startuper.finyear}}" disabled/>
+							{%endif%}
+						</label>
 				</div>
 
 				<div class="col-sm-12">
 					<hr>
 					<div class="col-sm-1">
-						<h4><b>Проекты:  </b></h4>
+						<h4><b>Проєкти:  </b></h4>
 					</div>
 					<div class="col-sm-10" align="left">
 						<br>
@@ -182,9 +202,9 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>Название</i></th>
+								<th><i>Назва</i></th>
 								<th><i>Роль</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -208,7 +228,7 @@
 				<div class="col-sm-12">
 					<hr>
 					<div class="col-sm-2">
-						<h4><b>Документы:  </b></h4>
+						<h4><b>Документи:  </b></h4>
 					</div>
 					<div class="col-sm-12" align="left"><p></p>
 					</div>
@@ -221,9 +241,9 @@
 							<tr>
 								<th><i></i></th>
 								<th><i>Дата</i></th>
-								<th><i>Ссылка</i></th>
+								<th><i>Посилання</i></th>
 								<th><i>Файл</i></th>
-								<th><i>Удалить</i></th>
+								<th><i>Видалити</i></th>
 							</tr>
 						</thead>
 						<tbody>

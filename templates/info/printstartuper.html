@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,22 +56,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -82,9 +82,6 @@
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
     </div>
 
 	<div class = "menu">
@@ -97,21 +94,25 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о стартапере:</h3>
+			  <h3>Інформація про стартапера:</h3>
 			<div class=".col-md-2" align="right">
 			{%if entered == "worker"%}
 			{%endif%}
 			</div>
 			<hr>
 			<div class="col-sm-3">
-				<img src="/{{startuper.avatar}}" width="150" height="200">
+			    {%if startuper.avatar == ""%}
+					<img src="/static/files/imgs/avatars/noimg.png" width="100%" height="100%">
+			    {%else%}
+					<img src="/media/{{startuper.avatar}}" width="100%" height="100%">
+				{%endif%}
 			</div>
 			<div align="right" class="col-sm-7">
 				<table class="table table">
 					<tbody>
 						<tr>
 							<td width="200" align="right">
-								<b>ФИО: </b>
+								<b>ПІБ: </b>
 							</td>
 							<td>
 								{{startuper.surname}} {{startuper.name}} {{startuper.midname}}
@@ -127,7 +128,7 @@
 						</tr>
 						<tr>
 							<td align="right">
-								<b>Почта: </b>
+								<b>Пошта: </b>
 							</td>
 							<td>
 								{{startuper.mail}}
@@ -135,7 +136,7 @@
 						</tr>
 						<tr>
 							<td align="right">
-								<b>Обучение в Sikorsky Challenge: </b>
+								<b>Навчання в Sikorsky Challenge: </b>
 							</td>
 							<td>
 								{%if startuper.fgrade is True%}
@@ -147,6 +148,16 @@
 								{%endif%}
 							</td>
 						</tr>
+						{%if startuper.sgrade is True%}
+							<tr>
+								<td align="right">
+									<b>Рік закінчення 2ї ступені: </b>
+								</td>
+								<td>
+									{{startuper.finyear}} р.
+								</td>
+							</tr>
+						{%endif%}
 					</tbody>
 				</table>
 			</div>
@@ -154,7 +165,7 @@
 			<div class="col-sm-12">
 				<hr>
 				<div class="col-sm-2">
-					<h4><b>Проекты:  </b></h4>
+					<h4><b>Проєкти:  </b></h4>
 				</div>
 				<div class="col-sm-10" align="left">
 				{%if entered == "worker"%}
@@ -170,7 +181,7 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>Название</i></th>
+								<th><i>Назва</i></th>
 								<th><i>Роль</i></th>
 							</tr>
 						</thead>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -73,20 +73,20 @@
     <div class="container">
       <form class="form-signin" method="post">
 	  {% csrf_token %}
-        <h2 class="form-signin-heading">Авторизируйтесь:</h2>
-        <label for="inputLogin" class="sr-only">Логин</label>
-        <input name="txtLogin" type="text" id="inputLogin" class="form-control" placeholder="Логин" required autofocus>
+        <h2 class="form-signin-heading">Авторізуйтесь!:</h2>
+        <label for="inputLogin" class="sr-only">Логін</label>
+        <input name="txtLogin" type="text" id="inputLogin" class="form-control" placeholder="Логін" required autofocus>
         <label for="inputPassword" class="sr-only">Пароль</label>
         <input name="txtPasswd" type="password" id="inputPassword" class="form-control" placeholder="Пароль" required>
 		{%if logErr == 1%}
 		<p>
-		Ошибка: Введен некорректный логин/пароль.
+		Помилка: Введено некоректний логін/пароль.
 		</p>
 		{%endif%}
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Увійти</button>
       </form>
 		<form class="form-signin">
-            <button class="btn btn-success"  formaction = "\">Главная страница</button>
+            <button class="btn btn-success"  formaction = "\">Головна сторінка</button>
 		</form>
     </div> 
   </body>

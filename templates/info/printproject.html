@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,22 +56,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -82,9 +82,6 @@
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
     </div>
 
 	<div class = "menu">
@@ -96,7 +93,7 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-10">
-			  <h3>Информация о проекте:</h3>
+			  <h3>Інформація про проєкт:</h3>
 			<div class=".col-md-2" align="right">
 			</div>
 			<hr>
@@ -104,25 +101,39 @@
 			<table class = "table table">
 				<tbody>
 					<tr>
-						<td><b>Название: </b></td>
+						<td><b>Назва: </b></td>
 						<td>
 							{{project.title}}
 						</td>
 					</tr>
 					<tr>
-						<td><b>Отрасль: </b></td>
+						<td><b>Активність: </b></td>
+						<td>
+							{% if project.isactive is True %}
+								Активний
+							{% else %}
+								Неактивний
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<td><b>Розмір фінансування: </b></td>
+						<td>{{project.financeScale}}</td>
+					</tr>
+					<tr>
+						<td><b>Галузь: </b></td>
 						<td>{{project.sector}}</td>
 					</tr>
 					<tr>
-						<td><b>Тип продукции: </b></td>
+						<td><b>Тип продукції: </b></td>
 						<td>{{project.type}}</td>
 					</tr>
 					<tr>
-						<td><b>Форма продукции: </b></td>
+						<td><b>Форма продукції: </b></td>
 						<td>{{project.isreal}}</td>
 					</tr>
 					<tr>
-						<td><b>Главный стартапер: </b></td>
+						<td><b>Головний стартапер: </b></td>
 						<td>{{project.leader.surname}} {{project.leader.name}} {{project.leader.midname}}</td>
 					</tr>
 					<tr>
@@ -156,14 +167,15 @@
 
 			<div align="left" class="col-sm-7">
 				<hr>
-				<b>Описание: </b>
+				<b>Опис: </b>
 				<textarea class="form-control" cols="80" rows="5" disabled>{{project.descr}}</textarea>
 			</div>
 
+		  	{%if staff is True%}
 		  	<div class="col-sm-10">
                 <hr>
                 <div class="col-sm-2">
-                    <h4><b>Все менторы:  </b></h4>
+                    <h4><b>Усі ментори:  </b></h4>
                 </div>
                 <div class="col-sm-10" align="left">
                 {%if entered == "worker"%}
@@ -178,8 +190,8 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>ФИО</i></th>
-								<th><i>Является ментором с</i></th>
+								<th><i>ПІБ</i></th>
+								<th><i>Є ментором з</i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -209,7 +221,7 @@
 						<thead>
 							<tr>
 								<th><i></i></th>
-								<th><i>ФИО</i></th>
+								<th><i>ПІБ</i></th>
 								<th><i>Роль</i></th>
 							</tr>
 						</thead>
@@ -229,7 +241,7 @@
 			<div class="col-sm-10">
 				<hr>
 				<div class="col-sm-2">
-					<h4><b>Активность:  </b></h4>
+					<h4><b>Активність:  </b></h4>
 				</div>
 				<div class="col-sm-10" align="left">
 				</div>
@@ -242,7 +254,7 @@
 							<tr>
 								<th><i></i></th>
 								<th><i>Дата</i></th>
-								<th><i>Мероприятие</i></th>
+								<th><i>Захід</i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -257,6 +269,7 @@
 					</table>
 				</div>
 			</div>
+			{%endif%}
 
 
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,7 +19,18 @@
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-
+  	<script>
+		function telAutoFill(){
+			var phones = document.getElementsByName("tbPhone");
+			for (var i = 0; i < phones.length; i++)
+			{
+				if (phones.item(i).value.length == 3)
+					phones.item(i).value += "-";
+				if (phones.item(i).value.length == 7)
+					phones.item(i).value += "-";
+			}
+		}
+	</script>
 	<style type = "text/css">
 	body {
 	  padding-top: 10px;
@@ -56,12 +67,12 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
@@ -71,7 +82,7 @@
 				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -81,20 +92,12 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
-				<hr>
-				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
-				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
 			{%endif%}
@@ -105,18 +108,18 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о контакте инвестора "<a href="/infoinvestor?id={{contact.investorID.id}}">{{contact.investorID.investor}}</a>":</h3>
+			  <h3>Інформація про контакт інвестора "<a href="/infoinvestor?id={{contact.investorID.id}}">{{contact.investorID.investor}}</a>":</h3>
 			<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
-			<div class=".col-md-2" align="right">
-				<a class="btn btn-success" href="/infoinvcontact?id={{contact.id}}">Отмена</a>
-				<button class="btn btn-success" type="submit">Сохранить</button>
+			<div class=".col-md-2">
+				<a class="btn btn-success" href="/infoinvcontact?id={{contact.id}}">Відміна</a>
+				<button class="btn btn-success" type="submit">Зберігти</button>
 			</div>
 			<hr>
 			<div class="col-sm-3">
 			</div>
 			<div align="right" class="col-sm-3">
-				<b>ФИО: </b>
+				<b>ПІБ: </b>
 				<br>
 				<br>
 				<br>
@@ -126,16 +129,16 @@
 				<b>Почта: </b>
 				<br>
 				<br>
-				<b>Компания: </b>
+				<b>Компанія: </b>
 				<br>
 				<br>
-				<b>Должность: </b>
+				<b>Посада: </b>
 				<hr>
 			</div>
 			<div align="left" class="col-sm-4">
 				<input type="text" pattern="([А-ЯЁІЇ][а-яёії]+[\-\s]?){3,}" class="form-control" name="tbFIO" placeholder="{{contact.surname}} {{contact.name}} {{contact.midname}}" />
 				<br>
-				<input type="text" class="form-control" name="tbPhone" placeholder="{{contact.phone}}"  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" />
+				<input type="text" class="form-control" name="tbPhone" oninput="telAutoFill(this);" placeholder="{{contact.phone}}"  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" />
 				<input type="email" class="form-control" name="tbMail" placeholder="{{contact.mail}}" />
 				<br>
 				<input type="text" class="form-control" name="tbCompany" placeholder="{{contact.company}}" />

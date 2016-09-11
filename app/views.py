@@ -41,7 +41,14 @@ def index(request):
     val = ""
     if selTable == "startuper":
         val = request.POST.get("tbQSch", None)
-        queryList.extend(tStartuper.objects.filter(surname__icontains = val))
+        tmpStups = tStartuper.objects.filter(surname__icontains = val)
+        for item in tmpStups:
+            tmpObj = Object()
+            tmpObj.startuper = item
+            tmpprj = tTeam.objects.filter(startuperID = item)
+            if len(tmpprj)>0:
+                tmpObj.projects = tmpprj
+            queryList.append(tmpObj)
 
     if selTable == "project":
         val = request.POST.get("tbQSch", None)
@@ -133,16 +140,16 @@ def fillFormsStartuper(excelList, excelKeys):
     for startuper in excelList:
         newStartuper = Object()
         newStartuper.num = i
-        if u"имя" in excelKeys:
-            newStartuper.name = startuper[excelKeys.index(u"имя")]
-        if u"фамилия" in excelKeys:
-            newStartuper.surname = startuper[excelKeys.index(u"фамилия")]
-        if u"отчество" in excelKeys:
-            newStartuper.midname = startuper[excelKeys.index(u"отчество")]
+        if u"ім'я" in excelKeys:
+            newStartuper.name = startuper[excelKeys.index(u"ім'я")]
+        if u"прізвище" in excelKeys:
+            newStartuper.surname = startuper[excelKeys.index(u"прізвище")]
+        if u"побатькові" in excelKeys:
+            newStartuper.midname = startuper[excelKeys.index(u"побатькові")]
         if u"телефон" in excelKeys:
             newStartuper.phone = startuper[excelKeys.index(u"телефон")]
-        if u"почта" in excelKeys:
-            newStartuper.mail = startuper[excelKeys.index(u"почта")]
+        if u"пошта" in excelKeys:
+            newStartuper.mail = startuper[excelKeys.index(u"пошта")]
         if u"1ступень" in excelKeys:
             if startuper[excelKeys.index(u"1ступень")] == u"да":
                 newStartuper.fgrade = True
@@ -153,27 +160,33 @@ def fillFormsStartuper(excelList, excelKeys):
                 newStartuper.sgrade = True
             else:
                 newStartuper.sgrade = False
+        if u"рікзакінчення" in excelKeys:
+            newStartuper.finyear = startuper[excelKeys.index(u"рікзакінчення")]
         rezList.append(newStartuper)
         i+=1
     return rezList
 
 def addStartuperToDB(request, index, projectID):
-    samephones = tStartuper.objects.filter(phone = request.POST.getlist('tbPhone')[index])
+    samephones = tStartuper.objects.filter(phone = request.POST.getlist('tbPhone')[index]).exclude(phone = "")
     if len(samephones) != 0:
         return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
-            " не был добавлен. Стартапер с таким номером телефона уже есть в базе.").decode("utf-8")
-    samemail = tStartuper.objects.filter(mail = request.POST.getlist('tbMail')[index])
+            " не був добавлен. Стартапер с таким номером телефона вже є в базі.").decode("utf-8")
+    samemail = tStartuper.objects.filter(mail = request.POST.getlist('tbMail')[index]).exclude(mail = "")
     if len(samemail) != 0:
         return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
-            " не был добавлен. Стартапер с такой почтой уже есть в базе.").decode("utf-8")
+            " не був добавлен. Стартапер с такой поштой вже є в базі.").decode("utf-8")
+
+    tmpFgrade = request.POST.get('cbFgrade'+str(index+1),False)
+    tmpSgrade = request.POST.get('cbSgrade'+str(index+1),False)
     newStartuper = tStartuper.objects.create(
         name = request.POST.getlist('tbName')[index],
         surname = request.POST.getlist('tbSurname')[index],
         midname = request.POST.getlist('tbMidname')[index],
         phone = request.POST.getlist('tbPhone')[index],
         mail = request.POST.getlist('tbMail')[index],
-        fgrade = request.POST.get('cbFgrade'+str(index+1),False),
-        sgrade = request.POST.get('cbSgrade'+str(index+1),False),
+        fgrade = tmpFgrade,
+        sgrade = tmpSgrade,
+        finyear = request.POST.get('tbFinYear'+str(index+1), "-"),
     )
 
     form = FileUploadedForm(request.POST, request.FILES)
@@ -183,22 +196,21 @@ def addStartuperToDB(request, index, projectID):
             tmpFName = input_file.name.split(".")
             tmpFName = tmpFName.pop()
             if input_file.size < 100000:
-                print tmpFName
                 if tmpFName == "jpg" or tmpFName == "jepg" or tmpFName == "png" or tmpFName == "gif":
                     newStartuper.avatar = input_file
                 else:
                     return newStartuper.name + " " + newStartuper.surname + " " + newStartuper.midname + (
-                    " добавлен! Ошибка при добавлении изображения. Изображение имеет неверный формат").decode("utf-8")
+                    " додан до бази! Помилка при доданні зображення. Зображення має невірний формат").decode("utf-8")
             else:
                 newStartuper.save()
                 return newStartuper.name+" "+newStartuper.surname+" "+newStartuper.midname+(
-                    " добавлен! Ошибка при добавлении изображения. Размер изображения привышает 100кб").decode("utf-8")
+                    " додан до бази! Помилка при доданні зображення. Розмір зображення привищує 100кб").decode("utf-8")
     newStartuper.save()
     if projectID != "False":
         project = tProject.objects.get(id = projectID)
         team = tTeam.objects.create(startuperID = newStartuper, projectID = project)
         team.save()
-    return newStartuper.name+" "+newStartuper.surname+" "+newStartuper.midname+(" добавлен!").decode("utf-8")
+    return newStartuper.name+" "+newStartuper.surname+" "+newStartuper.midname+(" додан до бази!").decode("utf-8")
 
 def fillFormsProject(excelList, excelKeys):
     rezList = []
@@ -206,20 +218,22 @@ def fillFormsProject(excelList, excelKeys):
     for project in excelList:
         newProject = Object()
         newProject.num = i
-        if u"название" in excelKeys:
-            newProject.title = project[excelKeys.index(u"название")]
-        if u"почтаглавногостартапера" in excelKeys:
-            newProject.leader = project[excelKeys.index(u"почтаглавногостартапера")]
-        if u"отрасль" in excelKeys:
-            newProject.sector = project[excelKeys.index(u"отрасль")]
-        if u"описание" in excelKeys:
-            newProject.descr = project[excelKeys.index(u"описание")]
-        if u"почтаментора" in excelKeys:
-            newProject.mentor = project[excelKeys.index(u"почтаментора")]
-        if u"видпродукции" in excelKeys:
-            newProject.type = project[excelKeys.index(u"видпродукции")]
-        if u"формапродукции" in excelKeys:
-            newProject.isreal = project[excelKeys.index(u"формапродукции")]
+        if u"назва" in excelKeys:
+            newProject.title = project[excelKeys.index(u"назва")]
+        if u"головнийстартапер" in excelKeys:
+            newProject.leader = project[excelKeys.index(u"головнийстартапер")]
+        if u"галузь" in excelKeys:
+            newProject.sector = project[excelKeys.index(u"галузь")]
+        if u"опис" in excelKeys:
+            newProject.descr = project[excelKeys.index(u"опис")]
+        if u"ментор" in excelKeys:
+            newProject.mentor = project[excelKeys.index(u"ментор")]
+        if u"видпродукції" in excelKeys:
+            newProject.type = project[excelKeys.index(u"видпродукції")]
+        if u"формапродукції" in excelKeys:
+            newProject.isreal = project[excelKeys.index(u"формапродукції")]
+        if u"розмірфінансування" in excelKeys:
+            newProject.financeScale = project[excelKeys.index(u"розмірфінансування")]
         rezList.append(newProject)
         i+=1
     return rezList
@@ -230,18 +244,17 @@ def addProjectToDB(request, index, startuperID):
         projIsExhist = tProject.objects.filter(title = request.POST.getlist('tbTitle')[index])
     except:
         pass
-    print projIsExhist
     if len(projIsExhist) >= 1:
-        return "Проект с таким названием уже есть в базе."
+        return "Проеєкт з такою назвою вже є у базі."
     else:
         mailLead = request.POST.getlist('tbLeader')[index]
         try:
-            lead = tStartuper.objects.get(mail=mailLead)
+            lead = tStartuper.objects.get(id=mailLead)
         except:
             return request.POST.getlist('tbTitle')[index]+u". Стартапер с такой почтой не обнаружен. Выберете из списк или создайте нового."
         mailMent = request.POST.getlist('tbMentor')[index]
         try:
-            mentor = tMentor.objects.get(mail=mailMent)
+            mentor = tMentor.objects.get(id=mailMent)
         except:
             return request.POST.getlist('tbTitle')[index]+u". Ментор с такой почтой не обнаружен. Выберете из списк или создайте нового."
         newProject = tProject.objects.create(
@@ -250,13 +263,14 @@ def addProjectToDB(request, index, startuperID):
             descr = request.POST.getlist('taDescr')[index],
             type = request.POST.getlist('selType')[index],
             isreal = request.POST.getlist('selIsReal')[index],
+            financeScale = request.POST.getlist('tbFinScale')[index],
         )
         if startuperID != "False":
             startuper = tStartuper.objects.get(id = startuperID)
             team = tTeam.objects.create(startuperID = startuper, projectID = newProject)
             team.save()
         newProject.save()
-        team = tTeam.objects.create(projectID = newProject, startuperID = lead, role="Главный стартапер", islead = True)
+        team = tTeam.objects.create(projectID = newProject, startuperID = lead, role="Головний стартапер", islead = True)
         team.save()
         mentoproj = tMentoproj.objects.create(mentorID = mentor, projectID = newProject, date = datetime.strptime(datetime.now().date().__format__('%d.%m.%Y, %H:%M').__str__(), "%d.%m.%Y, %H:%M"))
         mentoproj.save()
@@ -264,7 +278,7 @@ def addProjectToDB(request, index, startuperID):
         keywordList = tKeyWord.objects.filter(id__in = taglist)
         for item in keywordList:
             tmp = tKeyWordToProject.objects.create(word = item, projectID = newProject)
-        return newProject.title+(" добавлен!").decode("utf-8")
+        return newProject.title+(" додан до бази!").decode("utf-8")
 
 def fillFormsInvestor(excelList, excelKeys):
     rezList = []
@@ -272,10 +286,10 @@ def fillFormsInvestor(excelList, excelKeys):
     for investor in excelList:
         newInvestor = Object()
         newInvestor.num = i
-        if u"инвестор" in excelKeys:
-            newInvestor.title = investor[excelKeys.index(u"инвестор")]
-        if u"описание" in excelKeys:
-            newInvestor.descr = investor[excelKeys.index(u"описание")]
+        if u"інвестор" in excelKeys:
+            newInvestor.title = investor[excelKeys.index(u"інвестор")]
+        if u"опис" in excelKeys:
+            newInvestor.descr = investor[excelKeys.index(u"опис")]
         i+=1
     return rezList
 
@@ -285,7 +299,7 @@ def addInvestorToDB(request, index):
         descr = request.POST.getlist('taDescr')[index]
     )
     newInvestor.save()
-    return newInvestor.investor+(" добавлен!").decode("utf-8")
+    return newInvestor.investor+(" додан до бази!").decode("utf-8")
 
 def fillFormsInvContacts(excelList, excelKeys):
     rezList = []
@@ -293,20 +307,20 @@ def fillFormsInvContacts(excelList, excelKeys):
     for investor in excelList:
         newInvestor = Object()
         newInvestor.num = i
-        if u"имя" in excelKeys:
-            newInvestor.name = investor[excelKeys.index(u"имя")]
-        if u"фамилия" in excelKeys:
-            newInvestor.surname = investor[excelKeys.index(u"фамилия")]
-        if u"отчество" in excelKeys:
-            newInvestor.midname = investor[excelKeys.index(u"отчество")]
+        if u"ім'я" in excelKeys:
+            newInvestor.name = investor[excelKeys.index(u"ім'я")]
+        if u"прізвище" in excelKeys:
+            newInvestor.surname = investor[excelKeys.index(u"прізвище")]
+        if u"побатькові" in excelKeys:
+            newInvestor.midname = investor[excelKeys.index(u"побатькові")]
         if u"телефон" in excelKeys:
             newInvestor.phone = investor[excelKeys.index(u"телефон")]
-        if u"почта" in excelKeys:
-            newInvestor.mail = investor[excelKeys.index(u"почта")]
-        if u"должность" in excelKeys:
-            newInvestor.mail = investor[excelKeys.index(u"должность")]
-        if u"компания" in excelKeys:
-            newInvestor.mail = investor[excelKeys.index(u"компания")]
+        if u"пошта" in excelKeys:
+            newInvestor.mail = investor[excelKeys.index(u"пошта")]
+        if u"должність" in excelKeys:
+            newInvestor.mail = investor[excelKeys.index(u"должність")]
+        if u"посада" in excelKeys:
+            newInvestor.mail = investor[excelKeys.index(u"посада")]
         rezList.append(newInvestor)
         i+=1
     return rezList
@@ -324,7 +338,7 @@ def addInvContToDB(request, id, index):
     )
 
     newInvCont.save()
-    return newInvCont.surname+" "+newInvCont.name+" "+newInvCont.midname+(" добавлен!").decode("utf-8")
+    return newInvCont.surname+" "+newInvCont.name+" "+newInvCont.midname+(" додан до бази!").decode("utf-8")
 
 def fillFormsMentor(excelList, excelKeys):
     rezList = []
@@ -332,16 +346,16 @@ def fillFormsMentor(excelList, excelKeys):
     for mentor in excelList:
         newMentor = Object()
         newMentor.num = i
-        if u"имя" in excelKeys:
-            newMentor.name = mentor[excelKeys.index(u"имя")]
-        if u"фамилия" in excelKeys:
-            newMentor.surname = mentor[excelKeys.index(u"фамилия")]
-        if u"отчество" in excelKeys:
-            newMentor.midname = mentor[excelKeys.index(u"отчество")]
+        if u"ім'я" in excelKeys:
+            newMentor.name = mentor[excelKeys.index(u"ім'я")]
+        if u"прізвище" in excelKeys:
+            newMentor.surname = mentor[excelKeys.index(u"прізвище")]
+        if u"побатькові" in excelKeys:
+            newMentor.midname = mentor[excelKeys.index(u"побатькові")]
         if u"телефон" in excelKeys:
             newMentor.phone = mentor[excelKeys.index(u"телефон")]
-        if u"почта" in excelKeys:
-            newMentor.mail = mentor[excelKeys.index(u"почта")]
+        if u"пошта" in excelKeys:
+            newMentor.mail = mentor[excelKeys.index(u"пошта")]
         rezList.append(newMentor)
         i+=1
     return rezList
@@ -350,7 +364,7 @@ def addMentorToDB(request, index, projectID):
     samemail=tMentor.objects.filter(mail=request.POST.getlist('tbMail')[index])
     if len(samemail) != 0:
         return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
-            " не был добавлен. Ментор с такой почтой уже есть в базе.").decode("utf-8")
+            " не був додан до бази. Ментор с такой почтой вже є у базі.").decode("utf-8")
     newMent = tMentor.objects.create(
         name = request.POST.getlist('tbName')[index],
         surname = request.POST.getlist('tbSurname')[index],
@@ -363,7 +377,7 @@ def addMentorToDB(request, index, projectID):
         sig = tMentoproj.objects.create(mentorID = newMent, projectID = project, date = datetime.now())
         sig.save()
     newMent.save()
-    return newMent.surname+" "+newMent.name+" "+newMent.midname+(" добавлен!").decode("utf-8")
+    return newMent.surname+" "+newMent.name+" "+newMent.midname+(" додан до бази!").decode("utf-8")
 
 def add(request):
     """Worker validation"""
@@ -414,24 +428,27 @@ def add(request):
     """Loading and getting data from excel file"""
     excelKeys = []
     excelList = []
-    if request.method == 'POST':
-        form = FileUploadedForm(request.POST, request.FILES)
-        if form.is_valid():
-            input_file = request.FILES.get('excelImport')
-            if input_file != None:
-                tmpFName = input_file.name.split(".")
-                tmpFName = tmpFName.pop()
-                if tmpFName == "xlsx" or tmpFName == "xls":
-                    wb = xlrd.open_workbook(file_contents=input_file.read())
-                    wb_sheet = wb.sheet_by_index(0)
-                    row = wb_sheet.row_values(0)
-                    for item in row:
-                        excelKeys.append(unicode(item).lower().replace(" ",""))
-                    for rownum in range(1, wb_sheet.nrows):
-                        row = wb_sheet.row_values(rownum)
-                        row.append(rownum)
-                        excelList.append(row)
-                        inputsQty = 0
+    try:
+        if request.method == 'POST':
+            form = FileUploadedForm(request.POST, request.FILES)
+            if form.is_valid():
+                input_file = request.FILES.get('excelImport')
+                if input_file != None:
+                    tmpFName = input_file.name.split(".")
+                    tmpFName = tmpFName.pop()
+                    if tmpFName == "xlsx" or tmpFName == "xls":
+                        wb = xlrd.open_workbook(file_contents=input_file.read())
+                        wb_sheet = wb.sheet_by_index(0)
+                        row = wb_sheet.row_values(0)
+                        for item in row:
+                            excelKeys.append(unicode(item).lower().replace(" ",""))
+                        for rownum in range(1, wb_sheet.nrows):
+                            row = wb_sheet.row_values(rownum)
+                            row.append(rownum)
+                            excelList.append(row)
+                            inputsQty = 0
+    except:
+        pass
 
     if obj == "startuper":
         obj = "стартапера"
@@ -443,8 +460,6 @@ def add(request):
         for x in range(0,inputsQty):
             tmpObj = Object()
             tmpObj.num = x+1
-            tmpObj.fgrade = True
-            tmpObj.sgrade = True
             inputList.append(tmpObj)
             loaded = True
             inputOpt = 1
@@ -455,9 +470,9 @@ def add(request):
                 resultList.append(addStartuperToDB(request, request.POST.getlist('tbSurname').index(item),projectID))
 
     if obj == "project":
-        possibleLeaders = tStartuper.objects.all()
-        mentors = tMentor.objects.all()
-        obj = "проект"
+        possibleLeaders = tStartuper.objects.all().order_by("surname","name")
+        mentors = tMentor.objects.all().order_by("surname","name")
+        obj = "проєкт"
         taglist = tKeyWord.objects.all()
 
         if request.FILES.get('excelImport', False):
@@ -478,7 +493,7 @@ def add(request):
                 resultList.append(addProjectToDB(request, request.POST.getlist('tbTitle').index(item), startuperID))
 
     if obj == "investor":
-        obj = "инвестора"
+        obj = "інвестора"
         if request.FILES.get('excelImport', False):
             inputList = fillFormsInvestor(excelList, excelKeys)
             loaded = True
@@ -593,7 +608,7 @@ def startupersearch(request):
         export = export.pop()
 
     resultList = []
-    searchObj = Object
+    searchObj = Object()
     file=datetime.now().time().__format__("%H%M%S").__str__()
     if request.method == "POST":
         searchObj.surname = request.POST.get("tbSurname", "")
@@ -601,8 +616,8 @@ def startupersearch(request):
         searchObj.midname = request.POST.get("tbMidname", "")
         searchObj.phone = request.POST.get("tbPhone", "")
         searchObj.mail = request.POST.get("tbMail", "")
-        searchObj.fgrade = request.POST.get("cbFgrade", False)
-        searchObj.sgrade = request.POST.get("cbSgrade", False)
+        searchObj.fgrade = bool(request.POST.get("cbFgrade", False))
+        searchObj.sgrade = bool(request.POST.get("cbSgrade", False))
         searchObj.projects = request.POST.getlist("tbProjects", "")
 
         projectIDs = tProject.objects.filter(title__in=searchObj.projects)
@@ -885,7 +900,6 @@ def mentorsearch(request):
             phone__icontains=searchObj.phone,
             mail__icontains=searchObj.mail,
         )
-        print resultList
         if len(tmpTeamIDs) != 0:
             resultList = resultList.filter(id__in=tmpTeamIDs, )
 
@@ -920,15 +934,22 @@ def mentorsearch(request):
 
 
 def infostartuper(request):
-    curruser = None
+    curruser = 0
     entered = 0
+    staff = False
     curruserName = request.session.get("curUser", False)
+    if curruserName == None:
+        return redirect("index")
     if curruserName:
         curruser = User.objects.get(username=curruserName)
         if curruser.groups.filter(name="chief"):
             entered = "chief"
+            staff = True
         if curruser.groups.filter(name="worker"):
             entered = "worker"
+            staff = True
+        if staff is not True:
+            return redirect("index")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -968,6 +989,7 @@ def infostartuper(request):
                                                   "projects":projects,
                                                   "docs":docs,
                                                   "addfile":addfile,
+                                                  "staff":staff,
                                                   })
 
     return render(request, "info/infostartuper.html", {"name":curruser,
@@ -977,18 +999,22 @@ def infostartuper(request):
                                           "projects":projects,
                                           "docs":docs,
                                           "addfile":addfile,
+                                          "staff":staff,
                                           })
 
 def infoproject(request):
     curruser = None
     entered = 0
+    staff = False
     curruserName = request.session.get("curUser", False)
     if curruserName:
         curruser = User.objects.get(username=curruserName)
         if curruser.groups.filter(name="chief"):
             entered = "chief"
+            staff = True
         if curruser.groups.filter(name="worker"):
             entered = "worker"
+            staff = True
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1029,7 +1055,6 @@ def infoproject(request):
 
         taglist = tKeyWordToProject.objects.filter(projectID = project)
 
-        reqInvests = tReqInvests.objects.filter(projectID = project)
     currStat = ""
     if len(status) > 0:
         currStat = status.pop()
@@ -1052,7 +1077,7 @@ def infoproject(request):
                                               "mentors":mentors,
                                               "currMent":currMent,
                                               "taglist":taglist,
-                                              "reqInvests":reqInvests,
+                                              "staff":staff,
                                               })
     return render(request, "info/infoproject.html", {"name":curruser,
                                           "entered":entered,
@@ -1068,7 +1093,7 @@ def infoproject(request):
                                           "mentors":mentors,
                                           "currMent":currMent,
                                           "taglist":taglist,
-                                          "reqInvests":reqInvests,
+                                          "staff":staff,
                                           })
 
 def infoinvestor(request):
@@ -1086,6 +1111,8 @@ def infoinvestor(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if staff is not True:
+            return redirect("index")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1148,6 +1175,8 @@ def infoinvcontact(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if staff is not True:
+            return redirect("index")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1189,6 +1218,9 @@ def infomentor(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if staff is not True:
+            return redirect("index")
+
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1315,7 +1347,7 @@ def addfile(request):
     addurl = urldata.get('addurl', "")
     if addurl != "":
         addurl = addurl.pop()
-    result = "Файл добавлен!"
+    result = "Файл додан!"
     added = False
 
     if _id != None:
@@ -1339,14 +1371,14 @@ def addfile(request):
                                 doc.save()
                                 added = True
                             else:
-                                result = "Размер Файла больше 5мб!"
+                                result = "Розмір Файлу більше 5мб!"
                 else:
                     someUrl = tDoc.objects.create(startuperID=startuper,)
                     someUrl.title = request.POST.get("tbTitle")
                     someUrl.url = request.POST.get("tbUrl")
                     someUrl.save()
                     added = True
-                    result = "Ссылка добавлена!"
+                    result = "Посилання додано!"
 
         if _entity == "project":
             project = tProject.objects.get(id = _id)
@@ -1363,14 +1395,14 @@ def addfile(request):
                                 file.save()
                                 added = True
                             else:
-                                result = "Размер Файла больше 5мб!"
+                                result = "Розмір Файлу більше 5мб!"
                 else:
                     someUrl = tAddInfoProj.objects.create(projectID=project,)
                     someUrl.text = request.POST.get("tbTitle")
                     someUrl.url = request.POST.get("tbUrl")
                     someUrl.save()
                     added = True
-                    result = "Ссылка добавлена!"
+                    result = "Посилання додано!"
 
         if _entity == "investor":
             investor = tInvestor.objects.get(id = _id)
@@ -1387,14 +1419,14 @@ def addfile(request):
                                 file.save()
                                 added = True
                             else:
-                                result = "Размер Файла больше 5мб!"
+                                result = "Розмір Файлу більше 5мб!"
                 else:
                     someUrl = tAddInfoInv.objects.create(investorID=investor,)
                     someUrl.text = request.POST.get("tbTitle")
                     someUrl.url = request.POST.get("tbUrl")
                     someUrl.save()
                     added = True
-                    result = "Ссылка добавлена!"
+                    result = "Посилання додано!"
 
     return render(request, "adding/addfile.html", {"name":curruser,
                                           "entered":entered,
@@ -1765,74 +1797,6 @@ def investitions(request):
                                           "projErr":projErr,
                                           })
 
-def reqinvadd(request):
-    """Worker validation"""
-    entered = 0
-    curruser = 0
-    id = None
-    try:
-        id = request.session["curUser"]
-    finally:
-        if id == None:
-            return redirect("index")
-        else:
-            curruserName = request.session.get("curUser", False)
-            curruser = User.objects.get(username=curruserName)
-            if curruser.groups.filter(name="worker"):
-                entered = "worker"
-    if entered != "worker":
-        return redirect("index")
-
-    """Getting data from url"""
-    path = urlparse(request.get_full_path())
-    query = path.query
-    urldata = parse_qs(query)
-    added = urldata.get('added', False)
-    if added != False:
-        added = added.pop()
-    _id = urldata.get('id', None)
-    if _id != None:
-        _id = _id.pop()
-    redir = urldata.get('redirect', None)
-    if redir != None:
-        redir = redir.pop()
-
-    inputList = []
-    resultList = []
-    projErr=""
-    investor = Object()
-    if _id != None:
-        project = tProject.objects.get(id = _id)
-        if request.method == 'POST':
-            try:
-                investition = tReqInvests.objects.create(
-                    projectID = project,
-                    type = request.POST.get("selType", None),
-                    res = request.POST.get("tbRes", None),
-                    sum = request.POST.get("tbSum", None),
-                )
-                investition.save()
-                if redir == "true":
-                    return  redirect("/infoproject?id="+_id )
-            except:
-                pass
-
-    projects = tProject.objects.all()
-    return render(request, "adding/reqinvadd.html", {
-                                          "name":curruser,
-                                          "entered":entered,
-                                          "id":_id,
-                                          "investor":investor,
-                                          "inputList":inputList,
-                                          "added":added,
-                                          "resultList":resultList,
-                                          "now":datetime.now().__format__('%d.%m.%Y, %H:%M'),
-                                          "projects":projects,
-                                          "projErr":projErr,
-                                          })
-
-
-
 def editstartuper(request):
     curruser = None
     entered = 0
@@ -1886,6 +1850,8 @@ def editstartuper(request):
                 startuper.mail = request.POST.get("tbMail", "")
             startuper.fgrade = bool(request.POST.get("cbFgrade", False))
             startuper.sgrade = bool(request.POST.get("cbSgrade", False))
+            if request.POST.get("tbFinYear", "") != "":
+                startuper.finyear = request.POST.get("tbFinYear", False)
             form = FileUploadedForm(request.POST, request.FILES)
             if form.is_valid():
                 input_file = request.FILES.get('fAvatar', None)
@@ -1967,9 +1933,8 @@ def editproject(request):
         status = tStatus.objects.filter(projectID = project).order_by("date")
         activities = tActivities.objects.filter(projectID = project)
         mentors = tMentoproj.objects.filter(projectID = project).order_by("-date")
-        possibleLeaders = tStartuper.objects.all()
-        mentorlist = tMentor.objects.all()
-        reqInvests = tReqInvests.objects.filter(projectID=project)
+        possibleLeaders = tStartuper.objects.all().order_by("surname","name")
+        mentorlist = tMentor.objects.all().order_by("surname","name")
 
         if len(mentors) != 0:
             mentor = mentors[0]
@@ -1977,36 +1942,53 @@ def editproject(request):
         if request.method == "POST":
             mailLead = request.POST.get("tbLeader", "")
             if mailLead != "":
-                leader = tStartuper.objects.filter(mail = mailLead)
+                leader = tStartuper.objects.filter(id = mailLead)
                 if len(leader) == 0:
                     errLead = "Стартапер с такими ФИО не обнаружен."
                     redir = False
                 else:
                     leader = leader[0]
                     if len(tTeam.objects.filter(projectID = project, startuperID = leader)) == 0:
+                        prevLid = tTeam.objects.filter(projectID = project, islead = True)
+                        if len(prevLid) != 0:
+                            prevLid = prevLid[0]
+                            prevLid.islead = False
+                            prevLid.save()
                         newLead = tTeam.objects.create(projectID = project, startuperID = leader, role="Главный стартапер", islead = True)
                         newLead.save()
                     else:
+                        prevLid = tTeam.objects.filter(projectID = project, islead = True)
+                        if len(prevLid) != 0:
+                            prevLid = prevLid[0]
+                            prevLid.islead = False
+                            prevLid.save()
                         tmpTeam = tTeam.objects.get(projectID = project, startuperID = leader)
                         tmpTeam.islead = True
                         tmpTeam.save()
 
             currMentMail = request.POST.get("tbMentor", "")
             if currMentMail != "":
-                ment = tMentor.objects.filter(mail = currMentMail)
+                ment = tMentor.objects.filter(id = currMentMail)
                 if len(ment) == 0:
                     errMent = "Ментор с такими ФИО не обнаружен."
                     redir = False
                 else:
                     ment = ment[0]
-                    if len(tMentoproj.objects.filter(projectID = project, mentorID =ment)) == 0:
-                        newMent = tMentoproj.objects.create(mentorID = ment, projectID = project, date = datetime.now())
-                        newMent.save()
+                    newMent = tMentoproj.objects.create(mentorID = ment, projectID = project, date = datetime.now())
+                    newMent.save()
+
 
             if request.POST.get("tbTitle", "") != "":
                 project.title = request.POST.get("tbTitle", "")
             if request.POST.get("tbSector", "") != "":
                 project.sector = request.POST.get("tbSector", "")
+            if request.POST.get("tbFinScale", "") != "":
+                project.financeScale = request.POST.get("tbFinScale", "")
+            if request.POST.get("sbActive", "") != "":
+                if request.POST.get("sbActive", "") == "True":
+                    project.isactive = True
+                else:
+                    project.isactive = False
             if request.POST.get("tbDescr", "") != "":
                 project.descr = request.POST.get("tbDescr", "")
             if request.POST.get("selType", "") != "":
@@ -2034,14 +2016,6 @@ def editproject(request):
                 if request.POST.get("tbMentDate"+str(item.id), "") != "":
                     item.date = datetime.strptime(request.POST.get("tbMentDate"+str(item.id),  datetime.now().date().__str__()) + ", "+datetime.now().time().__format__("%H:%M").__str__(), '%d.%m.%Y, %H:%M')
                 item.save()
-            for item in reqInvests:
-                if request.POST.get("tbReqInvType"+str(item.id), "") != "":
-                    item.type = request.POST.get("tbReqInvType"+str(item.id), "")
-                if request.POST.get("tbReqInvRes"+str(item.id), "") != "":
-                    item.res = request.POST.get("tbReqInvRes"+str(item.id), "")
-                if request.POST.get("tbReqInvSum"+str(item.id), "") != "":
-                    item.sum = request.POST.get("tbReqInvSum"+str(item.id), "")
-                item.save()
 
             for item in teams:
                 if request.POST.get("cbStartDel"+str(item.id), False):
@@ -2057,9 +2031,6 @@ def editproject(request):
                     item.delete()
             for item in mentors:
                 if request.POST.get("cbMentDel"+str(item.id), False):
-                    item.delete()
-            for item in reqInvests:
-                if request.POST.get("cbReqInvDel"+str(item.id), False):
                     item.delete()
 
             if redir == "true":
@@ -2080,7 +2051,6 @@ def editproject(request):
                                           "errLead":errLead,
                                           "currMent":currMent,
                                           "errMent":errMent,
-                                          "reqInvests":reqInvests,
                                           })
 
 def editinvestor(request):

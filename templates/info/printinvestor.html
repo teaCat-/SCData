@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,22 +56,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -82,9 +82,6 @@
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
     </div>
 
 	<div class = "menu">
@@ -96,7 +93,7 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о инвесторе:</h3>
+			  <h3>Інформація про інвестора:</h3>
 			<div class=".col-md-2" align="right">
 			</div>
 			<hr>
@@ -105,7 +102,7 @@
 				<tbody>
 				<tr>
 					<td align="right">
-						<b>Инвестор: </b>
+						<b>Інвестор: </b>
 					</td>
 					<td>
 						{{investor.investor}}
@@ -118,14 +115,14 @@
 
 			<div align="left" class="col-sm-7">
 				<hr>
-				<b>Описание: </b>
+				<b>Опис: </b>
 				<textarea class="form-control" cols="80" rows="5" disabled>{{investor.descr}}</textarea>
 			</div>
 
               <div class="col-sm-10">
                 <hr>
                 <div class="col-sm-2">
-                    <h4><b>Контакты:  </b></h4>
+                    <h4><b>Контакти:  </b></h4>
                 </div>
                 <div class="col-sm-10" align="left">
                 </div>
@@ -139,9 +136,9 @@
 					<thead>
 						<tr>
 							<th> <i></i> </th>
-							<th> <i>ФИО</i> </th>
-							<th> <i>Компания</i> </th>
-							<th> <i>Должность</i> </th>
+							<th> <i>ПІБ</i> </th>
+							<th> <i>Компанія</i> </th>
+							<th> <i>Посада</i> </th>
 						</tr>
 					</thead>
 					<tbody>
@@ -161,7 +158,7 @@
 			<div class="col-sm-11">
 				<hr>
 				<div class="col-sm-2">
-					<h4><b>Инвестиции:  </b></h4>
+					<h4><b>Інвестиції:  </b></h4>
 				</div>
 				<div class="col-sm-9" align="left">
 				</div>
@@ -170,11 +167,11 @@
 					<thead>
 						<tr>
 							<th> <i>Дата</i> </th>
-							<th> <i>Проект</i> </th>
+							<th> <i>Проєкт</i> </th>
 							<th> <i>Ресурс \ Валюта</i> </th>
-							<th> <i>Сумма</i> </th>
-							<th> <i>Вид финансирования</i> </th>
-							<th> <i>Описание</i> </th>
+							<th> <i>Сума</i> </th>
+							<th> <i>Вид фінансування</i> </th>
+							<th> <i>Опис</i> </th>
 						</tr>
 					</thead>
 					<tbody>

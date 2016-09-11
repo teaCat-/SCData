@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -56,7 +56,7 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
@@ -68,10 +68,10 @@
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -81,19 +81,16 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати аккаунт</button></a>
 				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
@@ -106,7 +103,7 @@
 		  <div class="row">
 			  {%if entity == "project"%}
 					<div class="col-md-10">
-					  	<h3>Добавить менторов в проект "{{project.title}}":</h3>
+					  	<h3>Додати менторів до проєкту "{{project.title}}":</h3>
 						<hr>
 						{%if added is False%}
 							<form method="post">
@@ -116,7 +113,7 @@
 										<input type = "text" class="form-control .col-lg-6" name = "tbQSch" value="{{schVal}}"/>
 									</div>
 									<div class="col-sm-2">
-										<button class="btn btn-success btn-block" type="submit">Поиск</button>
+										<button class="btn btn-success btn-block" type="submit">Пошук</button>
 									</div>
 								</div>
 							</form>
@@ -129,7 +126,7 @@
 												<tr>
 													<th></th>
 													<th></th>
-													<th>Является ментором с</th>
+													<th>Є ментором з</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -151,7 +148,7 @@
 
 										<br>
 										{%if queryListCount != 0%}
-											<p> Страница:</p>
+											<p> Сторінка:</p>
 										{%endif%}
 										{%if page != 1%}
 											<a href="/mentorstoproject?id={{id}}&page={{prevpage}}&entity=project"> Назад </a>...
@@ -160,7 +157,7 @@
 											{{page}}
 										{%endif%}
 										{%if queryListCount == 0%}
-											Нечего добавить.
+											Нема чого додати.
 										{%endif%}
 										{%if queryListCount > 10%}
 											... <a href="/mentorstoproject?id={{id}}&page={{nextpage}}&entity=project">Вперед </a>
@@ -168,25 +165,25 @@
 										<p></p>
 										<div class="col-sm-3">
 										<hr>
-											<button class="btn btn-success btn-block" type="submit">Добавить</button>
-											<button class="btn btn-success btn-block" type="submit" formaction="?id={{id}}&page={{page}}&entity=project&redirect=true">Добавить и вернутся</button>
+											<button class="btn btn-success btn-block" type="submit">Додати</button>
+											<button class="btn btn-success btn-block" type="submit" formaction="?id={{id}}&page={{page}}&entity=project&redirect=true">Додати і повернутись</button>
 										</div>
 								</form>
 								<div class="col-sm-3">
 									<hr>
 									<a href="/infoproject?id={{id}}">
-										<button class="btn btn-success btn-block" type="submit">Отмена</button>
+										<button class="btn btn-success btn-block" type="submit">Відміна</button>
 									</a>
 								</div>
 							</div>
 						{%endif%}
 						{%if added is True%}
-							<p>Менторы добавлены к проекту</p>
+							<p>Ментори додані до проекту</p>
 						{%endif%}
 					</div>
 			  {%endif%}
 			  {%if added is True%}
-			  		<p>Проекты добавлены</p>
+			  		<p>Проекти додані</p>
 			  {%endif%}
 		  </div>
 		  <footer>

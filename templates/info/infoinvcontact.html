@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,6 +20,16 @@
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
+	 <script>
+		function DetectMob()
+		{
+		   var uagent = navigator.userAgent.toLowerCase();
+		   if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent))
+		   {
+			  document.getElementById("menu").style.visibility = "hidden";
+		   }
+		}
+	</script>
 	<style type = "text/css">
 	body {
 	  padding-top: 10px;
@@ -38,7 +48,7 @@
 	
   </head>
 
-  <body>
+  <body onload="DetectMob()">
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -56,22 +66,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -81,36 +91,33 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
-	<div class = "menu">
+	<div class = "menu" id="menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати аккаунт</button></a>
 				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
 				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
 				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -119,12 +126,12 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о контакте инвестора "<a href="/infoinvestor?id={{contact.investorID.id}}">{{contact.investorID.investor}}</a>":</h3>
-			<div class=".col-md-2" align="right">
+			  <h3>Інформація про контакт інвестора "<a href="/infoinvestor?id={{contact.investorID.id}}">{{contact.investorID.investor}}</a>":</h3>
+			<div class=".col-md-2">
 			{%if entered == "worker"%}
-				<a href="/editinvcontact?id={{contact.id}}"><button class="btn btn-success" type="submit">Редактировать</button></a>
+				<a href="/editinvcontact?id={{contact.id}}"><button class="btn btn-success" type="submit">Редагувати</button></a>
 			{%endif%}
-				<a href="/infoinvcontact?id={{contact.id}}&print=true" class="btn btn-success">Печать</a>
+				<a href="/infoinvcontact?id={{contact.id}}&print=true" class="btn btn-success">Роздрукувати</a>
 			</div>
 			<hr>
 			<div class="col-sm-3">
@@ -133,7 +140,7 @@
 				<table class="table table">
 					<tbody>
 						<tr>
-							<td><b>ФИО: </b></td>
+							<td><b>ПІБ: </b></td>
 							<td>
 								{{contact.surname}}
 								{{contact.name}}
@@ -147,19 +154,19 @@
 							</td>
 						</tr>
 						<tr>
-							<td><b>Почта: </b></td>
+							<td><b>Пошта: </b></td>
 							<td>
 								{{contact.mail}}
 							</td>
 						</tr>
 						<tr>
-							<td><b>Компания: </b></td>
+							<td><b>Компанія: </b></td>
 							<td>
 								{{contact.company}}
 							</td>
 						</tr>
 						<tr>
-							<td><b>Должность: </b></td>
+							<td><b>Посада: </b></td>
 							<td>
 								{{contact.position}}
 							</td>

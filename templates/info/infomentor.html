@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,6 +20,16 @@
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
+	 <script>
+		function DetectMob()
+		{
+		   var uagent = navigator.userAgent.toLowerCase();
+		   if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent))
+		   {
+			  document.getElementById("menu").style.visibility = "hidden";
+		   }
+		}
+	</script>
 	<style type = "text/css">
 	body {
 	  padding-top: 10px;
@@ -38,7 +48,7 @@
 	
   </head>
 
-  <body>
+  <body onload="DetectMob()">
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -56,22 +66,22 @@
 			{% csrf_token %}
 			{%if entered == 0%}
 				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логин" class="form-control">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
 				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Войти</button>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
 			{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
 			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Добро пожаловать, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightgreen">{{name}}! </i>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Выйти</button>
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
@@ -81,36 +91,33 @@
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron">
-      <div class="container">
-        <h1>База клиентов Sikorsky Challenge</h1>
-      </div>
+    <div class="jumbotron" style="background:white;">
     </div>
 
-	<div class = "menu">
+	<div class = "menu" id="menu">
 		<div class="navbar-form navbar-right">
 			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создать аккаунт</button></a>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати аккаунт</button></a>
 				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Расширеный поиск</button></a>
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
 				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Добавить стартапера</button></a>
+				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
 				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Добавить проект</button></a>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Добавить инвестора</button></a>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Добавить ментора</button></a>
+				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Добавить тэги</button></a>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
 				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главную</button></form>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -119,12 +126,12 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Информация о менторе:</h3>
-			<div class=".col-md-2" align="right">
+			  <h3>Інформация о менторе:</h3>
+			<div class=".col-md-2">
 			{%if entered == "worker"%}
-				<a href="/editmentor?id={{mentor.id}}"><button class="btn btn-success" type="submit">Редактировать</button></a>
+				<a href="/editmentor?id={{mentor.id}}"><button class="btn btn-success" type="submit">Редагувати</button></a>
 			{%endif%}
-				<a href="/infomentor?id={{mentor.id}}&print=true" class="btn btn-success">Печать</a>
+				<a href="/infomentor?id={{mentor.id}}&print=true" class="btn btn-success">Роздрукувати</a>
 			</div>
 			<hr>
 			<div class="col-sm-3">
@@ -132,9 +139,9 @@
 			<div align="right" class="col-sm-5">
 				<table class = "table table">
 					<tbody>
-						<tr><td>ФИО:</td> <td>{{mentor.surname}} {{mentor.name}} {{mentor.midname}}</td></tr>
+						<tr><td>ПІБ:</td> <td>{{mentor.surname}} {{mentor.name}} {{mentor.midname}}</td></tr>
 						<tr><td>Телефон:</td> <td> {{mentor.phone}}</td></tr>
-						<tr><td>Почта:</td> <td> {{mentor.mail}}</td></tr>
+						<tr><td>Пошта:</td> <td> {{mentor.mail}}</td></tr>
 					</tbody>
 				</table>
 			</div>
@@ -142,7 +149,7 @@
 			<div class="col-sm-12">
 				<hr>
 				<div class="col-sm-1">
-					<h4><b>Проекты:  </b></h4>
+					<h4><b>Проєкты:  </b></h4>
 				</div>
 				<div class="col-sm-10" align="left">
 					<br>
@@ -151,8 +158,8 @@
 					<thead>
 						<tr>
 							<th><i></i></th>
-							<th><i>Название</i></th>
-							<th><i>Является ментором с</i></th>
+							<th><i>Назва</i></th>
+							<th><i>Є ментором з</i></th>
 						</tr>
 					</thead>
 					<tbody>
