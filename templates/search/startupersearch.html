@@ -187,10 +187,41 @@
 			<br>
 			<br>
 			<hr>
-			{%for item in resultList%}
-				<h4><a href="/infostartuper?id={{item.id}}"> {{item.surname}} {{item.name}} {{item.midname}}</a></h4>
-				<hr>
-			{%endfor%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>ФІО</th>
+							<th>Рік закінчення 2ї ступені</th>
+							<th>Проєкти</th>
+							<th>Повнота інформація</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in resultList%}
+						<tr>
+							<td><a href="infostartuper?id={{item.startuper.id}}"><h4>{{item.startuper.surname}} {{item.startuper.name}} {{item.startuper.midname}}</h4></a></td>
+							<td>{{item.startuper.finyear}} {%if item.startuper.finyear != "-"%}р.{%endif%}</td>
+							<td>
+								<table>
+									<tbody>
+										{%for proj in item.projects%}
+										<tr>
+											<td><h5><a href="infoproject?id={{proj.projectID.id}}"> {{proj.projectID.title}}</a></h5></td>
+										</tr>
+										{%endfor%}
+									</tbody>
+								</table>
+							</td>
+							<td>
+								{% if item.startuper.midname == "" or item.startuper.phone == "" or item.startuper.mail == "" or item.startuper.avatar == ""%}
+									Не повна
+								{%else%}
+									Повна
+								{%endif%}
+							</td>
+						</tr>
+						{%endfor%}
+					</tbody>
 			</div>
 		</div>
 		  <footer>

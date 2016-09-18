@@ -120,7 +120,6 @@
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" style="background:white;">
       <div class="container">
-        <h1>База клиєнтів Sikorsky Challenge</h1>
       </div>
     </div>
 
@@ -252,9 +251,9 @@
 										<td width="250">
 											Назва: <input name="tbTitle" type="text" class="form-control" required value="{{item.title}}"  >
 										</td>
-										<td width="125" colspan="2">
+										<td width="250">
 											Головний стартапер:
-											<select name="tbLeader" class="form-control" id="leader">
+											<select name="tbLeader" class="form-control" id="leader" required>
 												{%for lead in possibleLeaders%}
 													{%if lead.surname in item.leader%}<option value="{{lead.id}}" selected>{%else%}<option value="{{lead.id}}">{%endif%}{{lead.surname}} {{lead.name}} {{lead.midname}}</option>
 												{%endfor%}
@@ -262,11 +261,19 @@
 										</td>
 										<td width="250">
 											Ментор:
-											<select name="tbMentor" class="form-control" id="mentors">
+											<select name="tbMentor" class="form-control" id="mentors" required>
 												{%for ment in mentors%}
 													{%if ment.surname in item.mentor%}<option value="{{ment.id}}" selected>{%else%}<option value="{{ment.id}}">{%endif%}{{ment.surname}} {{ment.name}} {{ment.midname}}</option>
 												{%endfor%}
 											</select>
+										</td>
+										<td width="250">
+											Школа:
+												<select name="tbSchool" class="form-control" required>
+													{% for school in schoolList%}
+														{%if school.city == item.school%}<option value="{{school.id}}" selected>{%else%}<option value="{{school.id}}">{%endif%}{{school.city}}</option>
+													{% endfor %}
+												</select>
 										</td>
 									</tr>
 									<tr>
@@ -294,7 +301,7 @@
 												</select>
 										</td>
 
-										<td width="125">
+										<td width="250">
 											Розмір фінансування:
 												<select name="tbFinScale" class="form-control">
 													{%if item.financeScale == "до 10 тис."%}<option value="до 10 тис." selected>{%else%}<option value="до 10 тис.">{%endif%}до 10 тис.</option>
@@ -302,7 +309,7 @@
 													{%if item.financeScale == "від 50 тис."%}<option value="від 50 тис." selected>{%else%}<option value="від 50 тис.">{%endif%}від 50 тис.</option>
 												</select>
 										</td>
-										<td width="125">
+										<td width="250">
 												Вид продукції:
 											{%if item.type == "услуга"%}
 												<select name="selType" class="form-control">

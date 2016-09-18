@@ -196,19 +196,29 @@
 							<th>Проєкт</th>
 							<th>Активний</th>
 							<th>Повнота інформація</th>
+							<th>Школа</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
 							<td><a href="infoproject?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
-							<td>{{item.isactive}}</td>
+							<td>
+							    {%if item.isactive is True %}
+							        Активний
+							    {%else%}
+							        Не активний
+						        {%endif%}
+							</td>
 							<td>
 								{% if item.sector == "" or item.type == "" or item.isreal == "" or item.descr == "" or item.financeScale == ""%}
 									Не повна
 								{%else%}
 									Повна
 								{%endif%}
+							</td>
+							<td>
+								{{item.school.city}}
 							</td>
 						</tr>
 						{%endfor%}

@@ -234,6 +234,8 @@ def fillFormsProject(excelList, excelKeys):
             newProject.isreal = project[excelKeys.index(u"формапродукції")]
         if u"розмірфінансування" in excelKeys:
             newProject.financeScale = project[excelKeys.index(u"розмірфінансування")]
+        if u"школа" in excelKeys:
+            newProject.school = project[excelKeys.index(u"школа")]
         rezList.append(newProject)
         i+=1
     return rezList
@@ -264,6 +266,7 @@ def addProjectToDB(request, index, startuperID):
             type = request.POST.getlist('selType')[index],
             isreal = request.POST.getlist('selIsReal')[index],
             financeScale = request.POST.getlist('tbFinScale')[index],
+            school = tSchool.objects.get(id = request.POST.getlist('tbSchool')[index]),
         )
         if startuperID != "False":
             startuper = tStartuper.objects.get(id = startuperID)
@@ -419,6 +422,7 @@ def add(request):
     inputList = []
     inputsQty = int(request.POST.get("tbQuantity",1))
     resultList = []
+    schoolList = []
     possibleLeaders = []
     mentors = []
     taglist = []
@@ -470,6 +474,7 @@ def add(request):
                 resultList.append(addStartuperToDB(request, request.POST.getlist('tbSurname').index(item),projectID))
 
     if obj == "project":
+        schoolList = tSchool.objects.all()
         possibleLeaders = tStartuper.objects.all().order_by("surname","name")
         mentors = tMentor.objects.all().order_by("surname","name")
         obj = "проєкт"
@@ -550,6 +555,7 @@ def add(request):
                                         "inputsQty":inputsQty,
                                         "err":err,
                                         "taglist":taglist,
+                                        "schoolList":schoolList,
                                         })
 
 
@@ -607,6 +613,7 @@ def startupersearch(request):
     if export != None:
         export = export.pop()
 
+    queryList = []
     resultList = []
     searchObj = Object()
     file=datetime.now().time().__format__("%H%M%S").__str__()
@@ -639,18 +646,30 @@ def startupersearch(request):
         if bool(searchObj.sgrade) == True:
             resultList = resultList.filter(sgrade=True)
 
+
+        for item in resultList:
+            tmpObj = Object()
+            tmpObj.startuper = item
+            tmpprj = tTeam.objects.filter(startuperID = item)
+            if len(tmpprj)>0:
+                tmpObj.projects = tmpprj
+            queryList.append(tmpObj)
+        for item2 in queryList:
+            print item2.startuper
+
         if export == "true":
 
             wb = xlwt.Workbook()
             ws = wb.add_sheet('Startupers')
 
-            ws.write(0, 0, u"Фамилия")
-            ws.write(0, 1, u"Имя")
-            ws.write(0, 2, u"Отчество")
+            ws.write(0, 0, u"Призвіще")
+            ws.write(0, 1, u"Ім'я")
+            ws.write(0, 2, u"По батькові")
             ws.write(0, 3, u"Телефон")
-            ws.write(0, 4, u"Почта")
+            ws.write(0, 4, u"Пошта")
             ws.write(0, 5, u"1 ступень")
             ws.write(0, 6, u"2 ступень")
+            ws.write(0, 7, u"Рік закінчення")
 
             tmpRowCnt = 1
             for item in resultList:
@@ -667,12 +686,13 @@ def startupersearch(request):
                     ws.write(int(tmpRowCnt), 6, u"да")
                 else:
                     ws.write(int(tmpRowCnt), 6, u"нет")
+                ws.write(int(tmpRowCnt), 7, item.finyear)
                 tmpRowCnt += 1
             wb.save("files/export/export"+file+".xls")
 
     return render(request, "search/startupersearch.html", {"name":curruser,
                                           "entered":entered,
-                                          "resultList":resultList,
+                                          "resultList":queryList,
                                           "searchObj":searchObj,
                                           "export":export,
                                           "file":file,
@@ -707,6 +727,7 @@ def projectsearch(request):
         export = export.pop()
 
     resultList = []
+    schoolList = tSchool.objects.all()
     searchObj = Object
     file=datetime.now().time().__format__("%H%M%S").__str__()
 
@@ -725,6 +746,12 @@ def projectsearch(request):
             isreal__icontains = searchObj.isreal,
             descr__icontains = searchObj.descr,
         )
+        if request.POST.get("selSchool", "zero") != "zero":
+            searchObj.school = tSchool.objects.get(id = request.POST.get("selSchool", 0))
+            resultList = resultList.filter(school = searchObj.school)
+        else:
+            searchObj.school = None
+
 
         tags = tKeyWord.objects.filter(id__in=request.POST.getlist("selTags", ""))
         projWithTags = tKeyWordToProject.objects.filter(word__in=tags)
@@ -747,13 +774,13 @@ def projectsearch(request):
             wb = xlwt.Workbook()
             ws = wb.add_sheet('Projects')
 
-            ws.write(0, 0, u"Название")
-            ws.write(0, 1, u"Отрасль")
-            ws.write(0, 2, u"Вид продукции")
-            ws.write(0, 3, u"Форма продукции")
-            ws.write(0, 4, u"Почта ментора")
-            ws.write(0, 5, u"Почта главного стартапера")
-            ws.write(0, 6, u"Описание")
+            ws.write(0, 0, u"Назва")
+            ws.write(0, 1, u"Галузь")
+            ws.write(0, 2, u"Вид продукції")
+            ws.write(0, 3, u"Форма продукції")
+            ws.write(0, 4, u"Ментора")
+            ws.write(0, 5, u"Головний стартапер")
+            ws.write(0, 6, u"Опис")
 
             tmpRowCnt = 1
             for item in resultList:
@@ -783,6 +810,7 @@ def projectsearch(request):
                                           "taglist":taglist,
                                           "export":export,
                                           "file":file,
+                                          "schoolList":schoolList,
                                           })
 
 def investorsearch(request):
@@ -831,8 +859,8 @@ def investorsearch(request):
             wb = xlwt.Workbook()
             ws = wb.add_sheet('Investors')
 
-            ws.write(0, 0, u"Инвестор")
-            ws.write(0, 1, u"Описание")
+            ws.write(0, 0, u"Інвестор")
+            ws.write(0, 1, u"Опис")
 
             tmpRowCnt = 1
             for item in resultList:
@@ -908,11 +936,11 @@ def mentorsearch(request):
             wb = xlwt.Workbook()
             ws = wb.add_sheet('Mentors')
 
-            ws.write(0, 0, u"Фамилия")
-            ws.write(0, 1, u"Имя")
-            ws.write(0, 2, u"Отчество")
+            ws.write(0, 0, u"Призвище")
+            ws.write(0, 1, u"Ім'я")
+            ws.write(0, 2, u"По батькові")
             ws.write(0, 3, u"Телефон")
-            ws.write(0, 4, u"Почта")
+            ws.write(0, 4, u"Пошта")
 
             tmpRowCnt = 1
             for item in resultList:
@@ -1916,6 +1944,7 @@ def editproject(request):
     mentors = []
     possibleLeaders = []
     mentorlist = []
+    schoolList = []
     mentor = ""
     fioLead = ""
     errLead = ""
@@ -1935,6 +1964,7 @@ def editproject(request):
         mentors = tMentoproj.objects.filter(projectID = project).order_by("-date")
         possibleLeaders = tStartuper.objects.all().order_by("surname","name")
         mentorlist = tMentor.objects.all().order_by("surname","name")
+        schoolList = tSchool.objects.all()
 
         if len(mentors) != 0:
             mentor = mentors[0]
@@ -1995,6 +2025,9 @@ def editproject(request):
                 project.type = request.POST.get("selType", "")
             if request.POST.get("selIsReal", "") != "":
                 project.isreal = request.POST.get("selIsReal", "")
+            if request.POST.get("selSchool", "") != "":
+                project.school = tSchool.objects.get(id = request.POST.get("selSchool", ""))
+
             project.save()
             for item in teams:
                 if request.POST.get("tbRole"+str(item.id), "") != "":
@@ -2051,6 +2084,7 @@ def editproject(request):
                                           "errLead":errLead,
                                           "currMent":currMent,
                                           "errMent":errMent,
+                                          "schoolList":schoolList,
                                           })
 
 def editinvestor(request):

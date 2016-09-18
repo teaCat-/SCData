@@ -136,15 +136,25 @@
 				<br>
 				<br>
 				<div>
-					<table>
+					<table class="table table">
 						<tbody id="field">
 							<tr>
 								<td width="200">
 									Назва: <input name="tbTitle"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.title}}" />
 								</td>
 								<td width="200">
+									Школа:
+									<select name="selSchool" class="form-control">
+										{%if searchObj.city is None%}<option value="zero" selected>{%else%}<option value="zero">{%endif%}...</option>
+										{% for school in schoolList%}
+											{%if school.city == searchObj.school.city%}<option value="{{school.id}}" selected>{%else%}<option value="{{school.id}}">{%endif%}{{school.city}}</option>
+										{% endfor %}
+									</select>
+								</td>
+								<td width="200">
 									Галузь:
 										<select name="tbSector" class="form-control">
+											{%if searchObj.sector == ""%}<option value="" selected>{%else%}<option value="">{%endif%}...</option>
 											{%if searchObj.sector == "Адміністратівне обслуговування"%}<option value="Адміністратівне обслуговування" selected>{%else%}<option value="Адміністратівне обслуговування">{%endif%}Адміністратівне обслуговування</option>
 											{%if searchObj.sector == "Водопостачання, очистка"%}<option value="Водопостачання, очистка" selected>{%else%}<option value="Водопостачання, очистка">{%endif%}Водопостачання, очистка</option>
 											{%if searchObj.sector == "Державне управління"%}<option value="Державне управління" selected>{%else%}<option value="Державне управління">{%endif%}Державне управління</option>
@@ -213,10 +223,40 @@
 			<br>
 			<br>
 			<hr>
-			{%for item in resultList%}
-				<h4><a href="/infoproject?id={{item.id}}"> {{item.title}}</a></h4>
-				<hr>
-			{%endfor%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Проєкт</th>
+							<th>Активний</th>
+							<th>Повнота інформація</th>
+							<th>Школа</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in resultList%}
+						<tr>
+							<td><a href="infoproject?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
+							<td>
+							    {%if item.isactive is True %}
+							        Активний
+							    {%else%}
+							        Не активний
+						        {%endif%}
+							</td>
+							<td>
+								{% if item.sector == "" or item.type == "" or item.isreal == "" or item.descr == "" or item.financeScale == ""%}
+									Не повна
+								{%else%}
+									Повна
+								{%endif%}
+							</td>
+							<td>
+								{{item.school.city}}
+							</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
 			</div>
 		</div>
 		  <footer>

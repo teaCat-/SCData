@@ -113,6 +113,17 @@
 						<td>
 							<input type="text" class="form-control" name="tbTitle" placeholder="{{project.title}}" />
 						</td>
+					</tr>
+					<tr>
+						<td><b>Школа: </b></td>
+						<td>
+							<select name="selSchool" class="form-control">
+								{% for school in schoolList%}
+									{%if school.city == project.school.city%}<option value="" selected>{%else%}<option value="{{school.id}}">{%endif%}{{school.city}}</option>
+								{% endfor %}
+							</select>
+						</td>
+					</tr>
 					<tr>
 						<td><b>Активність: </b></td>
 						<td>

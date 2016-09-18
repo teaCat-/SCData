@@ -151,10 +151,20 @@
 			<br>
 			<br>
 			<hr>
-			{%for item in resultList%}
-				<h4><a href="/infoinvestor?id={{item.id}}"> {{item.investor}}</a></h4>
-				<hr>
-			{%endfor%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Інвестор</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in resultList%}
+						<tr>
+							<td><a href="infoinvestor?id={{item.id}}"><h4>{{item.investor}}</h4></a></td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
 			</div>
 		</div>
 		  <footer>

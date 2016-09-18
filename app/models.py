@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 from django.db import models
@@ -58,6 +59,17 @@ class tKeyWord(models.Model):
     class Meta:
         verbose_name = u'Tags'
 
+
+class tSchool(models.Model):
+    city = models.TextField(max_length=50, default="")
+    def __unicode__(self):
+        return self.city+" |"+str(self.id)
+    class Meta:
+        verbose_name = u'School'
+
+def getDefSchool():
+    return tSchool.objects.get_or_create(city=u'Город не указан')[0]
+
 class tProject(models.Model):
     title = models.TextField(max_length=50, default="")
     sector = models.TextField(max_length=50, default="")
@@ -66,6 +78,7 @@ class tProject(models.Model):
     isreal = models.TextField(max_length=50, default="")
     financeScale = models.TextField(max_length=50, default="")
     isactive = models.BooleanField(default=True)
+    school = models.ForeignKey(tSchool, on_delete=models.SET(getDefSchool), default=None)
     def __unicode__(self):
         return self.title+" |"+str(self.id)
     class Meta:
