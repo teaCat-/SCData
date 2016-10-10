@@ -8,7 +8,7 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <link rel="icon" href="/static/files/imgs/design/favicon.ico" type="image/ico">
 
     <title>Sikorsky Challenge</title>
 	
@@ -68,7 +68,8 @@
 
   <body onload="DetectMob()">
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-fixed-top" style="background-color:#0a8e34">
+          <div style="background-image:url(/static/files/imgs/design/menu_bg.png);background-repeat:no-repeat">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -77,35 +78,39 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"></a>
+          <div style="padding-top:5px;">
+          <a href="/">
+			  <img src="/static/files/imgs/design/logo.png"/>
+		  </a>
+		  </div>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
 			<form class="navbar-form navbar-right" method="post">
 			{% csrf_token %}
-			{%if entered == 0%}
-				<div class="form-group">
-				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
-				</div>
-				<div class="form-group">
-				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
-				</div>
-					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
-			{%endif%}
+				{%if entered == 0%}
+					<div class="form-group">
+					  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
+					</div>
+					<div class="form-group">
+					<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+					</div>
+						<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
+				{%endif%}
 			</form>
 			<form class="navbar-form navbar-right" method="get">
-			{% csrf_token %}
 			{%if entered != 0%}
 			<div class="form-group" style = "color:white">
-				Доброго дня, <i style="color:lightgreen">{{name}}! </i>
+				Доброго дня, <i style="color:lightblue">{{name}} ! </i>
 			</div>
 			<div class="form-group">
 				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
 			</div>
 			{%endif%}
 			</form>
-			
+
         </div><!--/.navbar-collapse -->
       </div>
+	  </div>
     </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
@@ -213,8 +218,18 @@
 		  </div>
     </div> <!-- /container -->
 		  <footer>
-			  <img src="/static/files/imgs/design/logos.png"/>
-				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+			  <div  style="padding-top:15px;padding-left:80px;padding-bottom:5px;">
+			      <table>
+			            <tr>
+			                <td width="80%">
+    			                <img src="/static/files/imgs/design/logos.png"/>
+		                    </td>
+			                <td>
+    			                <h6 align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</h6>
+			                </td>
+	                    </tr>
+			        </table>
+			  </div>
 		  </footer>
 
 
