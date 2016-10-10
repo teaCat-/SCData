@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -34,6 +35,23 @@
 		backgroundcolor:#395610;
 		padding: 10px;
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
@@ -101,19 +119,16 @@
 			  	<h3>Оновити статус:</h3>
 		  	{%endif%}
 				<hr>
-		  </div>
-		<p></p>
-		<div class="row">
 			<form class="form-regi" method = "POST">
 			{% csrf_token %}
 					<div class="col-sm-4">
 						<input type="text" class="form-control" name="tbTitle" placeholder="Назва" required/>
 					<p></p>
 						{%if entity == "act"%}
-							<input type="text" class="form-control" name="tbDate" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4}" value="{%now 'd.m.Y'%}" required/>
+							<input type="text" class="form-control" name="tbDate" pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{4}" value="{%now 'd.m.Y'%}" required/>
 						{%endif%}
 						{%if entity == "stat"%}
-							<input type="datetime" class="form-control" name="tbDate" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4},\s[0-9]{2}:[0-9]{2}" value="{%now 'd.m.Y, H:i'%}" required/>
+							<input type="datetime" class="form-control" name="tbDate" pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{4},\s[0-9]{2}:[0-9]{2}" value="{%now 'd.m.Y, H:i'%}" required/>
 						{%endif%}
 					<p></p>
 						<button type="submit" class="btn btn-success"> Зберігти</button>
@@ -130,10 +145,11 @@
 				<a href="/infoproject?id={{id}}"><button type="submit" class="btn btn-success"> Повернутись </button></a>
 			</div>
 		  </div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div><!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

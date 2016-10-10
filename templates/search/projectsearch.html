@@ -58,6 +58,23 @@
 		backgroundcolor:#395610;
 		padding: 10px;
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
@@ -99,9 +116,9 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<p></p>
 				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<p></p>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -115,6 +132,8 @@
 				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
+				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
+				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
 				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главну сторінку</button></form>
@@ -126,7 +145,7 @@
 		  <!-- Example row of columns -->
 		<div class="row">
 			<div class="col-md-10">
-				<h3>Пошук проєктів</h3>
+				<h3>Пошук проектів</h3>
 				<hr>
 			<form method="post">
 				{% csrf_token %}
@@ -226,7 +245,7 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Проєкт</th>
+							<th>Проект</th>
 							<th>Активний</th>
 							<th>Повнота інформація</th>
 							<th>Школа</th>
@@ -259,10 +278,11 @@
 				</table>
 			</div>
 		</div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div><!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

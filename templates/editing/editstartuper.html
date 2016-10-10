@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -68,6 +69,23 @@
 		backgroundcolor:#395610;
 		padding: 10px;
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
@@ -148,47 +166,74 @@
 				{%endif%}
 						<input name="fAvatar" type="file" accept="image/*" onchange="readURL(this);"/> Розмір файлу не повинен перевищувати 100кб
 				</div>
-				<div align="right" class="col-sm-3">
-					<b>ПІБ: </b>
-					<br>
-					<br>
-					<b>Телефон: </b>
-					<br>
-					<br>
-					<b>Пошта: </b>
-					<br>
-					<br>
-					<hr>
-					<b>Навчання в Sikorsky Challenge: </b>
-				</div>
-				<div align="left" class="col-sm-4">
-					<input type="text" class="form-control" pattern="([А-ЯЁІЇ][а-яёії]+[\-\s]?){3,}" name="tbFIO" placeholder="{{startuper.surname}} {{startuper.name}} {{startuper.midname}}" />
-					<p></p>
-					<input type="tel" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="tbTel" class="form-control" placeholder="{{startuper.phone}}"  />
-					<p></p>
-					<input type="email" class="form-control" name="tbMail" placeholder="{{startuper.mail}}" />
-					<hr>
-					{%if startuper.fgrade is True%}
-						<input type="checkbox" name="cbFgrade" value="true" checked/> 1 ступень
-					{%endif%}
-					{%if startuper.fgrade is False%}
-						<input type="checkbox" name="cbFgrade" value="false" /> 1 ступень
-					{%endif%}
-					<p></p>
-					{%if startuper.sgrade is True%}
-						<input type="checkbox" name="cbSgrade" id="cbSgrade" onclick="addYear();" value="True" checked/> 2 ступень
-					{%endif%}
-					{%if startuper.sgrade is False%}
-						<input type="checkbox" name="cbSgrade" id="cbSgrade" onclick="addYear();" value="false" /> 2 ступень
-					{%endif%}
-					<br>
-						<label>
-							 Рік закінчення
-							{%if startuper.sgrade is True %}<input id="tbFinYear" name="tbFinYear" type="text"  placeholder="{{startuper.finyear}}" pattern="[0-9]{4}"  class="form-control"/>
-							{%else%}<input name="tbFinYear" id="tbFinYear" type="text"  pattern="[0-9]{4}" class="form-control" placeholder="{{startuper.finyear}}" disabled/>
-							{%endif%}
-						</label>
-				</div>
+				<div align="right" class="col-sm-7">
+				<table class="table table">
+					<tbody>
+						<tr>
+							<td width="200" align="right">
+								<b>ПІБ: </b>
+							</td>
+							<td>
+								<input type="text" class="form-control" pattern="([А-ЯЁІЇ][а-яёії]+[\-\s]?){3,}" name="tbFIO" placeholder="{{startuper.surname}} {{startuper.name}} {{startuper.midname}}" />
+							</td>
+						</tr>
+						<tr>
+							<td align="right">
+								<b>Телефон: </b>
+							</td>
+							<td>
+								<input type="tel" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="tbTel" class="form-control" placeholder="{{startuper.phone}}"  />
+							</td>
+						</tr>
+						<tr>
+							<td align="right">
+								<b>Пошта: </b>
+							</td>
+							<td>
+								<input type="email" class="form-control" name="tbMail" placeholder="{{startuper.mail}}" />
+							</td>
+						</tr>
+						<tr>
+							<td align="right"><b>Школа: </b></td>
+							<td>
+								{{startuper.school.city}}
+							</td>
+						</tr>
+						<tr>
+							<td align="right">
+								<b>Навчання у Sikorsky Challenge: </b>
+							</td>
+							<td>
+								{%if startuper.fgrade is True%}
+									<input type="checkbox" name="cbFgrade" value="true" checked/> 1 ступень
+								{%endif%}
+								{%if startuper.fgrade is False%}
+									<input type="checkbox" name="cbFgrade" value="false" /> 1 ступень
+								{%endif%}
+								<p></p>
+								{%if startuper.sgrade is True%}
+									<input type="checkbox" name="cbSgrade" id="cbSgrade" onclick="addYear();" value="True" checked/> 2 ступень
+								{%endif%}
+								{%if startuper.sgrade is False%}
+									<input type="checkbox" name="cbSgrade" id="cbSgrade" onclick="addYear();" value="false" /> 2 ступень
+								{%endif%}
+							</td>
+						</tr>
+						{%if startuper.sgrade is True%}
+							<tr>
+								<td align="right">
+									<b>Рік закінчення 2ї ступені: </b>
+								</td>
+								<td>
+									{%if startuper.sgrade is True %}<input id="tbFinYear" name="tbFinYear" type="text"  placeholder="{{startuper.finyear}}" pattern="[0-9]{4}"  class="form-control"/>
+									{%else%}<input name="tbFinYear" id="tbFinYear" type="text"  pattern="[0-9]{4}" class="form-control" placeholder="{{startuper.finyear}}" disabled/>
+									{%endif%}
+								</td>
+							</tr>
+						{%endif%}
+					</tbody>
+				</table>
+			</div>
 
 				<div class="col-sm-12">
 					<hr>
@@ -270,10 +315,11 @@
 			</form>
 			</div>
 		  </div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div> <!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

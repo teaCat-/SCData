@@ -34,6 +34,12 @@ def index(request):
             entered = "chief"
         if curruser.groups.filter(name="worker"):
             entered = "worker"
+    userSch = Object()
+    userSch.school = None
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        pass
 
     selTable = request.POST.get("selQSch", None)
 
@@ -42,6 +48,8 @@ def index(request):
     if selTable == "startuper":
         val = request.POST.get("tbQSch", None)
         tmpStups = tStartuper.objects.filter(surname__icontains = val)
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            tmpStups = tmpStups.filter(school = userSch.school)
         for item in tmpStups:
             tmpObj = Object()
             tmpObj.startuper = item
@@ -50,17 +58,34 @@ def index(request):
                 tmpObj.projects = tmpprj
             queryList.append(tmpObj)
 
-    if selTable == "project":
-        val = request.POST.get("tbQSch", None)
-        queryList.extend(tProject.objects.filter(title__icontains = val))
+    if selTable == "project" or selTable is None:
+        val = request.POST.get("tbQSch", "")
+        tmpRez = tProject.objects.filter(title__icontains = val)
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            tmpRez = tmpRez.filter(school = userSch.school)
+        queryList.extend(tmpRez)
 
     if selTable == "investor":
         val = request.POST.get("tbQSch", None)
-        queryList.extend(tInvestor.objects.filter(investor__icontains = val))
+        tmpRez = tInvestor.objects.filter(investor__icontains = val)
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            tmpRez = tmpRez.filter(school = userSch.school)
+        queryList.extend(tmpRez)
 
     if selTable == "mentor":
         val = request.POST.get("tbQSch", None)
-        queryList.extend(tMentor.objects.filter(surname__icontains = val))
+        tmpRez = tMentor.objects.filter(surname__icontains = val)
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            tmpRez = tmpRez.filter(school = userSch.school)
+        queryList.extend(tmpRez)
+
+    if selTable == "event":
+        val = request.POST.get("tbQSch", None)
+        tmpRez = tActivities.objects.filter(title__icontains=val)
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            tmpRez = tmpRez.filter(school=userSch.school)
+        queryList.extend(tmpRez)
+
 
     return render(request, "index.html", {"name":curruser,
                                           "entered":entered,
@@ -94,7 +119,13 @@ def regi(request):
             return redirect("index")
     else:
             return redirect("index")
+    school = Object()
+    try:
+        school = tUserSch.objects.get(id = currUser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
+    message = ""
     login = request.POST.get("txtLogin",False)
     mail = request.POST.get("txtMail",False)
     passwd = request.POST.get("txtPasswd",False)
@@ -116,11 +147,15 @@ def regi(request):
             user = User.objects.create_user(username=login, email=mail, password=passwd)
             user.groups.add(group)
             user.save()
-            return redirect("auth",)
+            userSch = tUserSch.objects.create(user = user, school = school.school)
+            userSch.save()
+            message = u"Користувач '"+login+u"' додан!"
     return render(request, "regi.html", {"nameErr":nameErr,
                                                     "mailErr":mailErr,
                                                     "passErr":passErr,
-                                                    "repassErr":repassErr,})
+                                                    "repassErr":repassErr,
+                                                    "message":message,
+                                         })
 
 def logout(request):
     id = None
@@ -166,7 +201,7 @@ def fillFormsStartuper(excelList, excelKeys):
         i+=1
     return rezList
 
-def addStartuperToDB(request, index, projectID):
+def addStartuperToDB(request, index, projectID, school):
     samephones = tStartuper.objects.filter(phone = request.POST.getlist('tbPhone')[index]).exclude(phone = "")
     if len(samephones) != 0:
         return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
@@ -187,6 +222,7 @@ def addStartuperToDB(request, index, projectID):
         fgrade = tmpFgrade,
         sgrade = tmpSgrade,
         finyear = request.POST.get('tbFinYear'+str(index+1), "-"),
+        school=school.school
     )
 
     form = FileUploadedForm(request.POST, request.FILES)
@@ -240,7 +276,7 @@ def fillFormsProject(excelList, excelKeys):
         i+=1
     return rezList
 
-def addProjectToDB(request, index, startuperID):
+def addProjectToDB(request, index, startuperID, school):
     projIsExhist = 0
     try:
         projIsExhist = tProject.objects.filter(title = request.POST.getlist('tbTitle')[index])
@@ -266,7 +302,7 @@ def addProjectToDB(request, index, startuperID):
             type = request.POST.getlist('selType')[index],
             isreal = request.POST.getlist('selIsReal')[index],
             financeScale = request.POST.getlist('tbFinScale')[index],
-            school = tSchool.objects.get(id = request.POST.getlist('tbSchool')[index]),
+            school = school.school,
         )
         if startuperID != "False":
             startuper = tStartuper.objects.get(id = startuperID)
@@ -296,10 +332,11 @@ def fillFormsInvestor(excelList, excelKeys):
         i+=1
     return rezList
 
-def addInvestorToDB(request, index):
+def addInvestorToDB(request, index, school):
     newInvestor = tInvestor.objects.create(
         investor = request.POST.getlist('tbInvestor')[index],
-        descr = request.POST.getlist('taDescr')[index]
+        descr = request.POST.getlist('taDescr')[index],
+        school = school.school
     )
     newInvestor.save()
     return newInvestor.investor+(" додан до бази!").decode("utf-8")
@@ -328,7 +365,7 @@ def fillFormsInvContacts(excelList, excelKeys):
         i+=1
     return rezList
 
-def addInvContToDB(request, id, index):
+def addInvContToDB(request, id, index, school):
     newInvCont = tInvestorContacts.objects.create(
         investorID = id,
         name = request.POST.getlist('tbName')[index],
@@ -338,6 +375,7 @@ def addInvContToDB(request, id, index):
         mail = request.POST.getlist('tbMail')[index],
         company = request.POST.getlist('tbCompany')[index],
         position = request.POST.getlist('tbPosition')[index],
+        school = school.school
     )
 
     newInvCont.save()
@@ -363,7 +401,7 @@ def fillFormsMentor(excelList, excelKeys):
         i+=1
     return rezList
 
-def addMentorToDB(request, index, projectID):
+def addMentorToDB(request, index, projectID, school):
     samemail=tMentor.objects.filter(mail=request.POST.getlist('tbMail')[index])
     if len(samemail) != 0:
         return request.POST.getlist('tbSurname')[index] + " " + request.POST.getlist('tbName')[index] + " " + request.POST.getlist('tbMidname')[index] + (
@@ -374,6 +412,7 @@ def addMentorToDB(request, index, projectID):
         midname = request.POST.getlist('tbMidname')[index],
         phone = request.POST.getlist('tbPhone')[index],
         mail = request.POST.getlist('tbMail')[index],
+        school = school.school
     )
     if projectID != "False":
         project = tProject.objects.get(id = projectID)
@@ -399,6 +438,11 @@ def add(request):
                 entered = "worker"
     if entered != "worker":
         return redirect("index")
+    school = Object()
+    try:
+        school = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -471,7 +515,7 @@ def add(request):
         if request.method == 'POST' and added == 'true':
             tmpList = request.POST.getlist('tbSurname')
             for item in tmpList:
-                resultList.append(addStartuperToDB(request, request.POST.getlist('tbSurname').index(item),projectID))
+                resultList.append(addStartuperToDB(request, request.POST.getlist('tbSurname').index(item),projectID, school))
 
     if obj == "project":
         schoolList = tSchool.objects.all()
@@ -495,7 +539,7 @@ def add(request):
         if request.method == 'POST' and added == 'true':
             tmpList = request.POST.getlist('tbTitle')
             for item in tmpList:
-                resultList.append(addProjectToDB(request, request.POST.getlist('tbTitle').index(item), startuperID))
+                resultList.append(addProjectToDB(request, request.POST.getlist('tbTitle').index(item), startuperID, school))
 
     if obj == "investor":
         obj = "інвестора"
@@ -514,7 +558,7 @@ def add(request):
         if request.method == 'POST' and added == 'true':
             tmpList = request.POST.getlist('tbInvestor')
             for item in tmpList:
-                resultList.append(addInvestorToDB(request, request.POST.getlist('tbInvestor').index(item)))
+                resultList.append(addInvestorToDB(request, request.POST.getlist('tbInvestor').index(item), school))
 
     if obj == "mentor":
         obj = "ментора"
@@ -533,7 +577,7 @@ def add(request):
         if request.method == 'POST' and added == 'true':
             tmpList = request.POST.getlist('tbSurname')
             for item in tmpList:
-                resultList.append(addMentorToDB(request, request.POST.getlist('tbSurname').index(item),projectID))
+                resultList.append(addMentorToDB(request, request.POST.getlist('tbSurname').index(item),projectID, school))
 
     err = 0
     for item in resultList:
@@ -604,6 +648,12 @@ def startupersearch(request):
                 entered = "chief"
     if entered != "worker" and entered != "chief":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        pass
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -623,6 +673,7 @@ def startupersearch(request):
         searchObj.midname = request.POST.get("tbMidname", "")
         searchObj.phone = request.POST.get("tbPhone", "")
         searchObj.mail = request.POST.get("tbMail", "")
+        searchObj.finyear = request.POST.get("tbFinYear", "")
         searchObj.fgrade = bool(request.POST.get("cbFgrade", False))
         searchObj.sgrade = bool(request.POST.get("cbSgrade", False))
         searchObj.projects = request.POST.getlist("tbProjects", "")
@@ -638,6 +689,7 @@ def startupersearch(request):
             midname__icontains = searchObj.midname,
             phone__icontains = searchObj.phone,
             mail__icontains = searchObj.mail,
+            finyear__icontains = searchObj.finyear
         )
         if len(tmpTeamIDs) != 0:
             resultList = resultList.filter(id__in=tmpTeamIDs,)
@@ -646,6 +698,8 @@ def startupersearch(request):
         if bool(searchObj.sgrade) == True:
             resultList = resultList.filter(sgrade=True)
 
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            resultList = resultList.filter(school = userSch.school)
 
         for item in resultList:
             tmpObj = Object()
@@ -654,8 +708,6 @@ def startupersearch(request):
             if len(tmpprj)>0:
                 tmpObj.projects = tmpprj
             queryList.append(tmpObj)
-        for item2 in queryList:
-            print item2.startuper
 
         if export == "true":
 
@@ -717,6 +769,12 @@ def projectsearch(request):
                 entered = "chief"
     if entered != "worker" and entered != "chief":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        pass
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -746,6 +804,10 @@ def projectsearch(request):
             isreal__icontains = searchObj.isreal,
             descr__icontains = searchObj.descr,
         )
+
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            resultList = resultList.filter(school = userSch.school)
+
         if request.POST.get("selSchool", "zero") != "zero":
             searchObj.school = tSchool.objects.get(id = request.POST.get("selSchool", 0))
             resultList = resultList.filter(school = searchObj.school)
@@ -832,6 +894,12 @@ def investorsearch(request):
                 entered = "chief"
     if entered != "worker" and entered != "chief":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        pass
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -853,6 +921,9 @@ def investorsearch(request):
             investor__icontains = searchObj.investor,
             descr__icontains = searchObj.descr,
         )
+
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            resultList = resultList.filter(school = userSch.school)
 
         if export == "true":
 
@@ -896,6 +967,12 @@ def mentorsearch(request):
                 entered = "chief"
     if entered != "worker" and entered != "chief":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        pass
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -930,6 +1007,9 @@ def mentorsearch(request):
         )
         if len(tmpTeamIDs) != 0:
             resultList = resultList.filter(id__in=tmpTeamIDs, )
+
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            resultList = resultList.filter(school = userSch.school)
 
         if export == "true":
 
@@ -978,6 +1058,12 @@ def infostartuper(request):
             staff = True
         if staff is not True:
             return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1009,16 +1095,20 @@ def infostartuper(request):
         except:
             pass
 
-        if _print == "true":
-            return render(request, "info/printstartuper.html", {"name":curruser,
-                                                  "entered":entered,
-                                                  "startuper":startuper,
-                                                  "teams":teams,
-                                                  "projects":projects,
-                                                  "docs":docs,
-                                                  "addfile":addfile,
-                                                  "staff":staff,
-                                                  })
+        if startuper.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
+    if _print == "true":
+        return render(request, "info/printstartuper.html", {"name":curruser,
+                                              "entered":entered,
+                                              "startuper":startuper,
+                                              "teams":teams,
+                                              "projects":projects,
+                                              "docs":docs,
+                                              "addfile":addfile,
+                                              "staff":staff,
+                                              })
 
     return render(request, "info/infostartuper.html", {"name":curruser,
                                           "entered":entered,
@@ -1043,6 +1133,12 @@ def infoproject(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1078,10 +1174,14 @@ def infoproject(request):
 
         addInfo.extend(tAddInfoProj.objects.filter(projectID = _id))
         status.extend(tStatus.objects.filter(projectID = _id).order_by("date"))
-        activities.extend(tActivities.objects.filter(projectID = _id))
+        activities.extend(tActProj.objects.filter(projectID = _id))
         mentors.extend(tMentoproj.objects.filter(projectID = _id).order_by("-date"))
 
         taglist = tKeyWordToProject.objects.filter(projectID = project)
+
+        if project.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
 
     currStat = ""
     if len(status) > 0:
@@ -1141,6 +1241,12 @@ def infoinvestor(request):
             staff = True
         if staff is not True:
             return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1167,6 +1273,10 @@ def infoinvestor(request):
             addInfo.extend(tAddInfoInv.objects.filter(investorID = _id))
         except:
             pass
+
+        if investor.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
 
     if _print == "true":
         return render(request, "info/printinvestor.html", {"name":curruser,
@@ -1205,6 +1315,12 @@ def infoinvcontact(request):
             staff = True
         if staff is not True:
             return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1221,11 +1337,17 @@ def infoinvcontact(request):
             contact = tInvestorContacts.objects.get(id = _id)
         except:
             pass
+
+        if contact.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
     if _print == "true":
         return render(request, "info/printinvcontact.html", {"name":curruser,
                                                   "entered":entered,
                                                   "contact":contact,
                                                   })
+
     return render(request, "info/infoinvcontact.html", {"name":curruser,
                                           "entered":entered,
                                           "contact":contact,
@@ -1248,6 +1370,12 @@ def infomentor(request):
             staff = True
         if staff is not True:
             return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
 
     """Getting data from url"""
@@ -1260,6 +1388,7 @@ def infomentor(request):
         _print = _print.pop()
     mentor = ""
     projects=[]
+
     if _id != None:
         _id = _id.pop()
         try:
@@ -1267,6 +1396,11 @@ def infomentor(request):
             projects = tMentoproj.objects.filter(mentorID = mentor)
         except:
             pass
+
+        if mentor.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
     if _print == "true":
         return render(request, "info/printmentor.html", {"name":curruser,
                                                   "entered":entered,
@@ -1279,6 +1413,65 @@ def infomentor(request):
                                           "projects":projects,
                                           })
 
+def infoevent(request):
+    curruser = 0
+    entered = 0
+    staff = False
+    curruserName = request.session.get("curUser", False)
+    if curruserName == None:
+        return redirect("index")
+    if curruserName:
+        curruser = User.objects.get(username=curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+            staff = True
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+            staff = True
+        if staff is not True:
+            return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
+
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    _print = urldata.get('print', None)
+    if _print != None:
+        _print = _print.pop()
+    event = ""
+    projects=[]
+
+    if _id != None:
+        _id = _id.pop()
+        try:
+            event = tActivities.objects.get(id = _id)
+            projects = tActProj.objects.filter(eventID = event)
+        except:
+            pass
+
+        if event.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
+    if _print == "true":
+        return render(request, "info/printevent.html", {"name":curruser,
+                                                  "entered":entered,
+                                                  "event":event,
+                                                  "projects":projects,
+                                                  })
+    return render(request, "info/infoevent.html", {"name":curruser,
+                                          "entered":entered,
+                                          "event":event,
+                                          "projects":projects,
+                                          })
 
 
 def signadd(request):
@@ -1345,6 +1538,65 @@ def signadd(request):
                                           "added":added,
                                           "result":result,
                                           "entity":_entity,
+                                          })
+
+def eventadd(request):
+    """Worker validation"""
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    projid = urldata.get('projid', None)
+    redir = urldata.get('redir', None)
+    if redir != None:
+        redir = redir.pop()
+    if projid != None:
+        projid = projid.pop()
+    result = "Захід додано!"
+    added = False
+
+    if request.method == "POST":
+        act = tActivities.objects.create(school = userSch.school, date = datetime.strptime(
+            request.POST.get("tbDate", datetime.now().date().__format__('%d.%m.%Y').__str__()), "%d.%m.%Y"))
+        act.title = request.POST.get("tbTitle", "")
+        act.save()
+        added = True
+        if projid is not None:
+            newBound = tActProj.objects.create(eventID=act, projectID=tProject.objects.get(id = projid))
+            newBound.save()
+
+
+    if redir == "true":
+        return redirect("/")
+
+
+    return render(request, "adding/eventadd.html", {"name":curruser,
+                                          "entered":entered,
+                                          "id":_id,
+                                          "added":added,
+                                          "result":result,
                                           })
 
 def addfile(request):
@@ -1665,6 +1917,116 @@ def mentorstoproject(request):
                                           "schVal":schVal,
                                           })
 
+def eventtoproj(request):
+    """Worker validation"""
+    entered = 0
+    curruser = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    if _id != None:
+        _id = _id.pop()
+    page = urldata.get('page', None)
+    if page != None:
+        page = int(page.pop())
+    entity = urldata.get('entity', None)
+    if entity != None:
+        entity = entity.pop()
+    queryList = []
+    queryListCount = 0
+    added = False
+    blackIDs=[]
+    project = Object()
+    event = Object()
+    val = request.POST.get("tbQSch", "")
+
+    if entity == "project":
+        project = tProject.objects.get(id = _id)
+
+        if _id != None:
+            if request.method == "POST":
+                valToAdd = request.POST.getlist("cbChoosed", None)
+                if valToAdd != []:
+                    for item in valToAdd:
+                        event = tActivities.objects.get(id = item)
+                        if list(tActProj.objects.filter(eventID = event, projectID = project)) == [] :
+                            tmp = tActProj.objects.create(eventID = event, projectID = project)
+                            tmp.save()
+                    redir = urldata.get('redirect', None)
+                    if redir != None:
+                        redir = redir.pop()
+                    print redir
+                    if redir == "true":
+                        return redirect("/infoproject?id="+_id)
+
+        start=(page-1)*10
+        end =10*page
+        curPrjMembersIDs = tActProj.objects.filter(projectID = project)
+        for item in curPrjMembersIDs:
+            blackIDs.append(item.eventID.id)
+        queryList = tActivities.objects.exclude(id__in = blackIDs,).filter(title__icontains = val)[start:end]
+        queryListCount = len(tActivities.objects.exclude(id__in = blackIDs,).filter(title__icontains = val)[start:end+1])
+
+    if entity == "event":
+        event = tActivities.objects.get(id=_id)
+
+        if _id != None:
+            if request.method == "POST":
+                valToAdd = request.POST.getlist("cbChoosed", None)
+                if valToAdd != []:
+                    for item in valToAdd:
+                        project = tProject.objects.get(id=item)
+                        if list(tActProj.objects.filter(eventID=event, projectID=project)) == []:
+                            tmp = tActProj.objects.create(eventID=event, projectID=project)
+                            tmp.save()
+                    redir = urldata.get('redirect', None)
+                    if redir != None:
+                        redir = redir.pop()
+                    print redir
+                    if redir == "true":
+                        return redirect("/infoevent?id=" + _id)
+
+        start = (page - 1) * 10
+        end = 10 * page
+        curPrjMembersIDs = tActProj.objects.filter(eventID=event)
+        for item in curPrjMembersIDs:
+            blackIDs.append(item.projectID.id)
+        queryList = tProject.objects.exclude(id__in=blackIDs, ).filter(title__icontains=val)[start:end]
+        queryListCount = len(tProject.objects.exclude(id__in=blackIDs, ).filter(title__icontains=val)[start:end+1])
+
+    schVal = request.POST.get("tbQSch", "")
+    return render(request, "adding/eventtoproj.html", {
+                                          "name":curruser,
+                                          "entered":entered,
+                                          "entity":entity,
+                                          "id":_id,
+                                          "queryList":queryList,
+                                          "queryListCount":queryListCount,
+                                          "page":page,
+                                          "prevpage":int(page-1),
+                                          "nextpage":int(page+1),
+                                          "added":added,
+                                          "project":project,
+                                          "event":event,
+                                          "schVal":schVal,
+                                          })
+
 
 def invcontactsadd(request):
     """Worker validation"""
@@ -1841,6 +2203,12 @@ def editstartuper(request):
                 entered = "worker"
     if entered != "worker":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1903,6 +2271,10 @@ def editstartuper(request):
 
             return redirect("/infostartuper?id="+_id)
 
+        if startuper.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
     return render(request, "editing/editstartuper.html", {"name":curruser,
                                           "entered":entered,
                                           "startuper":startuper,
@@ -1927,6 +2299,12 @@ def editproject(request):
                 entered = "worker"
     if entered != "worker":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1960,7 +2338,7 @@ def editproject(request):
                 fioLead = item.startuperID
         addInfo = tAddInfoProj.objects.filter(projectID = project)
         status = tStatus.objects.filter(projectID = project).order_by("date")
-        activities = tActivities.objects.filter(projectID = project)
+        activities = tActProj.objects.filter(projectID = project)
         mentors = tMentoproj.objects.filter(projectID = project).order_by("-date")
         possibleLeaders = tStartuper.objects.all().order_by("surname","name")
         mentorlist = tMentor.objects.all().order_by("surname","name")
@@ -2069,6 +2447,10 @@ def editproject(request):
             if redir == "true":
                 return redirect("/infoproject?id="+_id)
 
+        if project.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
     return render(request, "editing/editproject.html", {"name":curruser,
                                           "entered":entered,
                                           "project":project,
@@ -2103,6 +2485,12 @@ def editinvestor(request):
                 entered = "worker"
     if entered != "worker":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -2149,6 +2537,10 @@ def editinvestor(request):
 
             return redirect("/infoinvestor?id="+_id)
 
+        if investor.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
     return render(request, "editing/editinvestor.html", {"name":curruser,
                                           "entered":entered,
                                           "investor":investor,
@@ -2173,6 +2565,12 @@ def editinvcontact(request):
                 entered = "worker"
     if entered != "worker":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -2215,6 +2613,10 @@ def editinvcontact(request):
 
             return redirect("/infoinvcontact?id="+_id)
 
+        if contact.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
     return render(request, "editing/editinvcontact.html", {"name":curruser,
                                           "entered":entered,
                                           "contact":contact,
@@ -2239,6 +2641,12 @@ def editmentor(request):
                 entered = "worker"
     if entered != "worker":
         return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -2287,6 +2695,10 @@ def editmentor(request):
 
             return redirect("/infomentor?id="+_id)
 
+        if mentor.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
 
     return render(request, "editing/editmentor.html", {"name":curruser,
                                           "entered":entered,
@@ -2294,6 +2706,69 @@ def editmentor(request):
                                           "mentor":mentor,
                                           "projects":projects,
                                           })
+
+def editevent(request):
+    curruser = None
+    entered = 0
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+    if entered != "worker":
+        return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(id = curruser.id)
+    except:
+        print ("Error getting region. Contact admin or developer...")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    contact = ""
+    event = []
+    projects = []
+
+
+    if _id != None:
+        _id = _id.pop()
+        event = tActivities.objects.get(id = _id)
+        projects = tActProj.objects.filter(eventID=event)
+        if request.method == "POST":
+            if request.POST.get("tbTitle", "") != "":
+                event.title = request.POST.get("tbTitle", "")
+            if request.POST.get("tbDate", "") != "":
+                event.date = datetime.strptime(request.POST.get("tbDate", datetime.now().date().__format__('%d.%m.%Y').__str__()), "%d.%m.%Y")
+            event.save()
+
+            for item in projects:
+                if request.POST.get("cbActDel"+str(item.id), False):
+                    item.delete()
+
+            return redirect("/infoevent?id="+_id)
+
+        if event.school != userSch.school:
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                return render(request, "nopermission.html", {"name":curruser,})
+
+
+    return render(request, "editing/editevent.html", {"name":curruser,
+                                          "entered":entered,
+                                          "contact":contact,
+                                          "event":event,
+                                          "projects":projects,
+                                          })
+
 
 def tagadd(request):
     """Worker validation"""

@@ -43,6 +43,23 @@
 		backgroundcolor:#395610;
 		padding: 10px;
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
@@ -84,9 +101,9 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<p></p>
 				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<p></p>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -99,6 +116,8 @@
 				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
+				<p></p>
+				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
 				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
 				<hr>
@@ -129,8 +148,8 @@
 								</td>
 							</tr>
 							<tr>
-								<td>
-									Слова в опису:<input name="tbDescr" type="text" class="form-control" value="{{searchObj.descr}}">
+								<td colspan="2">
+									Слова в опису:<textarea name="tbDescr" class="form-control">{{searchObj.descr}}</textarea>
 								</td>
 							</tr>
 						</tbody>
@@ -155,22 +174,25 @@
 					<thead>
 						<tr>
 							<th>Інвестор</th>
+							<th>Город</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in resultList%}
 						<tr>
 							<td><a href="infoinvestor?id={{item.id}}"><h4>{{item.investor}}</h4></a></td>
+							<td>{{item.school.city}}</td>
 						</tr>
 						{%endfor%}
 					</tbody>
 				</table>
 			</div>
 		</div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div><!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -46,13 +47,30 @@
 		padding: 10px;
 		clear: both
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
 
   <body onload="DetectMob()">
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-fixed-top" style="background-color:#0a8e34">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -61,7 +79,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"></a>
+          <a class="navbar-brand" href="#">
+			  <img src="/static/files/imgs/design/logo.png"/>
+		  </a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
 			<form class="navbar-form navbar-right" method="post">
@@ -94,12 +114,12 @@
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-        <h1>База клиєнтів Sikorsky Challenge</h1>
+        <h1 style="color:#0f5593;" align="center">База клиєнтів Sikorsky Challenge</h1>
       </div>
     </div>
 
 	<div class = "menu" id="menu">
-		<div class="navbar-form navbar-right">
+		<div class="navbar-form navbar-right" >
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
@@ -113,11 +133,13 @@
 				<p></p>
 				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
 				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проект</button></a>
 				<p></p>
 				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
+				<p></p>
+				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
 				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
 			{%endif%}
@@ -135,10 +157,11 @@
 				<div class="col-sm-12">
 				  	<div class="col-sm-2">
 						<select name="selQSch" class="form-control .col-lg-6">
+						  {%if selTable == "project"%}<option selected value="project">{%else%}<option value="project">{%endif%}Проект</option>
 						  {%if selTable == "startuper"%}<option selected value="startuper">{%else%}<option value="startuper">{%endif%}Стартапер</option>
-						  {%if selTable == "project"%}<option selected value="project">{%else%}<option value="project">{%endif%}Проєкт</option>
 						  {%if selTable == "investor"%}<option selected value="investor">{%else%}<option value="investor">{%endif%}Інвестор</option>
 						  {%if selTable == "mentor"%}<option selected value="mentor">{%else%}<option value="mentor">{%endif%}Ментор</option>
+						  {%if selTable == "event"%}<option selected value="event">{%else%}<option value="event">{%endif%}Заходи</option>
 						</select>
 				  	</div>
 				  	<div class="col-sm-7">
@@ -157,8 +180,9 @@
 						<tr>
 							<th>ФІО</th>
 							<th>Рік закінчення 2ї ступені</th>
-							<th>Проєкти</th>
+							<th>Проекти</th>
 							<th>Повнота інформація</th>
+							<th>Город</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -184,19 +208,22 @@
 									Повна
 								{%endif%}
 							</td>
+							<td>
+								{{item.startuper.school.city}}
+							</td>
 						</tr>
 						{%endfor%}
 					</tbody>
 				</table>
 				{%endif%}
-				{%if selTable == "project"%}
+				{%if selTable == "project" or selTable is None%}
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Проєкт</th>
+							<th>Проект</th>
 							<th>Активний</th>
 							<th>Повнота інформація</th>
-							<th>Школа</th>
+							<th>Город</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -230,12 +257,14 @@
 					<thead>
 						<tr>
 							<th>Інвестор</th>
+							<th>Город</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
 							<td><a href="infoinvestor?id={{item.id}}"><h4>{{item.investor}}</h4></a></td>
+							<td>{{item.school.city}}</td>
 						</tr>
 						{%endfor%}
 					</tbody>
@@ -246,12 +275,34 @@
 					<thead>
 						<tr>
 							<th>ФІО</th>
+							<th>Город</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
 							<td><a href="infomentor?id={{item.id}}"><h4>{{item.surname}} {{item.name}} {{item.midname}}</h4></a></td>
+							<td>{{item.school.city}}</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+				{%endif%}
+				{%if selTable == "event"%}
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Назва</th>
+							<th>Дата</th>
+							<th>Город</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in queryList%}
+						<tr>
+							<td><a href="infoevent?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
+							<td>{{item.date}}</td>
+							<td>{{item.school.city}}</td>
 						</tr>
 						{%endfor%}
 					</tbody>
@@ -260,10 +311,11 @@
 			</div>
 			</div>
 		  </div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div> <!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

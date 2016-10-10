@@ -121,7 +121,7 @@
 		  <div class="row">
 			  {%if entity == "project"%}
 					<div class="col-md-10">
-					  	<h3>Додати менторів до проєкту "{{project.title}}":</h3>
+					  	<h3>Додати захід до проекту "{{project.title}}":</h3>
 						<hr>
 						{%if added is False%}
 							<form method="post">
@@ -142,22 +142,22 @@
 										<table class="table">
 											<thead>
 												<tr>
-													<th></th>
-													<th></th>
-													<th>Є ментором з</th>
+													<th width="10"></th>
+													<th width="80" align="center">Захід</th>
+													<th>Дата</th>
 												</tr>
 											</thead>
 											<tbody>
 											{%for item in queryList%}
 												<tr>
-													<td width="30">
-														<input type="checkbox" name="cbChoosed" value="{{item.id}}">
+													<td width="10">
+														<input type="checkbox" class="form-control" name="cbChoosed" value="{{item.id}}">
 													</td>
-													<td width="250" align="center">
-														<a href="infomentor?id={{item.id}}"> {{item.surname}} {{item.name}} {{item.midname}}</a>
+													<td width="80" align="center">
+														<a href="infoevent?id={{item.id}}"> {{item.title}}</a>
 													</td>
 													<td width="170">
-														<input type="text" class="form-control" name="tbDate{{item.id}}" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4}" value="{%now 'd.m.Y'%}" required/>
+														{{item.date}}
 													</td>
 												</tr>
 											{%endfor%}
@@ -169,7 +169,7 @@
 											<p> Сторінка:</p>
 										{%endif%}
 										{%if page != 1%}
-											<a href="/mentorstoproject?id={{id}}&page={{prevpage}}&entity=project"> Назад </a>...
+											<a href="/eventtoproj?id={{id}}&page={{prevpage}}&entity=project"> Назад </a>...
 										{%endif%}
 										{%if queryListCount != 0%}
 											{{page}}
@@ -178,7 +178,7 @@
 											Нема чого додати.
 										{%endif%}
 										{%if queryListCount > 10%}
-											... <a href="/mentorstoproject?id={{id}}&page={{nextpage}}&entity=project">Вперед </a>
+											... <a href="/eventtoproj?id={{id}}&page={{nextpage}}&entity=project">Вперед </a>
 										{%endif%}
 										<p></p>
 										<div class="col-sm-3">
@@ -189,14 +189,87 @@
 								</form>
 								<div class="col-sm-3">
 									<hr>
-									<a href="/infoproject?id={{id}}">
-										<button class="btn btn-success btn-block" type="submit">Відміна</button>
-									</a>
+										<a class="btn btn-success btn-block" href="/infoproject?id={{project.id}}">Відміна</a>
 								</div>
 							</div>
 						{%endif%}
 						{%if added is True%}
-							<p>Ментори додані до проекту</p>
+							<p>Заходи додані до проекту</p>
+						{%endif%}
+					</div>
+			  {%endif%}
+			  {%if entity == "event"%}
+			  <div class="col-md-10">
+					  	<h3>Додати учасників до заходу "{{event.title}}":</h3>
+						<hr>
+						{%if added is False%}
+							<form method="post">
+							{% csrf_token %}
+								<div class="col-sm-12">
+									<div class="col-sm-7">
+										<input type = "text" class="form-control .col-lg-6" name = "tbQSch" value="{{schVal}}"/>
+									</div>
+									<div class="col-sm-2">
+										<button class="btn btn-success btn-block" type="submit">Пошук</button>
+									</div>
+								</div>
+							</form>
+							<div class="col-sm-10">
+								<hr>
+								<form method="post">
+								{% csrf_token %}
+										<table class="table">
+											<thead>
+												<tr>
+													<th width="10"></th>
+													<th width="80" align="center">Проект</th>
+												</tr>
+											</thead>
+											<tbody>
+											{%for item in queryList%}
+												<tr>
+													<td width="10">
+														<input type="checkbox" class="form-control" name="cbChoosed" value="{{item.id}}">
+													</td>
+													<td width="80" align="center">
+														<a href="infoproject?id={{item.id}}"> {{item.title}}</a>
+													</td>
+												</tr>
+											{%endfor%}
+											</tbody>
+										</table>
+
+										<br>
+										{%if queryListCount != 0%}
+											<p> Сторінка:</p>
+										{%endif%}
+										{%if page != 1%}
+											<a href="/eventtoproj?id={{id}}&page={{prevpage}}&entity=event"> Назад </a>...
+										{%endif%}
+										{%if queryListCount != 0%}
+											{{page}}
+										{%endif%}
+										{%if queryListCount == 0%}
+											Нема чого додати.
+										{%endif%}
+										{%if queryListCount > 10%}
+											... <a href="/eventtoproj?id={{id}}&page={{nextpage}}&entity=event">Вперед </a>
+										{%endif%}
+										<p></p>
+										<div class="col-sm-3">
+										<hr>
+											<button class="btn btn-success btn-block" type="submit">Додати</button>
+											<button class="btn btn-success btn-block" type="submit" formaction="?id={{id}}&page={{page}}&entity=event&redirect=true">Додати і повернутись</button>
+										</div>
+								</form>
+								<div class="col-sm-3">
+									<hr>
+										<a class="btn btn-success btn-block" href="/infoevent?id={{event.id}}">Відміна</a>
+								</div>
+							</div>
+						{%endif%}
+						{%if added is True%}
+							<p>Заходи додані до проекту</p>
 						{%endif%}
 					</div>
 			  {%endif%}

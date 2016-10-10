@@ -39,6 +39,15 @@
 					phones.item(i).value += "-";
 			}
 		}
+		function addYear(){
+		  if (document.getElementById("cbSgrade").checked){
+			  document.getElementById("tbFinYear").disabled = false;
+			  document.getElementById("tbFinYear").required = true;
+		  } else {
+			  document.getElementById("tbFinYear").disabled = true;
+			  document.getElementById("tbFinYear").required = false;
+		  }
+		}
 	</script>
 	<style type = "text/css">
 	body {
@@ -54,6 +63,23 @@
 		backgroundcolor:#395610;
 		padding: 10px;
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
@@ -95,9 +121,9 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<p></p>
 				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<p></p>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -110,6 +136,8 @@
 				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
+				<p></p>
+				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
 				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
 				<hr>
@@ -132,42 +160,51 @@
 				<br>
 				<br>
 				<div>
-					<table>
+					<table class="table">
 						<tbody id="field">
 							<tr>
 								<td>
-									<label>Призвіще: <input name="tbSurname"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.surname}}" /> </label>
+									Призвіще: <input name="tbSurname"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.surname}}" />
 								</td>
 								<td>
-									<label>Ім'я: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.name}}" /></label>
+									Ім'я: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.name}}" />
 								</td>
 								<td>
-									<label>По батькові: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.midname}}" /></label>
+									По батькові: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{searchObj.midname}}" />
 								</td>
 							</tr>
 							<tr>
 								<td>
-									<label>Телефон: <input name="tbPhone" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="___-___-____" type="tel" class="form-control" value="{{searchObj.phone}}"/></label>
+									Телефон: <input name="tbPhone" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="___-___-____" type="tel" class="form-control" value="{{searchObj.phone}}"/>
 								</td>
 								<td>
-									<label>Пошта:<input name="tbMail" type="email" class="form-control" value="{{searchObj.mail}}"></label>
+									Пошта:<input name="tbMail" type="email" class="form-control" value="{{searchObj.mail}}">
+								</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>
+									<br>
+									{%if searchObj.fgrade is True%}<input  type="checkbox" name="cbFgrade"  class="checkbox-inline" value="True" checked>{%else%}<input  type="checkbox" name="cbFgrade"  class="checkbox-inline" value="True">{%endif%} - 1а ступень Sikorsky Challenge
+								</td>
+								<td>
+									<br>
+									{%if searchObj.sgrade is True%}<input  type="checkbox" name="cbSgrade" id="cbSgrade" class="checkbox-inline" value="True" onclick="addYear();" checked>{%else%}<input type="checkbox" name="cbSgrade" id="cbSgrade" class="checkbox-inline" onclick="addYear();" value="True">{%endif%} - 2а ступень Sikorsky Challenge
+								</td>
+								<td>
+									 Рік закінчення
+									{%if searchObj.sgrade is True %}<input id="tbFinYear" name="tbFinYear" type="text"  pattern="[0-9]{4}"  class="form-control" value="{{searchObj.finyear}}"/>
+									{%else%}<input name="tbFinYear" id="tbFinYear" type="text"  pattern="[0-9]{4}" class="form-control" value="{{item.finyear}}" disabled/>
+									{%endif%}
 								</td>
 							</tr>
 							<tr>
 								<td>
 									<br>
-									<label>{%if searchObj.fgrade is True%}<input  type="checkbox" name="cbFgrade"  class="checkbox-inline" value="True" checked>{%else%}<input  type="checkbox" name="cbFgrade"  class="checkbox-inline" value="True">{%endif%} - 1а ступень Sikorsky Challenge </label>
+									Проект:<input name="tbProjects" type="text" class="form-control" value="{{searchObj.mail}}">
 								</td>
-								<td>
-									<br>
-									<label>{%if searchObj.sgrade is True%}<input  type="checkbox" name="cbSgrade"  class="checkbox-inline" value="True" checked>{%else%}<input type="checkbox" name="cbSgrade"  class="checkbox-inline" value="True">{%endif%} - 2а ступень Sikorsky Challenge </label>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<br>
-									<label>Проект:<input name="tbProjects" type="text" class="form-control" value="{{searchObj.mail}}"></label>
-								</td>
+								<td></td>
+								<td></td>
 							</tr>
 						</tbody>
 					</table>
@@ -194,6 +231,7 @@
 							<th>Рік закінчення 2ї ступені</th>
 							<th>Проєкти</th>
 							<th>Повнота інформація</th>
+							<th>Город</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -219,15 +257,20 @@
 									Повна
 								{%endif%}
 							</td>
+							<td>
+								{{item.startuper.school.city}}
+							</td>
 						</tr>
 						{%endfor%}
 					</tbody>
+				</table>
 			</div>
 		</div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div><!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

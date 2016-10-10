@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title> Поиск</title>
+    <title>Sikorsky Challenge</title>
 
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -19,30 +20,8 @@
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-	<script>
-		function DetectMob()
-		{
-		   var uagent = navigator.userAgent.toLowerCase();
-		   if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent))
-		   {
-			  document.getElementById("menu").style.visibility = "hidden";
-		   }
-		}
-	</script>
-	<style type = "text/css">
-	body {
-	  padding-top: 10px;
-	  padding-bottom: 5px;
-	}
-	.menu{
-		position: fixed;
-		top: 280px;
-		right: 50px;
-		width: 148px;
-		height: 100px;
-		backgroundcolor:#395610;
-		padding: 10px;
-		}
+
+  <style>
 	html,
 	body {
 	  	height: 100%;
@@ -60,11 +39,10 @@
 	 	border:2px solid #dddddd;
 	 	background-color:#f9f9f9;
 	}
-	</style>
-	
+  </style>
   </head>
 
-  <body onload="DetectMob()">
+  <body>
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -78,16 +56,29 @@
           <a class="navbar-brand" href="#"></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-			<form class="navbar-form navbar-right" method="get">
+			<form class="navbar-form navbar-right" method="post">
 			{% csrf_token %}
-				<div class="form-group" style = "color:white">
-					Доброго дня, <i style="color:lightgreen">{{name}}!</i>
-				</div>
-				<div class="form-group">
-					<button class="btn btn-fail" formaction = "logout">Вийти</button>
-				</div>
+				{%if entered == 0%}
+					<div class="form-group">
+					  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
+					</div>
+					<div class="form-group">
+					<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
+					</div>
+						<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
+				{%endif%}
 			</form>
-			
+			<form class="navbar-form navbar-right" method="get">
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Доброго дня, <i style="color:lightgreen">{{name}} ! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
+			</div>
+			{%endif%}
+			</form>
+
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
@@ -101,9 +92,9 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
+				<p></p>
 				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
+				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -111,59 +102,30 @@
 				<p></p>
 				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
 				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проект</button></a>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
 				<p></p>
 				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
-				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
-				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
-				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>
 
     <div class="container">
 		  <!-- Example row of columns -->
-		<div class="row">
+		  <div class="row">
 			<div class="col-md-10">
-				<h3>Що Ви хочете знайти?</h3>
-				<hr>
-				<br>
-				<div class="col-md-5">
-					<table class="table table">
-						<tbody>
-							<tr>
-								<td width="200">
-									<a href="/startupersearch"><button class="btn btn-success btn-block" type="submit"> Сартапера </button></a>
-								</td>
-							</tr>
-							<tr>
-								<td width="200">
-									<a href="/projectsearch"><button class="btn btn-success btn-block" type="submit"> Проект </button></a>
-								</td>
-							</tr>
-							<tr>
-								<td width="200">
-									<a href="/mentorsearch"><button class="btn btn-success btn-block" type="submit"> Ментора </button></a>
-								</td>
-							</tr>
-							<tr>
-								<td width="200">
-									<a href="/investorsearch"><button class="btn btn-success btn-block" type="submit"> Інвестора </button></a>
-								</td>
-							</tr>
-							<tr>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+                <h3>Нема доступу</h3>
+                У Вас нема доступу для просмотру цієї сторінки
+
+                <div name="logout">
+                <button class="btn btn-success" onclick="history.back()">Назад </button>
+                </div>
 			</div>
-		</div>
-    </div><!-- /container -->
+		  </div>
+    </div> <!-- /container -->
 		  <footer>
 			  <img src="/static/files/imgs/design/logos.png"/>
 				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
@@ -175,5 +137,6 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
   </body>
 </html>

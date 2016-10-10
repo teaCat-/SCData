@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head lang="uk">
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="UTF-8">
     <title>Регистрация</title>
 <!-- Latest compiled and minified CSS -->
@@ -101,10 +102,11 @@
             {%endif%}
         </p>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Зареєструватись</button>
+        <h4 class="form-regi-heading" style="color:green">{{message}}</h4>
     </form>
     <form class="form-regi" method = "get">
     {% csrf_token %}
-        <button class="btn btn-success" formaction="auth">Назад</button>
+        <button class="btn btn-success" formaction="\">Назад</button>
     </form>
 
 </body>

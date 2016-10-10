@@ -137,7 +137,7 @@
 				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
 				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -146,163 +146,68 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-9">
-			  <h3>Інформація про інвестора:</h3>
+			  <h3>Інформация про захід:</h3>
 			<div class=".col-md-2">
 			{%if entered == "worker"%}
-				<a href="/editinvestor?id={{investor.id}}"><button class="btn btn-success" type="submit">Редагувати</button></a>
+				<a href="/editevent?id={{event.id}}"><button class="btn btn-success" type="submit">Редагувати</button></a>
 			{%endif%}
-				<a href="/infoinvestor?id={{investor.id}}&print=true" class="btn btn-success">Роздрукувати</a>
+				<a href="/infoevent?id={{event.id}}&print=true" class="btn btn-success">Роздрукувати</a>
 			</div>
 			<hr>
-			<div align="left" class="col-sm-10">
-			<table class="table table">
-				<tbody>
-				<tr>
-					<td align="right">
-						<b>Інвестор: </b>
-					</td>
-					<td>
-						{{investor.investor}}
-					</td>
-				</tr>
-				<tr>
-					<td align="right"><b>Регіон: </b></td>
-					<td>
-						{{investor.school.city}}
-					</td>
-				</tr>
-				</tbody>
-			</table>
+			<div class="col-sm-3">
+			</div>
+			<div align="right" class="col-sm-5">
+				<table class = "table table">
+					<tbody>
+						<tr><td>Назва:</td> <td>{{event.title}}</td></tr>
+						<tr><td>Дата:</td> <td> {{event.date}}</td></tr>
+						<tr>
+							<td>Школа: </td>
+							<td>
+								{{event.school.city}}
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 
-			<div align="left" class="col-sm-7">
+			<div class="col-sm-10">
 				<hr>
-				<b>Опис: </b>
-				<textarea class="form-control" cols="80" rows="5" disabled>{{investor.descr}}</textarea>
-			</div>
-
-              <div class="col-sm-10">
-                <hr>
-                <div class="col-sm-2">
-                    <h4><b>Контакти:  </b></h4>
-                </div>
-                <div class="col-sm-10" align="left">
+				<div class="col-sm-2">
+					<h4><b>Учасники:  </b></h4>
+				</div>
+					<div class="col-sm-8" align="left">
 					{%if entered == "worker"%}
-						<h4><a class="btn btn-success" href="invcontactsadd?id={{investor.id}}"><span class="glyphicon glyphicon-plus"><i> додати</i></span></a></h4>
+						<div class="col-sm-4" align="left">
+							<h4><a class="btn btn-success" href="/eventtoproj?id={{event.id}}&page=1&entity=event"><span class="glyphicon glyphicon-plus"><i> додати</i></span></a></h4>
+						</div>
 					{%endif%}
-                </div>
-                <div class="col-sm-10" align="left"><p></p>
-                </div>
-
-                <div align="left" class="col-sm-3">
-                </div>
-                <div class="col-sm-11" align="left"><p></p>
-				<table class ="table table-striped">
+					</div>
+						<br>
+						<br>
+						<br>
+					<div class="col-sm-2" ><br>
+					</div>
+				<div class="col-sm-8" align="left">
+				<table class="table table-striped">
 					<thead>
 						<tr>
-							<th> <i></i> </th>
-							<th> <i>ПІБ</i> </th>
-							<th> <i>Компанія</i> </th>
-							<th> <i>Посада</i> </th>
+							<th><i></i></th>
+							<th><i>Назва проекту</i></th>
 						</tr>
 					</thead>
 					<tbody>
-					{%for item in contacts%}
-						  <tr>
+					{%for item in projects%}
+						<tr>
 							<td></td>
-							<td><a href="/infoinvcontact?id={{item.id}}">{{item.surname}} {{item.name}} {{item.midname}}</a></td>
-							<td>{{item.company}}</td>
-							<td>{{item.position}}</td>
-						  </tr>
-		  			{%endfor%}
-				</table>
-				</div>
-            </div>
-
-		  	{%if staff is True%}
-			<div class="col-sm-11">
-				<hr>
-				<div class="col-sm-2">
-					<h4><b>Інвестиції:  </b></h4>
-				</div>
-				<div class="col-sm-9" align="left">
-				{%if entered == "worker"%}
-					<h4><a class="btn btn-success" href="\investitions?id={{investor.id}}"><span class="glyphicon glyphicon-plus"><i> додати</i></span></a></h4>
-				{%endif%}
-				</div>
-				<div class="col-sm-11" align="left"><p></p>
-				<table class ="table table-striped">
-					<thead>
-						<tr>
-							<th> <i>Дата</i> </th>
-							<th> <i>Проєкт</i> </th>
-							<th> <i>Ресурс \ Валюта</i> </th>
-							<th> <i>Сума</i> </th>
-							<th> <i>Вид фінансування</i> </th>
-							<th> <i>Опис</i> </th>
+							<td><a href="/infoproject?id={{item.projectID.id}}">{{item.projectID.title}}</a></td>
 						</tr>
-					</thead>
-					<tbody>
-					{%for inv in investitions%}
-						  <tr>
-							<td>{{inv.date}}</td>
-							<td><a href="/infoproject?id={{inv.projectID.id}}">{{inv.projectID.title}}</a></td>
-							<td align="center">{{inv.res}}</td>
-							<td>{{inv.sum}}</td>
-							<td>{{inv.type}}</td>
-							<td>{{inv.descr}}</td>
-						  </tr>
-		  			{%endfor%}
+					{%endfor%}
+					</tbody>
 				</table>
-				</div>
-		  	{%endif%}
-
-			<div class="col-sm-11">
-				<hr>
-				<div class="col-sm-2">
-					<h4><b>Дод. матеріали: </b></h4>
-				</div>
-				<div class="col-sm-4" align="left">
-				{%if entered == "worker"%}
-					<h4><a class="btn btn-success" href="/fileadd?id={{investor.id}}&entity=investor&addurl=true"><span class="glyphicon glyphicon-plus"><i> додати посилання</i></span></a></h4>
-				{%endif%}
-				</div>
-				<div class="col-sm-6" align="left">
-				{%if entered == "worker"%}
-					<h4><a class="btn btn-success" href="/fileadd?id={{investor.id}}&entity=investor"><span class="glyphicon glyphicon-plus"><i> додати файл</i></span></a></h4>
-				{%endif%}
-				</div>
-				<div class="col-sm-10" align="left"><p></p>
-				</div>
-
-				<div align="left" class="col-sm-1">
-				</div>
-				<div class="col-sm-6" align="left">
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th><i></i></th>
-								<th><i>Посилання</i></th>
-								<th><i>Файл</i></th>
-							</tr>
-						</thead>
-						<tbody>
-						{%for item in addInfo%}
-							<tr>
-								<td></td>
-								{%if item.url != ""%}
-									<td><a href="{{item.url}}">{{item.text}}</a></td>
-									<td></td>
-								{%else%}
-									<td></td>
-									<td><a href="/media/{{item.file}}" download>{{item.text}}</a></td>
-								{%endif%}
-							</tr>
-						{%endfor%}
-						</tbody>
-					</table>
 				</div>
 			</div>
+
 
 			</div>
 		  </div>

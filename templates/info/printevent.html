@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,8 +10,8 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title> Поиск</title>
-
+    <title>Sikorsky Challenge</title>
+	
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
@@ -19,7 +20,8 @@
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-	<script>
+
+	 <script>
 		function DetectMob()
 		{
 		   var uagent = navigator.userAgent.toLowerCase();
@@ -64,7 +66,7 @@
 	
   </head>
 
-  <body onload="DetectMob()">
+  <body onload="window.print(); window.location = '/infoevent?id={{event.id}}';">
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -78,14 +80,28 @@
           <a class="navbar-brand" href="#"></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-			<form class="navbar-form navbar-right" method="get">
+			<form class="navbar-form navbar-right" method="post">
 			{% csrf_token %}
-				<div class="form-group" style = "color:white">
-					Доброго дня, <i style="color:lightgreen">{{name}}!</i>
+			{%if entered == 0%}
+				<div class="form-group">
+				  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
 				</div>
 				<div class="form-group">
-					<button class="btn btn-fail" formaction = "logout">Вийти</button>
+				<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
 				</div>
+					<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
+			{%endif%}
+			</form>
+			<form class="navbar-form navbar-right" method="get">
+			{% csrf_token %}
+			{%if entered != 0%}
+			<div class="form-group" style = "color:white">
+				Доброго дня, <i style="color:lightgreen">{{name}}! </i>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
+			</div>
+			{%endif%}
 			</form>
 			
         </div><!--/.navbar-collapse -->
@@ -98,76 +114,64 @@
 
 	<div class = "menu" id="menu">
 		<div class="navbar-form navbar-right">
-			{%if entered == "chief"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
-				<hr>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
-			{%endif%}
-			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
-				<hr>
-				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
-				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проект</button></a>
-				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
-				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
-				<p></p>
-				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
-				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
-				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главну сторінку</button></form>
-			{%endif%}
 		</div>
 	</div>
 
     <div class="container">
 		  <!-- Example row of columns -->
-		<div class="row">
-			<div class="col-md-10">
-				<h3>Що Ви хочете знайти?</h3>
+		  <div class="row">
+			<div class="col-md-10" style="page-break-after: always;">
+			  <h3>Інформация про захід:</h3>
+			<hr>
+			<div align="right" class="col-sm-10">
+				<table class = "table table">
+					<tbody>
+						<tr><td>Назва:</td> <td>{{event.title}}</td></tr>
+						<tr><td>Дата:</td> <td> {{event.date}}</td></tr>
+						<tr>
+							<td>Школа: </td>
+							<td>
+								{{event.school.city}}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+					<br>
+					<br>
+			<div class="col-sm-10">
 				<hr>
-				<br>
-				<div class="col-md-5">
-					<table class="table table">
-						<tbody>
-							<tr>
-								<td width="200">
-									<a href="/startupersearch"><button class="btn btn-success btn-block" type="submit"> Сартапера </button></a>
-								</td>
-							</tr>
-							<tr>
-								<td width="200">
-									<a href="/projectsearch"><button class="btn btn-success btn-block" type="submit"> Проект </button></a>
-								</td>
-							</tr>
-							<tr>
-								<td width="200">
-									<a href="/mentorsearch"><button class="btn btn-success btn-block" type="submit"> Ментора </button></a>
-								</td>
-							</tr>
-							<tr>
-								<td width="200">
-									<a href="/investorsearch"><button class="btn btn-success btn-block" type="submit"> Інвестора </button></a>
-								</td>
-							</tr>
-							<tr>
-							</tr>
-						</tbody>
-					</table>
+				<div class="col-sm-1">
+					<h4><b>Учасники:  </b></h4>
+				</div>
+				<div class="col-sm-8" align="left">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th><i></i></th>
+							<th><i>Назва проекту</i></th>
+						</tr>
+					</thead>
+					<tbody>
+					{%for item in projects%}
+						<tr>
+							<td></td>
+							<td>{{item.projectID.title}}</td>
+						</tr>
+					{%endfor%}
+					</tbody>
+				</table>
 				</div>
 			</div>
-		</div>
-    </div><!-- /container -->
+
+
+			</div>
+		  </div>
 		  <footer>
-			  <img src="/static/files/imgs/design/logos.png"/>
-				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+				<p ></p>
 		  </footer>
+    </div> <!-- /container -->
 
 
     <!-- Bootstrap core JavaScript
@@ -175,5 +179,6 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
   </body>
 </html>

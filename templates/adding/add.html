@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -85,6 +86,23 @@
 		backgroundcolor:#395610;
 		padding: 10px;
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
@@ -171,7 +189,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=startuper&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відмінити</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -219,7 +237,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=startuper&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відмінити</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -235,7 +253,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=project&added=true&startuperID={{startuperID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відмінити</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -361,7 +379,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=project&added=true&startuperID={{startuperID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відмінити</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -377,7 +395,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=investor&added=true">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відмінити</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -400,7 +418,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=investor&added=true">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відміна</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відміна</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -417,7 +435,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=mentor&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відміна</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відміна</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -442,7 +460,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=mentor&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" href="\">Відміна</a></td>
+										<td><a class="btn btn-success" onclick="history.back()">Відміна</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -452,10 +470,11 @@
 				</form>
 			</div>
 		  </div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div><!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
+  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -44,6 +45,23 @@
 		backgroundcolor:#395610;
 		padding: 10px;
 		}
+	html,
+	body {
+	  	height: 100%;
+	}
+	.container {
+	 	display: table;
+	 	height: 100%;
+	}
+	.row {
+	  display: table-row;
+	  height: 100%;
+	}
+	footer{
+	 	width:100%;
+	 	border:2px solid #dddddd;
+	 	background-color:#f9f9f9;
+	}
 	</style>
 	
   </head>
@@ -99,9 +117,9 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати аккаунт</button></a>
-				<p></p>
+				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -114,6 +132,8 @@
 				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
+				<p></p>
+				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
 				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
 				<hr>
@@ -273,7 +293,7 @@
 					<div class="col-sm-2">
 						<h4><b>Учасники:  </b></h4>
 					</div>
-					<div class="col-sm-10" align="left">
+					<div class="col-sm-8" align="left">
 					{%if entered == "worker"%}
 						<div class="col-sm-4" align="left">
 							<h4><a class="btn btn-success" href="startuperstoproject?id={{project.id}}&page=1&entity=project"><span class="glyphicon glyphicon-plus"><i> додати</i></span></a></h4>
@@ -283,6 +303,9 @@
 						</div>
 					{%endif%}
 					</div>
+						<br>
+						<br>
+						<br>
 					<div class="col-sm-2" ><br>
 					</div>
 					<div class="col-sm-6" align="left">
@@ -310,16 +333,23 @@
 				<div class="col-sm-10">
 					<hr>
 					<div class="col-sm-2">
-						<h4><b>Активність: </b></h4>
+						<h4><b>Заходи: </b></h4>
 					</div>
-					<div class="col-sm-10" align="left">
+					<div class="col-sm-8" align="left">
 					{%if entered == "worker"%}
-						<h4><a class="btn btn-success" href="signadd?id={{project.id}}&entity=act"><span class="glyphicon glyphicon-plus"><i> додати</i></span></a></h4>
+						<div class="col-sm-4" align="left">
+							<h4><a class="btn btn-success" href="/eventtoproj?id={{project.id}}&page=1&entity=project"><span class="glyphicon glyphicon-plus"><i> додати</i></span></a></h4>
+						</div>
+						<div class="col-sm-7" align="left">
+							<h4><a class="btn btn-success" href="/eventadd?projid={{project.id}}"><span class="glyphicon glyphicon-asterisk"><i> создати </i></span></a></h4>
+						</div>
 					{%endif%}
 					</div>
 						<br>
-					<div class="col-sm-2">
-						</div>
+						<br>
+						<br>
+					<div class="col-sm-2" ><br>
+					</div>
 					<div class="col-sm-6" align="left">
 						<table class="table table-striped">
 							<thead>
@@ -333,8 +363,8 @@
 							{%for item in activities%}
 								<tr>
 									<td></td>
-									<td>{{item.date}}</td>
-									<td>{{item.title}}</td>
+									<td>{{item.eventID.date}}</td>
+									<td><a href="infoevent?id={{item.eventID.id}}">{{item.eventID.title}}</a></td>
 								</tr>
 							{%endfor%}
 							</tbody>
@@ -387,11 +417,11 @@
 			{%endif%}
 
 			</div>
-		  </div>
-		  <footer>
-			<p></p>
-		  </footer>
     </div> <!-- /container -->
+		  <footer>
+			  <img src="/static/files/imgs/design/logos.png"/>
+				<p align="right" style="background-color:#f9f9f9;margin-right:100px">&copy; 2016 Sikorsky Challenge</p>
+		  </footer>
 
 
     <!-- Bootstrap core JavaScript

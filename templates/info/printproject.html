@@ -25,15 +25,6 @@
 	  padding-top: 10px;
 	  padding-bottom: 5px;
 	}
-	.menu{
-		position: fixed;
-		top: 280px;
-		right: 50px;
-		width: 148px;
-		height: 100px;
-		backgroundcolor:#395610;
-		padding: 10px;
-		}
 	</style>
 	
   </head>
@@ -93,7 +84,7 @@
 		  <!-- Example row of columns -->
 		  <div class="row">
 			<div class="col-md-10">
-			  <h3>Інформація про проєкт:</h3>
+			  <h3>Інформація про проект:</h3>
 			<div class=".col-md-2" align="right">
 			</div>
 			<hr>
@@ -171,14 +162,14 @@
 				</div>
 			</div>
 
-			<div align="left" class="col-sm-7">
+			<div align="left" class="col-sm-7" style="page-break-after: always;">
 				<hr>
 				<b>Опис: </b>
 				<textarea class="form-control" cols="80" rows="5" disabled>{{project.descr}}</textarea>
 			</div>
 
 		  	{%if staff is True%}
-		  	<div class="col-sm-10">
+		  	<div class="col-sm-8" style="page-break-after: always;">
                 <hr>
                 <div class="col-sm-2">
                     <h4><b>Усі ментори:  </b></h4>
@@ -186,10 +177,6 @@
                 <div class="col-sm-10" align="left">
                 {%if entered == "worker"%}
 				{%endif%}
-                </div>
-                    <br>
-                    <br>
-                <div class="col-sm-2">
                 </div>
 				<div class="col-sm-6" align="left">
 					<table class="table table-striped">
@@ -213,14 +200,10 @@
 				</div>
 			</div>
 
-              <div class="col-sm-10">
+              <div class="col-sm-8" style="page-break-after: always;">
                 <hr>
                 <div class="col-sm-2">
                     <h4><b>Учасники:  </b></h4>
-                </div>
-                <div class="col-sm-10" align="left">
-                </div>
-                <div class="col-sm-2" ><br>
                 </div>
 				<div class="col-sm-6" align="left">
 					<table class="table table-striped">
@@ -244,16 +227,11 @@
 				</div>
 			</div>
 
-			<div class="col-sm-10">
+			<div class="col-sm-8" style="page-break-after: always;">
 				<hr>
 				<div class="col-sm-2">
-					<h4><b>Активність:  </b></h4>
+					<h4><b>Заходи:  </b></h4>
 				</div>
-				<div class="col-sm-10" align="left">
-				</div>
-					<br>
-				<div class="col-sm-2">
-					</div>
 				<div class="col-sm-6" align="left">
 					<table class="table table-striped">
 						<thead>
