@@ -9,6 +9,7 @@ from django.forms.models import BaseInlineFormSet
 # Register your models here.
 from models import *
 
+admin.site.register(tVisitors)
 admin.site.register(tInvestor)
 admin.site.register(tInvestorContacts)
 admin.site.register(tProject)
@@ -21,7 +22,6 @@ admin.site.register(tDoc)
 admin.site.register(tMentor)
 admin.site.register(tKeyWord)
 admin.site.register(tSchool)
-admin.site.register(tActProj)
 
 class RequiredInlineFormSet(BaseInlineFormSet):
     """

@@ -97,12 +97,15 @@
 							{{project.title}}
 						</td>
 					</tr>
+					{%if staff is True%}
 					<tr>
 						<td><b>Школа: </b></td>
 						<td>
 							{{project.school.city}}
 						</td>
 					</tr>
+					{%endif%}
+					{%if staff is True%}
 					<tr>
 						<td><b>Активність: </b></td>
 						<td>
@@ -113,10 +116,13 @@
 							{% endif %}
 						</td>
 					</tr>
+					{%endif%}
+					{%if staff is True%}
 					<tr>
 						<td><b>Розмір фінансування: </b></td>
 						<td>{{project.financeScale}}</td>
 					</tr>
+					{%endif%}
 					<tr>
 						<td><b>Галузь: </b></td>
 						<td>{{project.sector}}</td>
@@ -129,14 +135,18 @@
 						<td><b>Форма продукції: </b></td>
 						<td>{{project.isreal}}</td>
 					</tr>
+					{%if staff is True%}
 					<tr>
 						<td><b>Головний стартапер: </b></td>
 						<td>{{project.leader.surname}} {{project.leader.name}} {{project.leader.midname}}</td>
 					</tr>
+					{%endif%}
+					{%if staff is True%}
 					<tr>
 						<td><b>Ментор <i>(текущий)</i>: </b></td>
 						<td>{{currMent.mentorID.surname}} {{currMent.mentorID.name}} {{currMent.mentorID.midname}}</td>
 					</tr>
+					{%endif%}
 				</tbody>
 			</table>
 			</div>

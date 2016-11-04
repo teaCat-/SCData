@@ -13,12 +13,10 @@ class tSchool(models.Model):
     class Meta:
         verbose_name_plural = u'Школи'
 
-def getDefSchool():
-    return tSchool.objects.get_or_create(city=u'Город не указан')
 
 class tUserSch(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    school = models.ForeignKey(tSchool, on_delete=models.SET(getDefSchool), default=None)
+    school = models.ForeignKey(tSchool, on_delete=models.SET_NULL, default=None, null=True, blank=True)
     def __unicode__(self):
         return self.user.username
     class Meta:
@@ -27,18 +25,38 @@ class tUserSch(models.Model):
 
 class tInvestor(models.Model):
     investor = models.TextField(max_length=50, default="")
-    descr = models.TextField(max_length=500, default="")
-    school = models.ForeignKey(tSchool, on_delete=models.SET(getDefSchool), default=None)
+    descr = models.TextField(max_length=500, default="", blank=True, null=True)
+    school = models.ForeignKey(tSchool, on_delete=models.SET_NULL, default=None, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, blank=True, null=True)
+    message = models.TextField(max_length=500, default="", blank=True, null=True)
+    def clean(self):
+        if self.user is not None:
+            try:
+                u = tUserSch.objects.get(user = self.user)
+                if u.school != None:
+                    self.school = u.school
+            except:
+                pass
+
     def __unicode__(self):
         return self.investor+" |"+str(self.id)
     class Meta:
         verbose_name_plural = u'Інвестори'
 
+class tVisitors(models.Model):
+    investorID = models.ForeignKey(tInvestor)
+    date = models.DateTimeField(blank=True, null=True)
+    userID = models.ForeignKey(User)
+    def __unicode__(self):
+        return self.investorID.investor+", "+self.date.strftime("%d.%m.%y, %H:%M")
+    class Meta:
+        verbose_name_plural = u'Відвідувачі сторінок з інвесторами'
+
 class tAddInfoInv(models.Model):
     investorID = models.ForeignKey(tInvestor)
-    text = models.TextField(max_length=50, default="")
-    url = models.TextField(max_length=50, default="")
-    file = models.FileField(upload_to='files/investors/', default="")
+    text = models.TextField(max_length=50, default="", blank=True, null=True)
+    url = models.TextField(max_length=50, default="", blank=True, null=True)
+    file = models.FileField(upload_to='files/investors/', default="", blank=True, null=True)
     def __unicode__(self):
         return self.url+" |"+str(self.id)
     class Meta:
@@ -48,11 +66,11 @@ class tInvestorContacts(models.Model):
     investorID = models.ForeignKey(tInvestor)
     name = models.TextField(max_length=50, default="")
     surname = models.TextField(max_length=50, default="")
-    midname = models.TextField(max_length=50, default="")
-    phone = models.TextField(max_length=15, default="")
-    mail = models.TextField(max_length=50, default="")
-    position = models.TextField(max_length=50, default="")
-    company = models.TextField(max_length=50, default="")
+    midname = models.TextField(max_length=50, default="", blank=True, null=True)
+    phone = models.TextField(max_length=15, default="", blank=True, null=True)
+    mail = models.TextField(max_length=50, default="", blank=True, null=True)
+    position = models.TextField(max_length=50, default="", blank=True, null=True)
+    company = models.TextField(max_length=50, default="", blank=True, null=True)
     def __unicode__(self):
         return self.name+" "+self.surname+" "+self.midname+" |"+str(self.id)
     class Meta:
@@ -61,21 +79,21 @@ class tInvestorContacts(models.Model):
 class tStartuper(models.Model):
     name = models.TextField(max_length=50, default="")
     surname = models.TextField(max_length=50, default="")
-    midname = models.TextField(max_length=50, default="")
-    phone = models.TextField(max_length=15, default="")
-    mail = models.TextField(max_length=50, default="")
-    avatar = models.ImageField(upload_to='files/imgs/avatars/', default="")
-    fgrade = models.BooleanField(default=False)
-    sgrade = models.BooleanField(default=False)
-    finyear = models.TextField(max_length=5, default="-")
-    school = models.ForeignKey(tSchool, on_delete=models.SET(getDefSchool), default=None)
+    midname = models.TextField(max_length=50, default="", blank=True, null=True)
+    phone = models.TextField(max_length=15, default="", blank=True, null=True)
+    mail = models.TextField(max_length=50, default="", blank=True, null=True)
+    avatar = models.ImageField(upload_to='files/imgs/avatars/', default="", blank=True, null=True)
+    fgrade = models.BooleanField(default=False, blank=True)
+    sgrade = models.BooleanField(default=False, blank=True)
+    finyear = models.TextField(max_length=5, default="-", blank=True, null=True)
+    school = models.ForeignKey(tSchool, on_delete=models.SET_NULL, default=None, blank=True, null=True)
     def __unicode__(self):
         return self.name+" "+self.surname+" "+self.midname+" |"+str(self.id)
     class Meta:
         verbose_name_plural = u'Стартапери'
 
 class tKeyWord(models.Model):
-    word = models.TextField(max_length=50, default="")
+    word = models.TextField(max_length=50, default="", blank=True, null=True)
     def __unicode__(self):
         return self.word
     class Meta:
@@ -83,13 +101,13 @@ class tKeyWord(models.Model):
 
 class tProject(models.Model):
     title = models.TextField(max_length=50, default="")
-    sector = models.TextField(max_length=50, default="")
-    descr = models.TextField(max_length=500, default="")
-    type = models.TextField(max_length=50, default="")
-    isreal = models.TextField(max_length=50, default="")
-    financeScale = models.TextField(max_length=50, default="")
-    isactive = models.BooleanField(default=True)
-    school = models.ForeignKey(tSchool, on_delete=models.SET(getDefSchool), default=None)
+    sector = models.TextField(max_length=50, default="", blank=True, null=True)
+    descr = models.TextField(max_length=500, default="", blank=True, null=True)
+    type = models.TextField(max_length=50, default="", blank=True, null=True)
+    isreal = models.TextField(max_length=50, default="", blank=True, null=True)
+    financeScale = models.TextField(max_length=50, default="", blank=True, null=True)
+    isactive = models.BooleanField(default=True, blank=True)
+    school = models.ForeignKey(tSchool, on_delete=models.SET_NULL, default=None, blank=True, null=True)
     def __unicode__(self):
         return self.title+" |"+str(self.id)
     class Meta:
@@ -105,8 +123,8 @@ class tKeyWordToProject(models.Model):
 
 class tStatus(models.Model):
     projectID = models.ForeignKey(tProject)
-    date = models.DateTimeField()
-    title = models.TextField(max_length=50, default="")
+    date = models.DateTimeField(blank=True, null=True)
+    title = models.TextField(max_length=50, default="", blank=True, null=True)
     def __unicode__(self):
         return self.title+" |"+str(self.id)
     class Meta:
@@ -114,9 +132,9 @@ class tStatus(models.Model):
 
 class tAddInfoProj(models.Model):
     projectID = models.ForeignKey(tProject)
-    text = models.TextField(max_length=50, default="")
-    url = models.TextField(max_length=150, default="")
-    file = models.FileField(upload_to='files/projects/', default="")
+    text = models.TextField(max_length=50, default="", blank=True, null=True)
+    url = models.TextField(max_length=150, default="", blank=True, null=True)
+    file = models.FileField(upload_to='files/projects/', default="", blank=True, null=True)
     def __unicode__(self):
         return self.text + " |" + str(self.id)
     class Meta:
@@ -124,8 +142,8 @@ class tAddInfoProj(models.Model):
 
 class tActivities(models.Model):
     title = models.TextField(max_length=50, default="")
-    date = models.DateField()
-    school = models.ForeignKey(tSchool, on_delete=models.SET(getDefSchool), default=None)
+    date = models.DateField(blank=True, null=True)
+    school = models.ForeignKey(tSchool, on_delete=models.SET_NULL, default=None, blank=True, null=True)
     def __unicode__(self):
         return self.title+" |"+str(self.id)
     class Meta:
@@ -142,11 +160,11 @@ class tActProj(models.Model):
 class tInvestition(models.Model):
     investorID = models.ForeignKey(tInvestor)
     projectID = models.ForeignKey(tProject)
-    date = models.DateTimeField()
-    type = models.TextField(max_length=50, default="")
-    res = models.TextField(max_length=50, default="")
-    sum = models.TextField(max_length=15, default="")
-    descr = models.TextField(max_length=500, default="")
+    date = models.DateTimeField(blank=True, null=True)
+    type = models.TextField(max_length=50, default="", blank=True, null=True)
+    res = models.TextField(max_length=50, default="", blank=True, null=True)
+    sum = models.TextField(max_length=15, default="", blank=True, null=True)
+    descr = models.TextField(max_length=500, default="", blank=True, null=True)
     def __unicode__(self):
         return unicode(self.date)+self.projectID.title+" |"+str(self.id)
     class Meta:
@@ -155,8 +173,8 @@ class tInvestition(models.Model):
 class tTeam(models.Model):
     projectID = models.ForeignKey(tProject)
     startuperID = models.ForeignKey(tStartuper)
-    role = models.TextField(max_length=50, default="")
-    islead = models.BooleanField(default=False)
+    role = models.TextField(max_length=50, default="", blank=True, null=True)
+    islead = models.BooleanField(default=False, blank=True)
     def __unicode__(self):
         return unicode(self.startuperID.surname)+"/ "+self.projectID.title+" |"+unicode(self.id)
     class Meta:
@@ -165,9 +183,9 @@ class tTeam(models.Model):
 class tDoc(models.Model):
     startuperID = models.ForeignKey(tStartuper)
     title = models.TextField(max_length=50, default="")
-    date = models.DateField()
-    url = models.TextField(max_length=50, default="")
-    document = models.FileField(upload_to='files/docs/', default="")
+    date = models.DateField(blank=True, null=True)
+    url = models.TextField(max_length=50, default="", blank=True, null=True)
+    document = models.FileField(upload_to='files/docs/', default="", blank=True, null=True)
     def __unicode__(self):
         return unicode(self.date)+"/ "+self.title+"/ "+self.startuperID.surname+" |"+str(self.id)
     class Meta:
@@ -176,10 +194,10 @@ class tDoc(models.Model):
 class tMentor(models.Model):
     name = models.TextField(max_length=50, default="")
     surname = models.TextField(max_length=50, default="")
-    midname = models.TextField(max_length=50, default="")
-    phone = models.TextField(max_length=15, default="")
-    mail = models.TextField(max_length=50, default="")
-    school = models.ForeignKey(tSchool, on_delete=models.SET(getDefSchool), default=None)
+    midname = models.TextField(max_length=50, default="", blank=True, null=True)
+    phone = models.TextField(max_length=15, default="", blank=True, null=True)
+    mail = models.TextField(max_length=50, default="", blank=True, null=True)
+    school = models.ForeignKey(tSchool, on_delete=models.SET_NULL, default=None, blank=True, null=True)
     def __unicode__(self):
         return self.name+" "+self.surname+" "+self.midname+" |"+str(self.id)
     class Meta:
@@ -188,7 +206,7 @@ class tMentor(models.Model):
 class tMentoproj(models.Model):
     projectID = models.ForeignKey(tProject)
     mentorID = models.ForeignKey(tMentor)
-    date = models.DateTimeField()
+    date = models.DateTimeField(blank=True, null=True)
     def __unicode__(self):
         return self.projectID.title+" "+self.mentorID.surname+" "+self.mentorID.name+" |"+str(self.id)
     class Meta:

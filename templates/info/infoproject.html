@@ -122,8 +122,6 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
@@ -134,13 +132,18 @@
 				<p></p>
 				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
-				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
 				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
 				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
+			{%endif%}
+			{%if entered == "invest-manager"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
+				<hr>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
 			{%endif%}
@@ -175,12 +178,15 @@
 							{{project.title}}
 						</td>
 					</tr>
+					{%if staff is True%}
 					<tr>
 						<td><b>Школа: </b></td>
 						<td>
 							{{project.school.city}}
 						</td>
 					</tr>
+					{%endif%}
+					{%if staff is True%}
 					<tr>
 						<td><b>Активність: </b></td>
 						<td>
@@ -191,10 +197,13 @@
 							{% endif %}
 						</td>
 					</tr>
+					{%endif%}
+					{%if staff is True%}
 					<tr>
 						<td><b>Розмір фінансування: </b></td>
 						<td>{{project.financeScale}}</td>
 					</tr>
+					{%endif%}
 					<tr>
 						<td><b>Галузь: </b></td>
 						<td>{{project.sector}}</td>
@@ -207,14 +216,18 @@
 						<td><b>Форма продукції: </b></td>
 						<td>{{project.isreal}}</td>
 					</tr>
+					{%if staff is True%}
 					<tr>
 						<td><b>Головний стартапер: </b></td>
 						<td><a href = "/infostartuper?id={{project.leader.id}}">{{project.leader.surname}} {{project.leader.name}} {{project.leader.midname}}</a></td>
 					</tr>
+					{%endif%}
+					{%if staff is True%}
 					<tr>
 						<td><b>Ментор <i>(поточний)</i>: </b></td>
 						<td><a href = "/infomentor?id={{currMent.mentorID.id}}">{{currMent.mentorID.surname}} {{currMent.mentorID.name}} {{currMent.mentorID.midname}}</a></td>
 					</tr>
+					{%endif%}
 				</tbody>
 			</table>
 			</div>

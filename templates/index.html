@@ -126,9 +126,6 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<p></p>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<p></p>
 			{%endif%}
 			{%if entered == "worker"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -138,13 +135,16 @@
 				<p></p>
 				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проект</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
-				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
 				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
 				<p></p>
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
+			{%endif%}
+			{%if entered == "invest-manager"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
+				<hr>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
 			{%endif%}
 		</div>
 	</div>
@@ -157,22 +157,33 @@
 				<hr>
 				<form method="post">
 				{% csrf_token %}
-				<div class="col-sm-12">
-				  	<div class="col-sm-2">
-						<select name="selQSch" class="form-control .col-lg-6">
-						  {%if selTable == "project"%}<option selected value="project">{%else%}<option value="project">{%endif%}Проект</option>
-						  {%if selTable == "startuper"%}<option selected value="startuper">{%else%}<option value="startuper">{%endif%}Стартапер</option>
-						  {%if selTable == "investor"%}<option selected value="investor">{%else%}<option value="investor">{%endif%}Інвестор</option>
-						  {%if selTable == "mentor"%}<option selected value="mentor">{%else%}<option value="mentor">{%endif%}Ментор</option>
-						  {%if selTable == "event"%}<option selected value="event">{%else%}<option value="event">{%endif%}Заходи</option>
-						</select>
-				  	</div>
-				  	<div class="col-sm-7">
-						<input type = "text" class="form-control .col-lg-6" name = "tbQSch" value="{{schVal}}"/>
-					</div>
-						<div class="col-sm-2">
-							<button class="btn btn-success btn-block" type="submit">Пошук</button>
-						</div>
+					<div class="col-sm-13">
+						<table>
+							<tbody>
+								<tr>
+									<td class="col-sm-3" align="right">
+										{%if entered is not 0%}
+										<select name="selQSch" class="form-control .col-lg-6">
+										  {%if selTable == "project"%}<option selected value="project">{%else%}<option value="project">{%endif%}Проект</option>
+										  {%if selTable == "startuper"%}<option selected value="startuper">{%else%}<option value="startuper">{%endif%}Стартапер</option>
+										  {%if selTable == "investor"%}<option selected value="investor">{%else%}<option value="investor">{%endif%}Інвестор</option>
+										  {%if selTable == "mentor"%}<option selected value="mentor">{%else%}<option value="mentor">{%endif%}Ментор</option>
+										  {%if selTable == "event"%}<option selected value="event">{%else%}<option value="event">{%endif%}Заходи</option>
+										</select>
+										{%else%}
+											<input type="hidden" name="selQSch" value="project">
+											<h4>Назва проекту:</h4>
+										{%endif%}
+									</td>
+									<td class="col-sm-8">
+										<input id="tbQSch" type = "text" class="form-control .col-lg-7" name = "tbQSch" value="{{schVal}}"/>
+									</td>
+										<td class="col-sm-2">
+											<button class="btn btn-success btn-block" type="submit">Пошук</button>
+										</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</form>
 			<div class="col-sm-10">
@@ -181,16 +192,22 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>ФІО</th>
-							<th>Рік закінчення 2ї ступені</th>
-							<th>Проекти</th>
-							<th>Повнота інформація</th>
-							<th>Город</th>
+							<th width="10"></th>
+							<th width="200">ФІО</th>
+							<th width="200">Рік закінчення 2ї ступені</th>
+							<th width="200">Проекти</th>
+							<th width="100">Город</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
+							<td>
+								{% if item.startuper.midname == "" or item.startuper.phone == "" or item.startuper.mail == "" or item.startuper.avatar == ""%}
+									<span class="glyphicon glyphicon-pencil"></span>
+								{%else%}
+								{%endif%}
+							</td>
 							<td><a href="infostartuper?id={{item.startuper.id}}"><h4>{{item.startuper.surname}} {{item.startuper.name}} {{item.startuper.midname}}</h4></a></td>
 							<td>{{item.startuper.finyear}} {%if item.startuper.finyear != "-"%}р.{%endif%}</td>
 							<td>
@@ -205,13 +222,6 @@
 								</table>
 							</td>
 							<td>
-								{% if item.startuper.midname == "" or item.startuper.phone == "" or item.startuper.mail == "" or item.startuper.avatar == ""%}
-									Не повна
-								{%else%}
-									Повна
-								{%endif%}
-							</td>
-							<td>
 								{{item.startuper.school.city}}
 							</td>
 						</tr>
@@ -223,32 +233,29 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Проект</th>
-							<th>Активний</th>
-							<th>Повнота інформація</th>
-							<th>Город</th>
+							<th width="10"></th>
+							<th width="200">Проект</th>
+							{%if entered is not 0%}<th>Город</th>{%endif%}
+							<th>Опис</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
-							<td><a href="infoproject?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
-							<td>
-							    {%if item.isactive is True %}
-							        Активний
-							    {%else%}
-							        Не активний
-						        {%endif%}
-							</td>
 							<td>
 								{% if item.sector == "" or item.type == "" or item.isreal == "" or item.descr == "" or item.financeScale == ""%}
-									Не повна
+									<span class="glyphicon glyphicon-pencil"></span>
 								{%else%}
-									Повна
 								{%endif%}
 							</td>
+							<td><a href="infoproject?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
+							{%if entered is not 0%}
 							<td>
 								{{item.school.city}}
+							</td>
+							{%endif%}
+							<td>
+								{{item.descr}}
 							</td>
 						</tr>
 						{%endfor%}
@@ -259,13 +266,15 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Інвестор</th>
-							<th>Город</th>
+							<th width="10"></th>
+							<th width="200">Інвестор</th>
+							<th width="100">Город</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
+							<td></td>
 							<td><a href="infoinvestor?id={{item.id}}"><h4>{{item.investor}}</h4></a></td>
 							<td>{{item.school.city}}</td>
 						</tr>
@@ -277,13 +286,19 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>ФІО</th>
-							<th>Город</th>
+							<th width="10"></th>
+							<th width="200">ФІО</th>
+							<th width="100">Город</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
+							<td>
+								{% if item.midname == "" or item.phone == "" or item.mail == ""%}
+									<span class="glyphicon glyphicon-pencil"></span>
+								{%else%}
+								{%endif%}</td>
 							<td><a href="infomentor?id={{item.id}}"><h4>{{item.surname}} {{item.name}} {{item.midname}}</h4></a></td>
 							<td>{{item.school.city}}</td>
 						</tr>
@@ -295,14 +310,16 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Назва</th>
-							<th>Дата</th>
-							<th>Город</th>
+							<th width="10"></th>
+							<th width="200">Назва</th>
+							<th width="100">Дата</th>
+							<th width="100">Город</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%for item in queryList%}
 						<tr>
+							<td></td>
 							<td><a href="infoevent?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
 							<td>{{item.date}}</td>
 							<td>{{item.school.city}}</td>

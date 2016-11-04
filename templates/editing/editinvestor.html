@@ -21,6 +21,20 @@
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
+	  <script>
+  		function addMsg(){
+  			var invType = document.getElementById("invTypePersonal");
+  			if (invType.selected == true){
+  				var ta = document.getElementById("invTypeMsg");
+  				ta.disabled = false;
+  			}
+  			else{
+  				var ta = document.getElementById("invTypeMsg");
+  				ta.disabled = true;
+  			}
+  		}
+	  </script>
+
 	<style type = "text/css">
 	body {
 	  padding-top: 10px;
@@ -113,7 +127,7 @@
 			<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
 			<div class=".col-md-2">
-				<a class="btn btn-success" href="/infoinvestor?id={{investor.id}}">Відміна</a>
+				<a class="btn btn-success" href="/infoinvestor?id={{investor.id}}">Скасувати</a>
 				<button class="btn btn-success" type="submit">Зберігти</button>
 			</div>
 			<hr>
@@ -123,17 +137,34 @@
 			<div align="left" class="col-sm-4">
 				<input type="text" class="form-control" name="tbInv" placeholder="{{investor.investor}}" />
 			</div>
-			<div align="right" class="col-sm-2">
-				<b>Регіон: </b>
-			</div>
-			<div align="left" class="col-sm-4">
-				{{investor.school.city}}
-			</div>
 
-			<div align="left" class="col-sm-7">
+			<div align="left" class="col-sm-10">
 				<hr>
 				<b>Опис: </b>
 				<textarea class="form-control" name="taDescr" cols="80" rows="5" placeholder="{{investor.descr}}"></textarea>
+			</div>
+			<div align="left" class="col-sm-10">
+				<hr>
+				<br>
+			</div>
+			<div align="left" class="col-sm-10">
+				<label>Хто може переглядати інформацію про цього інвестора?
+				<select name="selInvType" id="selInvType" class="form-control" onchange="addMsg();">
+					{%if investor.school is None and investor.user is None%}<option value="" selected>{%else%}<option value="global">{%endif%}Усі користувачі</option>
+					{%if investor.school is not None%}<option value="" selected>{%else%}<option value="local">{%endif%}Користовачі з мого феліалу</option>
+					{%if investor.user is not None%}<option id="invTypePersonal" value="" selected>{%else%}<option id="invTypePersonal" value="personal">{%endif%}Тільки я</option>
+				</select>
+				</label>
+				<p></p>
+				<div>
+					<label>Повідомлення для інших користувачів: <br>
+						{%if investor.user is not None%}
+							<textarea id="invTypeMsg" name='invTypeMsg' rows='3' cols='45' maxlength='300'>{{investor.message}}</textarea>
+						{%else%}
+							<textarea id="invTypeMsg" name='invTypeMsg' rows='3' cols='45' maxlength='300' disabled>{{investor.message}}</textarea>
+						{%endif%}
+						</label>
+				</div>
 			</div>
 
               <div class="col-sm-10">
@@ -213,7 +244,7 @@
 							</td>
 							<td>
 								<select name="tbType{{inv.id}}" class="form-control">
-									{%if inv.type == "Ангельські"%}<option value="Ангельські" selected>{%else%}<option value="Ангельські">Ангельські</option>
+									{%if inv.type == "Ангельські"%}<option value="Ангельські" selected>{%else%}<option value="Ангельські">{%endif%}Ангельські</option>
 									{%if inv.type == "Посівні"%}<option value="Посівні" selected>{%else%}<option value="Посівні">{%endif%}Посівні</option>
 									{%if inv.type == "Венчурні"%}<option value="Венчурні" selected>{%else%}<option value="Венчурні">{%endif%}Венчурні</option>
 									{%if inv.type == "Гранти"%}<option value="Гранти" selected>{%else%}<option value="Гранти">{%endif%}Гранти</option>
@@ -235,7 +266,7 @@
 				<div class="col-sm-2">
 					<h4><b>Дод. матеріали: </b></h4>
 				</div>
-				<div class="col-sm-10" align="left"><p></p>
+				<div class="col-sm-10" align="left"><br><br><br>
 				</div>
 
 				<div align="left" class="col-sm-1">

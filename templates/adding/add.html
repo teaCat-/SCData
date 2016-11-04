@@ -23,6 +23,39 @@
 
 
   	<script>
+  		function addMsg(){
+  			var invType = document.getElementById("selInvType");
+  			if (invType.value == "personal"){
+  				var div = document.getElementById("invTypeMsg");
+  				div.innerHTML = "<label>Залиште повідомлення для інших користувачів: <br><textarea name='taMsg' rows='3' cols='45' maxlength='300'></textarea></label>";
+  			}
+  			else{
+  				var div = document.getElementById("invTypeMsg");
+  				div.innerHTML = "";
+  			}
+  		}
+
+  		function addMember(num, projnum, list){
+  			var optionStr = "";
+  			optlist = list.split(",");
+  			optlist.forEach(function(item){
+  				var subList = item.split("|")
+  				optionStr += '<option value="'+subList[1]+'">'+subList[0]+'</option>';
+  			})
+  			var party = document.getElementById("party"+projnum);
+  			party.innerHTML += '<div id="member'+num+projnum+'" style="width:200px"><select id="tbMem'+num+projnum+'" class="form-control" name="tbMem'+projnum+'" size="1" type="text">'+optionStr+'</select><br></div>';
+  			var control = document.getElementById("control"+projnum);
+  			control.innerHTML = '<button type="button" class="btn btn-success" onclick="addMember('+(num+1)+','+projnum+',\''+list+'\');">+</button><button type="button" class="btn btn-success" onclick="mnsMember('+(num)+','+projnum+',\''+list+'\');">-</button>';
+  		}
+
+  		function mnsMember(num, projnum, list){
+  			var party = document.getElementById("party"+projnum);
+  			var el = document.getElementById("member"+num+projnum);
+  			el.parentNode.removeChild(el);
+  			var control = document.getElementById("control"+projnum);
+  			control.innerHTML = '<button type="button" class="btn btn-success" onclick="addMember('+(num-2)+','+projnum+',\''+list+'\');">+</button><button type="button" class="btn btn-success" onclick="mnsMember('+(num-1)+','+projnum+',\''+list+'\');">-</button>';
+  		}
+
 		function telAutoFill(){
 			var phones = document.getElementsByName("tbPhone");
 			for (var i = 0; i < phones.length; i++)
@@ -46,6 +79,23 @@
 					reader.readAsDataURL(input.files[0]);
 				}
 		}
+
+  		function phoneOrMailChk(){
+			var phones = document.getElementsByName("tbPhone");
+			var mails = document.getElementsByName("tbMail");
+			for (var i = 0; i < phones.length; i++)
+			{
+				if (phones.item(i).value.length == 0 && mails.item(i).value.length == 0){
+					phones.item(i).required = true;
+					mails.item(i).required = true;
+				}
+				else{
+					phones.item(i).required = false;
+					mails.item(i).required = false;
+				}
+			}
+  		}
+
 		window.onmousedown = function (e) {
 			var el = e.target;
 			if (el.tagName.toLowerCase() == 'option' && el.parentNode.hasAttribute('multiple')) {
@@ -156,7 +206,7 @@
 
     <div class="container">
 		  <!-- Example row of columns -->
-		  <div class="row">
+		  <div>
 			  	<h3>Додати {{obj}}:</h3>
 				<hr>
 		  </div>
@@ -195,7 +245,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=startuper&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -207,10 +257,10 @@
 							<h3>{{item.num}}</h3>
 							<label>Прізвище: <input name="tbSurname"  pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.surname}}" /> </label>
 							<label>Ім'я: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.name}}" /></label>
-							<label>По батькові: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" required value="{{item.midname}}" /></label>
+							<label>По батькові: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.midname}}" /></label>
 							<p></p>
-							<label>Телефон: <input name="tbPhone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="___-___-____" type="tel" class="form-control" value="{{item.phone}}" oninput="telAutoFill(this);" /></label>
-							<label>Пошта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}"></label>
+							<label>Телефон: <input name="tbPhone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="___-___-____" type="tel" class="form-control" value="{{item.phone}}" oninput="telAutoFill(this);phoneOrMailChk(this);" required/></label>
+							<label>Пошта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}" oninput="phoneOrMailChk(this);" required></label>
 							<p></p>
 								<label>
 									{%if item.fgrade is True %}<input name="cbFgrade{{item.num}}" type="checkbox" class="checkbox-inline" value="True" checked>{%else%}<input name="cbFgrade{{item.num}}" type="checkbox" class="checkbox-inline" value="True"> {%endif%}- 1а ступень Sikorsky Challenge
@@ -223,8 +273,8 @@
 							<br>
 								<label>
 									 Рік закінчення
-									{%if item.sgrade is True %}<input id="tbFinYear{{item.num}}" name="tbFinYear" type="text"  pattern="[0-9]{4}"  class="form-control" value="{{item.finyear}}"/>
-									{%else%}<input name="tbFinYear" id="tbFinYear{{item.num}}" type="text"  pattern="[0-9]{4}" class="form-control" value="{{item.finyear}}" disabled/>
+									{%if item.sgrade is True %}<input id="tbFinYear{{item.num}}" name="tbFinYear{{item.num}}" type="text"  pattern="[0-9]{4}"  class="form-control" value="{{item.finyear}}"/>
+									{%else%}<input name="tbFinYear{{item.num}}" id="tbFinYear{{item.num}}" type="text"  pattern="[0-9]{4}" class="form-control" value="{{item.finyear}}" disabled/>
 									{%endif%}
 								</label>
 
@@ -243,7 +293,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=startuper&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -259,7 +309,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=project&added=true&startuperID={{startuperID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -275,32 +325,6 @@
 										<td width="250">
 											Назва: <input name="tbTitle" type="text" class="form-control" required value="{{item.title}}"  >
 										</td>
-										<td width="250">
-											Головний стартапер:
-											<select name="tbLeader" class="form-control" id="leader" required>
-												{%for lead in possibleLeaders%}
-													{%if lead.surname in item.leader%}<option value="{{lead.id}}" selected>{%else%}<option value="{{lead.id}}">{%endif%}{{lead.surname}} {{lead.name}} {{lead.midname}}</option>
-												{%endfor%}
-											</select>
-										</td>
-										<td width="250">
-											Ментор:
-											<select name="tbMentor" class="form-control" id="mentors" required>
-												{%for ment in mentors%}
-													{%if ment.surname in item.mentor%}<option value="{{ment.id}}" selected>{%else%}<option value="{{ment.id}}">{%endif%}{{ment.surname}} {{ment.name}} {{ment.midname}}</option>
-												{%endfor%}
-											</select>
-										</td>
-										<td width="250">
-											Школа:
-												<select name="tbSchool" class="form-control" required>
-													{% for school in schoolList%}
-														{%if school.city == item.school%}<option value="{{school.id}}" selected>{%else%}<option value="{{school.id}}">{%endif%}{{school.city}}</option>
-													{% endfor %}
-												</select>
-										</td>
-									</tr>
-									<tr>
 										<td width="250">
 											Галузь:
 												<select name="tbSector" class="form-control">
@@ -322,15 +346,6 @@
 													{%if item.sector == "Будівництво"%}<option value="Будівництво" selected>{%else%}<option value="Будівництво">{%endif%}Будівництво</option>
 													{%if item.sector == "Транспорт, складське господарство, поштова діяльність"%}<option value="Транспорт, складське господарство, поштова діяльність" selected>{%else%}<option value="Транспорт, складське господарство, поштова діяльність">{%endif%}Транспорт, складське господарство, поштова діяльність</option>
 													{%if item.sector == "Фінансова та страхова діяльність"%}<option value="Фінансова та страхова діяльність" selected>{%else%}<option value="Фінансова та страхова діяльність">{%endif%}Фінансова та страхова діяльність</option>
-												</select>
-										</td>
-
-										<td width="250">
-											Розмір фінансування:
-												<select name="tbFinScale" class="form-control">
-													{%if item.financeScale == "до 10 тис."%}<option value="до 10 тис." selected>{%else%}<option value="до 10 тис.">{%endif%}до 10 тис.</option>
-													{%if item.financeScale == "від 10 тис до 50 тис."%}<option value="від 10 тис до 50 тис." selected>{%else%}<option value="від 10 тис до 50 тис.">{%endif%}від 10 тис до 50 тис.</option>
-													{%if item.financeScale == "від 50 тис."%}<option value="від 50 тис." selected>{%else%}<option value="від 50 тис.">{%endif%}від 50 тис.</option>
 												</select>
 										</td>
 										<td width="250">
@@ -363,21 +378,59 @@
 										</td>
 									</tr>
 									<tr>
-										<td>
-											Ключові слова:
-											<select name="selTags{{item.num}}" size="5" class="form-control" multiple>
-												{%for item in taglist%}
-													<option value="{{item.id}}">{{item.word}}</option>
+
+										<td width="250">
+											Розмір фінансування:
+												<select name="tbFinScale" class="form-control">
+													{%if item.financeScale == "до 10 тис."%}<option value="до 10 тис." selected>{%else%}<option value="до 10 тис.">{%endif%}до 10 тис.</option>
+													{%if item.financeScale == "від 10 тис до 50 тис."%}<option value="від 10 тис до 50 тис." selected>{%else%}<option value="від 10 тис до 50 тис.">{%endif%}від 10 тис до 50 тис.</option>
+													{%if item.financeScale == "від 50 тис."%}<option value="від 50 тис." selected>{%else%}<option value="від 50 тис.">{%endif%}від 50 тис.</option>
+												</select>
+										</td>
+										<td width="250">
+											Ментор:
+											<select name="tbMentor" class="form-control" id="mentors" required>
+												{%for ment in mentors%}
+													{%if ment.surname in item.mentor%}<option value="{{ment.id}}" selected>{%else%}<option value="{{ment.id}}">{%endif%}{{ment.surname}} {{ment.name}} {{ment.midname}}</option>
 												{%endfor%}
 											</select>
 										</td>
-										<td colspan="3">
+
+									</tr>
+									<tr>
+										<td colspan="2">
+											Ключові слова:
+											<input type="text" name="selTags{{item.num}}" size="5" class="form-control" >
+										</td>
+									</tr>
+									<tr>
+										<td colspan="4">
 											Опис:<br>
-												<textarea rows="5" cols="85" name="taDescr">{{item.descr}}</textarea>
+												<textarea rows="5" cols="55" name="taDescr">{{item.descr}}</textarea>
+										</td>
+									</tr>
+									<tr>
+
+										<td width="250">
+											<h4>Учасники:</h4>
+											Головний стартапер:
+											<select name="tbLeader" class="form-control" id="leader" required>
+												{%for lead in possibleLeaders%}
+													{%if lead.surname in item.leader%}<option value="{{lead.id}}" selected>{%else%}<option value="{{lead.id}}">{%endif%}{{lead.surname}} {{lead.name}} {{lead.midname}}</option>
+												{%endfor%}
+											</select>
 										</td>
 									</tr>
 								</tbody>
 							</table>
+							<div id="party{{item.num}}">
+									Додати учасників:
+									<br>
+								<div id="control{{item.num}}" style="width:200px">
+									<button type="button" class="btn btn-success" onclick="addMember(1,{{item.num}},'{{memberStr}}');">+</button>
+								</div>
+								<br>
+							</div>
 						{%endfor%}
 						<div class="col-sm-10" align="right">
 							<table>
@@ -385,12 +438,12 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=project&added=true&startuperID={{startuperID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>
 						</div>
-				{%endif%}
+					{%endif%}
 				{%endif%}
 
                 {%if loaded is True%}
@@ -401,7 +454,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=investor&added=true">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відмінити</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -411,6 +464,16 @@
 						<hr>
 						{%for item in inputList%}
 							<h3>{{item.num}}</h3>
+							<br>
+							<label>Хто може переглядати інформацію про цього інвестора?
+							<select name="selInvType" id="selInvType" class="form-control" onchange="addMsg(this);">
+								<option value="global">Усі користувачі</option>
+								<option value="local" selected>Користовачі з мого феліалу</option>
+								<option value="personal">Тільки я</option>
+							</select>
+							</label>
+							<p></p>
+							<div id="invTypeMsg"></div>
 							<label>Інвестор: <input name="tbInvestor" type="text" class="form-control" required value="{{item.investor}}"  ></label>
 							<p></p>
 							<label>Опис:<br>
@@ -424,14 +487,13 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=investor&added=true">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відміна</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>
 						</div>
 				{%endif%}
 				{%endif%}
-
 
 				{%if loaded is True%}
 				    {%if inputOpt == 4%}
@@ -441,7 +503,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=mentor&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відміна</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -466,7 +528,7 @@
 									<tr>
 										<td><button type="submit" class="btn btn-success" formaction="add?obj=mentor&added=true&projectID={{projectID}}">Зберігти </button></td>
 										<td width="5"></td>
-										<td><a class="btn btn-success" onclick="history.back()">Відміна</a></td>
+										<td><a class="btn btn-success" href="\">Скасувати</a></td>
 									</tr>
 								</tbody>
 							</table>

@@ -119,6 +119,7 @@
 				<textarea class="form-control" cols="80" rows="5" disabled>{{investor.descr}}</textarea>
 			</div>
 
+			  {%if entered == "invest-manager"%}
               <div class="col-sm-10">
                 <hr>
                 <div class="col-sm-2">
@@ -151,8 +152,9 @@
 				</table>
 				</div>
             </div>
+		  	{%endif%}
 
-		  	{%if staff is True%}
+		  	{%if entered == "invest-manager"%}
 			<div class="col-sm-11" style="page-break-after: always;">
 				<hr>
 				<div class="col-sm-2">

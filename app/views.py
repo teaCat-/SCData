@@ -34,10 +34,11 @@ def index(request):
             entered = "chief"
         if curruser.groups.filter(name="worker"):
             entered = "worker"
-    userSch = Object()
-    userSch.school = None
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+    userSch = None
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user = curruser)
     except:
         pass
 
@@ -45,47 +46,56 @@ def index(request):
 
     queryList = []
     val = ""
-    if selTable == "startuper":
-        val = request.POST.get("tbQSch", None)
-        tmpStups = tStartuper.objects.filter(surname__icontains = val)
-        if not (entered == "chief" and userSch.school.city == u"Київ"):
-            tmpStups = tmpStups.filter(school = userSch.school)
-        for item in tmpStups:
-            tmpObj = Object()
-            tmpObj.startuper = item
-            tmpprj = tTeam.objects.filter(startuperID = item)
-            if len(tmpprj)>0:
-                tmpObj.projects = tmpprj
-            queryList.append(tmpObj)
+    if userSch is not None:
+        if selTable == "startuper":
+            val = request.POST.get("tbQSch", None)
+            tmpStups = tStartuper.objects.filter(surname__icontains = val)
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                tmpStups = tmpStups.filter(school = userSch.school)
+            for item in tmpStups:
+                tmpObj = Object()
+                tmpObj.startuper = item
+                tmpprj = tTeam.objects.filter(startuperID = item)
+                if len(tmpprj)>0:
+                    tmpObj.projects = tmpprj
+                queryList.append(tmpObj)
 
-    if selTable == "project" or selTable is None:
-        val = request.POST.get("tbQSch", "")
-        tmpRez = tProject.objects.filter(title__icontains = val)
-        if not (entered == "chief" and userSch.school.city == u"Київ"):
-            tmpRez = tmpRez.filter(school = userSch.school)
-        queryList.extend(tmpRez)
+        if selTable == "project" or selTable is None:
+            val = request.POST.get("tbQSch", "")
+            tmpRez = tProject.objects.filter(title__icontains = val)
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                tmpRez = tmpRez.filter(school = userSch.school)
+            queryList.extend(tmpRez)
 
-    if selTable == "investor":
-        val = request.POST.get("tbQSch", None)
-        tmpRez = tInvestor.objects.filter(investor__icontains = val)
-        if not (entered == "chief" and userSch.school.city == u"Київ"):
-            tmpRez = tmpRez.filter(school = userSch.school)
-        queryList.extend(tmpRez)
+        if selTable == "investor":
+            val = request.POST.get("tbQSch", None)
+            tmpRez = tInvestor.objects.filter(investor__icontains = val)
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                tmp2Rez = tmpRez.filter(school = None)
+                tmpRez = tmpRez.filter(school = userSch.school)
+                queryList.extend(tmp2Rez)
+            queryList.extend(tmpRez)
 
-    if selTable == "mentor":
-        val = request.POST.get("tbQSch", None)
-        tmpRez = tMentor.objects.filter(surname__icontains = val)
-        if not (entered == "chief" and userSch.school.city == u"Київ"):
-            tmpRez = tmpRez.filter(school = userSch.school)
-        queryList.extend(tmpRez)
+        if selTable == "mentor":
+            val = request.POST.get("tbQSch", None)
+            tmpRez = tMentor.objects.filter(surname__icontains = val)
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                tmpRez = tmpRez.filter(school = userSch.school)
+            queryList.extend(tmpRez)
 
-    if selTable == "event":
-        val = request.POST.get("tbQSch", None)
-        tmpRez = tActivities.objects.filter(title__icontains=val)
-        if not (entered == "chief" and userSch.school.city == u"Київ"):
-            tmpRez = tmpRez.filter(school=userSch.school)
-        queryList.extend(tmpRez)
+        if selTable == "event":
+            val = request.POST.get("tbQSch", None)
+            tmpRez = tActivities.objects.filter(title__icontains=val)
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                tmpRez = tmpRez.filter(school=userSch.school)
+            queryList.extend(tmpRez)
 
+    else:
+
+        if selTable == "project" or selTable is None:
+            val = request.POST.get("tbQSch", "")
+            tmpRez = tProject.objects.filter(title__icontains = val)
+            queryList.extend(tmpRez)
 
     return render(request, "index.html", {"name":curruser,
                                           "entered":entered,
@@ -121,7 +131,7 @@ def regi(request):
             return redirect("index")
     school = Object()
     try:
-        school = tUserSch.objects.get(id = currUser.id)
+        school = tUserSch.objects.get(user = currUser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -283,7 +293,7 @@ def addProjectToDB(request, index, startuperID, school):
     except:
         pass
     if len(projIsExhist) >= 1:
-        return "Проеєкт з такою назвою вже є у базі."
+        return "Проект з такою назвою вже є у базі."
     else:
         mailLead = request.POST.getlist('tbLeader')[index]
         try:
@@ -311,12 +321,19 @@ def addProjectToDB(request, index, startuperID, school):
         newProject.save()
         team = tTeam.objects.create(projectID = newProject, startuperID = lead, role="Головний стартапер", islead = True)
         team.save()
+        members = request.POST.getlist('tbMem'+(index+1).__str__())
+        for item in members:
+            tTeam.objects.get_or_create(projectID = newProject, startuperID = tStartuper.objects.get(id = item))
+            aa = tTeam.objects.get(projectID = newProject, startuperID = tStartuper.objects.get(id = item))
+            print aa
         mentoproj = tMentoproj.objects.create(mentorID = mentor, projectID = newProject, date = datetime.strptime(datetime.now().date().__format__('%d.%m.%Y, %H:%M').__str__(), "%d.%m.%Y, %H:%M"))
         mentoproj.save()
-        taglist = request.POST.getlist("selTags"+str(index+1), None)
-        keywordList = tKeyWord.objects.filter(id__in = taglist)
-        for item in keywordList:
-            tmp = tKeyWordToProject.objects.create(word = item, projectID = newProject)
+        taglist = request.POST.get("selTags"+str(index+1), None).replace(", ", " ").replace(","," ").split(" ")
+        keywordList= tKeyWord.objects.filter(word__in = taglist)
+        for item in taglist:
+            keyword = tKeyWord.objects.get_or_create(word = item)
+            keyword = tKeyWord.objects.get(word = item)
+            tKeyWordToProject.objects.create(word = keyword, projectID = newProject)
         return newProject.title+(" додан до бази!").decode("utf-8")
 
 def fillFormsInvestor(excelList, excelKeys):
@@ -332,12 +349,17 @@ def fillFormsInvestor(excelList, excelKeys):
         i+=1
     return rezList
 
-def addInvestorToDB(request, index, school):
+def addInvestorToDB(request, index, school, curruser):
+    invtype = request.POST.get('selInvType')
     newInvestor = tInvestor.objects.create(
         investor = request.POST.getlist('tbInvestor')[index],
         descr = request.POST.getlist('taDescr')[index],
-        school = school.school
     )
+    if invtype == "local":
+        newInvestor.school = school.school
+    if invtype == "personal":
+        newInvestor.user = curruser
+        newInvestor.message = request.POST.get("taMsg")
     newInvestor.save()
     return newInvestor.investor+(" додан до бази!").decode("utf-8")
 
@@ -436,11 +458,13 @@ def add(request):
             curruser = User.objects.get(username=curruserName)
             if curruser.groups.filter(name="worker"):
                 entered = "worker"
-    if entered != "worker":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "invest-manager":
         return redirect("index")
     school = Object()
     try:
-        school = tUserSch.objects.get(id = curruser.id)
+        school = tUserSch.objects.get(user = curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -472,6 +496,7 @@ def add(request):
     taglist = []
     loaded = False
     inputOpt = 0
+    memberStr = ""
 
     """Loading and getting data from excel file"""
     excelKeys = []
@@ -499,6 +524,8 @@ def add(request):
         pass
 
     if obj == "startuper":
+        if entered == "invest-manager":
+            return redirect("index")
         obj = "стартапера"
         if request.FILES.get('excelImport', False):
             inputList = fillFormsStartuper(excelList, excelKeys)
@@ -518,10 +545,15 @@ def add(request):
                 resultList.append(addStartuperToDB(request, request.POST.getlist('tbSurname').index(item),projectID, school))
 
     if obj == "project":
+        if entered == "invest-manager":
+            return redirect("index")
         schoolList = tSchool.objects.all()
         possibleLeaders = tStartuper.objects.all().order_by("surname","name")
+        for item in possibleLeaders:
+            memberStr += item.name+" "+item.surname+"|"+item.id.__str__()+","
+        memberStr = memberStr[:-1]
         mentors = tMentor.objects.all().order_by("surname","name")
-        obj = "проєкт"
+        obj = "проект"
         taglist = tKeyWord.objects.all()
 
         if request.FILES.get('excelImport', False):
@@ -542,6 +574,8 @@ def add(request):
                 resultList.append(addProjectToDB(request, request.POST.getlist('tbTitle').index(item), startuperID, school))
 
     if obj == "investor":
+        if entered == "worker":
+            return redirect("index")
         obj = "інвестора"
         if request.FILES.get('excelImport', False):
             inputList = fillFormsInvestor(excelList, excelKeys)
@@ -558,9 +592,11 @@ def add(request):
         if request.method == 'POST' and added == 'true':
             tmpList = request.POST.getlist('tbInvestor')
             for item in tmpList:
-                resultList.append(addInvestorToDB(request, request.POST.getlist('tbInvestor').index(item), school))
+                resultList.append(addInvestorToDB(request, request.POST.getlist('tbInvestor').index(item), school, curruser))
 
     if obj == "mentor":
+        if entered == "invest-manager":
+            return redirect("index")
         obj = "ментора"
         if request.FILES.get('excelImport', False):
             inputList = fillFormsMentor(excelList, excelKeys)
@@ -584,6 +620,7 @@ def add(request):
         if "!" not in item:
             err = 1
             break
+
     return render(request, "adding/add.html", {"obj": obj,
                                         "name":curruser,
                                         "entered":entered,
@@ -600,6 +637,7 @@ def add(request):
                                         "err":err,
                                         "taglist":taglist,
                                         "schoolList":schoolList,
+                                        "memberStr":memberStr,
                                         })
 
 
@@ -621,7 +659,9 @@ def search(request):
                 entered = "worker"
             if curruser.groups.filter(name="chief"):
                 entered = "chief"
-    if entered != "worker" and entered != "chief":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "chief" and entered != "invest-manager":
         return redirect("index")
 
 
@@ -646,12 +686,14 @@ def startupersearch(request):
                 entered = "worker"
             if curruser.groups.filter(name="chief"):
                 entered = "chief"
-    if entered != "worker" and entered != "chief":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "chief" and entered != "invest-manager":
         return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         pass
 
@@ -767,12 +809,14 @@ def projectsearch(request):
                 entered = "worker"
             if curruser.groups.filter(name="chief"):
                 entered = "chief"
-    if entered != "worker" and entered != "chief":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "chief" and entered != "invest-manager":
         return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         pass
 
@@ -892,12 +936,14 @@ def investorsearch(request):
                 entered = "worker"
             if curruser.groups.filter(name="chief"):
                 entered = "chief"
-    if entered != "worker" and entered != "chief":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "chief" and entered != "invest-manager":
         return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         pass
 
@@ -912,18 +958,20 @@ def investorsearch(request):
     resultList = []
     searchObj = Object
     file=datetime.now().time().__format__("%H%M%S").__str__()
-    taglist = tKeyWord.objects.all()
     if request.method == "POST":
         searchObj.investor = request.POST.get("tbInvestor", "")
         searchObj.descr = request.POST.get("tbDescr", "")
 
-        resultList = tInvestor.objects.filter(
+        tmpList = tInvestor.objects.filter(
             investor__icontains = searchObj.investor,
             descr__icontains = searchObj.descr,
         )
 
         if not (entered == "chief" and userSch.school.city == u"Київ"):
-            resultList = resultList.filter(school = userSch.school)
+            tmpListWithNone = tmpList.filter(school = None)
+            tmpList = tmpList.filter(school = userSch.school)
+            resultList.extend(tmpList)
+            resultList.extend(tmpListWithNone)
 
         if export == "true":
 
@@ -965,12 +1013,14 @@ def mentorsearch(request):
                 entered = "worker"
             if curruser.groups.filter(name="chief"):
                 entered = "chief"
-    if entered != "worker" and entered != "chief":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "chief" and entered != "invest-manager":
         return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         pass
 
@@ -1040,6 +1090,80 @@ def mentorsearch(request):
                                           "file":file,
                                           })
 
+def eventsearch(request):
+    """Worker validation"""
+    entered = 0
+    curruser = None
+    id = None
+    try:
+        id = request.session["curUser"]
+    finally:
+        if id == None:
+            return redirect("index")
+        else:
+            curruserName = request.session.get("curUser", False)
+            curruser = User.objects.get(username=curruserName)
+            if curruser.groups.filter(name="worker"):
+                entered = "worker"
+            if curruser.groups.filter(name="chief"):
+                entered = "chief"
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "chief" and entered != "invest-manager":
+        return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    try:
+        userSch = tUserSch.objects.get(user=curruser)
+    except:
+        pass
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    export = urldata.get('export', None)
+    if export != None:
+        export = export.pop()
+
+    resultList = []
+    searchObj = Object
+    file=datetime.now().time().__format__("%H%M%S").__str__()
+    if request.method == "POST":
+        searchObj.title = request.POST.get("tbTitle", "")
+        searchObj.date = request.POST.get("tbDate", "")
+
+        resultList = tActivities.objects.filter(
+            title__icontains = searchObj.title,
+            date = datetime.strptime(searchObj.date, "%d.%m.%Y"),
+        )
+
+        if not (entered == "chief" and userSch.school.city == u"Київ"):
+            resultList = resultList.filter(school = userSch.school)
+
+        if export == "true":
+
+            wb = xlwt.Workbook()
+            ws = wb.add_sheet('Investors')
+
+            ws.write(0, 0, u"Назва")
+            ws.write(0, 1, u"Дата")
+
+            tmpRowCnt = 1
+            for item in resultList:
+                ws.write(int(tmpRowCnt), 0, item.title)
+                ws.write(int(tmpRowCnt), 1, item.date.__format__("%d.%m.%Y").__str__())
+                tmpRowCnt += 1
+            wb.save("files/export/export"+file+".xls")
+
+    return render(request, "search/eventsearch.html", {"name":curruser,
+                                          "entered":entered,
+                                          "resultList":resultList,
+                                          "searchObj":searchObj,
+                                          "export":export,
+                                          "file":file
+                                          })
+
 
 def infostartuper(request):
     curruser = 0
@@ -1056,12 +1180,15 @@ def infostartuper(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+            staff = True
         if staff is not True:
             return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -1133,12 +1260,15 @@ def infoproject(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+            staff = True
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
-        print ("Error getting region. Contact admin or developer...")
+        pass
 
     """Getting data from url"""
     path = urlparse(request.get_full_path())
@@ -1180,7 +1310,7 @@ def infoproject(request):
         taglist = tKeyWordToProject.objects.filter(projectID = project)
 
         if project.school != userSch.school:
-            if not (entered == "chief" and userSch.school.city == u"Київ"):
+            if not (entered == "chief" and userSch.school.city == u"Київ") and entered is not 0:
                 return render(request, "nopermission.html", {"name":curruser,})
 
     currStat = ""
@@ -1239,12 +1369,16 @@ def infoinvestor(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+            staff = True
         if staff is not True:
             return redirect("index")
     userSch = Object()
     userSch.school = Object()
+    userSch.school.city = ""
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -1274,9 +1408,15 @@ def infoinvestor(request):
         except:
             pass
 
-        if investor.school != userSch.school:
-            if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+
+        if investor.school != None:
+            if investor.school != userSch.school:
+                if not (entered == "chief" and userSch.school.city == u"Київ"):
+                    return render(request, "nopermission.html", {"name":curruser,})
+        if investor.user != None:
+            if curruser != investor.user:
+                return render(request, "nopermission.html", {"name":curruser,
+                                                             "message":investor.message})
 
     if _print == "true":
         return render(request, "info/printinvestor.html", {"name":curruser,
@@ -1288,6 +1428,7 @@ def infoinvestor(request):
                                                   "addInfo":addInfo,
                                                   "staff":staff,
                                                   })
+    tVisitors.objects.create(investorID = investor, userID = curruser, date = datetime.now())
     return render(request, "info/infoinvestor.html", {"name":curruser,
                                           "entered":entered,
                                           "investor":investor,
@@ -1313,12 +1454,15 @@ def infoinvcontact(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+            staff = True
         if staff is not True:
             return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -1368,12 +1512,15 @@ def infomentor(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+            staff = True
         if staff is not True:
             return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -1428,12 +1575,15 @@ def infoevent(request):
         if curruser.groups.filter(name="worker"):
             entered = "worker"
             staff = True
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+            staff = True
         if staff is not True:
             return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -1471,6 +1621,74 @@ def infoevent(request):
                                           "entered":entered,
                                           "event":event,
                                           "projects":projects,
+                                          })
+
+def infovisitors(request):
+    curruser = 0
+    entered = 0
+    staff = False
+    curruserName = request.session.get("curUser", False)
+    if curruserName == None:
+        return redirect("index")
+    if curruserName:
+        curruser = User.objects.get(username=curruserName)
+        if curruser.groups.filter(name="chief"):
+            entered = "chief"
+            staff = True
+        if curruser.groups.filter(name="worker"):
+            entered = "worker"
+            staff = True
+        if curruser.groups.filter(name="invest-manager"):
+            entered = "invest-manager"
+            staff = True
+        if staff is not True:
+            return redirect("index")
+    userSch = Object()
+    userSch.school = Object()
+    userSch.school.city = ""
+    try:
+        userSch = tUserSch.objects.get(user=curruser)
+    except:
+        print ("Error getting region. Contact admin or developer...")
+
+    """Getting data from url"""
+    path = urlparse(request.get_full_path())
+    query = path.query
+    urldata = parse_qs(query)
+    _id = urldata.get('id', None)
+    page = urldata.get('page', None)
+    if page != None:
+        page = int(page.pop())
+    investor = ""
+    queryListCount = 0
+    if _id != None:
+        _id = _id.pop()
+        try:
+            investor = tInvestor.objects.get(id = _id)
+        except:
+            pass
+
+        if investor.school != None:
+            if investor.school != userSch.school:
+                if not (entered == "chief" and userSch.school.city == u"Київ"):
+                    return render(request, "nopermission.html", {"name":curruser,})
+        if investor.user != None:
+            if curruser != investor.user:
+                return render(request, "nopermission.html", {"name":curruser,
+                                                             "message":investor.message})
+    start = (page - 1) * 10
+    end = 10 * page
+    queryList = tVisitors.objects.filter(investorID = investor, )[start:end]
+    queryListCount = len(queryList)
+    return render(request, "info/infovisitors.html", {"name":curruser,
+                                          "entered":entered,
+                                          "investor":investor,
+                                          "page":page,
+                                          "prevpage":int(page-1),
+                                          "nextpage":int(page+1),
+                                          "queryList":queryList,
+                                          "queryListCount":queryListCount,
+                                          "staff":staff,
                                           })
 
 
@@ -1559,7 +1777,7 @@ def eventadd(request):
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -2041,9 +2259,9 @@ def invcontactsadd(request):
         else:
             curruserName = request.session.get("curUser", False)
             curruser = User.objects.get(username=curruserName)
-            if curruser.groups.filter(name="worker"):
-                entered = "worker"
-    if entered != "worker":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "invest-manager":
         return redirect("index")
 
     """Getting data from url"""
@@ -2127,9 +2345,9 @@ def investitions(request):
         else:
             curruserName = request.session.get("curUser", False)
             curruser = User.objects.get(username=curruserName)
-            if curruser.groups.filter(name="worker"):
-                entered = "worker"
-    if entered != "worker":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "invest-manager":
         return redirect("index")
 
     """Getting data from url"""
@@ -2206,7 +2424,7 @@ def editstartuper(request):
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -2302,7 +2520,7 @@ def editproject(request):
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -2328,6 +2546,7 @@ def editproject(request):
     errLead = ""
     currMent = ""
     errMent = ""
+    tagstr = ""
     if _id != None:
         _id = _id.pop()
         project = tProject.objects.get(id = _id)
@@ -2344,6 +2563,9 @@ def editproject(request):
         mentorlist = tMentor.objects.all().order_by("surname","name")
         schoolList = tSchool.objects.all()
 
+        tags = tKeyWordToProject.objects.filter(projectID=project)
+        for item in tags:
+            tagstr += item.word.word+" "
         if len(mentors) != 0:
             mentor = mentors[0]
             currMent = mentor.mentorID
@@ -2386,6 +2608,13 @@ def editproject(request):
                     newMent.save()
 
 
+            if len(request.POST.get("tbTags", "").replace(", ", " ").replace(",", " ").split(" ")) > 0:
+                tmptags = request.POST.get("tbTags", "").replace(", ", " ").replace(",", " ").split(" ")
+                tKeyWordToProject.objects.filter(projectID = project).delete()
+                for item in tmptags:
+                    keyword = tKeyWord.objects.get_or_create(word = item)
+                    keyword = tKeyWord.objects.get(word = item)
+                    tKeyWordToProject.objects.create(word = keyword, projectID = project)
             if request.POST.get("tbTitle", "") != "":
                 project.title = request.POST.get("tbTitle", "")
             if request.POST.get("tbSector", "") != "":
@@ -2467,6 +2696,7 @@ def editproject(request):
                                           "currMent":currMent,
                                           "errMent":errMent,
                                           "schoolList":schoolList,
+                                          "tagstr":tagstr,
                                           })
 
 def editinvestor(request):
@@ -2481,14 +2711,14 @@ def editinvestor(request):
         else:
             curruserName = request.session.get("curUser", False)
             curruser = User.objects.get(username=curruserName)
-            if curruser.groups.filter(name="worker"):
-                entered = "worker"
-    if entered != "worker":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "invest-manager":
         return redirect("index")
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -2512,6 +2742,21 @@ def editinvestor(request):
                 investor.investor = request.POST.get("tbInv", "")
             if request.POST.get("taDescr", "") != "":
                 investor.descr = request.POST.get("taDescr", "")
+            tmpInvType = request.POST.get("selInvType","")
+            if tmpInvType != "":
+                if tmpInvType == "global":
+                    investor.school = None
+                    investor.user = None
+                    investor.message = ""
+                if tmpInvType == "local":
+                    investor.school = userSch.school
+                    investor.user = None
+                    investor.message = ""
+                if tmpInvType == "personal":
+                    investor.school = None
+                    investor.user = curruser
+                    investor.message = request.POST.get("invTypeMsg","")
+
             investor.save()
             for item in investitions:
                 if request.POST.get("tbInvsDate"+str(item.id), "") != "":
@@ -2537,9 +2782,14 @@ def editinvestor(request):
 
             return redirect("/infoinvestor?id="+_id)
 
-        if investor.school != userSch.school:
-            if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+        if investor.school != None:
+            if investor.school != userSch.school:
+                if not (entered == "chief" and userSch.school.city == u"Київ"):
+                    return render(request, "nopermission.html", {"name": curruser,})
+        if investor.user != None:
+            if curruser != investor.user:
+                return render(request, "nopermission.html", {"name": curruser,
+                                                             "message": investor.message})
 
     return render(request, "editing/editinvestor.html", {"name":curruser,
                                           "entered":entered,
@@ -2568,7 +2818,7 @@ def editinvcontact(request):
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -2644,7 +2894,7 @@ def editmentor(request):
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 
@@ -2726,7 +2976,7 @@ def editevent(request):
     userSch = Object()
     userSch.school = Object()
     try:
-        userSch = tUserSch.objects.get(id = curruser.id)
+        userSch = tUserSch.objects.get(user=curruser)
     except:
         print ("Error getting region. Contact admin or developer...")
 

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
-  	<link rel="icon" href="/static/files/imgs/design/favicon.png">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,8 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="/static/files/imgs/design/favicon.ico" type="image/ico">
-
-    <title>Sikorsky Challenge</title>
+    <title> Пошук</title>
 
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -19,9 +17,30 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
 	<!-- Latest compiled and minified JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-
-  <style>
+	  <script>
+		function DetectMob()
+		{
+		   var uagent = navigator.userAgent.toLowerCase();
+		   if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent))
+		   {
+			  document.getElementById("menu").style.visibility = "hidden";
+		   }
+		}
+	</script>
+	<style type = "text/css">
+	body {
+	  padding-top: 10px;
+	  padding-bottom: 5px;
+	}
+	.menu{
+		position: fixed;
+		top: 280px;
+		right: 50px;
+		width: 148px;
+		height: 100px;
+		backgroundcolor:#395610;
+		padding: 10px;
+		}
 	html,
 	body {
 	  	height: 100%;
@@ -39,10 +58,11 @@
 	 	border:2px solid #dddddd;
 	 	background-color:#f9f9f9;
 	}
-  </style>
+	</style>
+	
   </head>
 
-  <body>
+  <body onload="DetectMob()">
 
     <nav class="navbar navbar-fixed-top" style="background-color:#0a8e34">
           <div style="background-image:url(/static/files/imgs/design/menu_bg.png);background-repeat:no-repeat">
@@ -61,27 +81,14 @@
 		  </div>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-			<form class="navbar-form navbar-right" method="post">
-			{% csrf_token %}
-				{%if entered == 0%}
-					<div class="form-group">
-					  <input name = "txtLogin" type="text" placeholder="Логін" class="form-control">
-					</div>
-					<div class="form-group">
-					<input name = "txtPasswd" type="password" placeholder="Пароль" class="form-control">
-					</div>
-						<button type="submit" class="btn btn-primary" formaction = "auth">Увійти</button>
-				{%endif%}
-			</form>
 			<form class="navbar-form navbar-right" method="get">
-			{%if entered != 0%}
-			<div class="form-group" style = "color:white">
-				Доброго дня, <i style="color:lightblue">{{name}} ! </i>
-			</div>
-			<div class="form-group">
-				<button class="btn btn-fail" type="submit" formaction = "logout">Вийти</button>
-			</div>
-			{%endif%}
+			{% csrf_token %}
+				<div class="form-group" style = "color:white">
+					Доброго дня, <i style="color:lightblue">{{name}}!</i>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-fail" formaction = "logout">Вийти</button>
+				</div>
 			</form>
 
         </div><!--/.navbar-collapse -->
@@ -98,7 +105,7 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -106,13 +113,15 @@
 				<p></p>
 				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
 				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
+				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проект</button></a>
 				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
+				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
 				<p></p>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
+				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главну сторінку</button></form>
 			{%endif%}
 			{%if entered == "invest-manager"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
@@ -126,18 +135,71 @@
 
     <div class="container">
 		  <!-- Example row of columns -->
-		  <div class="row">
+		<div class="row">
 			<div class="col-md-10">
-                <h3>Нема доступу</h3>
-                У Вас нема доступу для просмотру цієї сторінки
+				<h3>Пошук заходів</h3>
 				<hr>
-				<h4>{{message}}1</h4>
-                <div name="logout">
-                <button class="btn btn-success" onclick="history.back()">Назад </button>
-                </div>
+			<form method="post">
+				{% csrf_token %}
+				<br>
+				<a href="/search" class="btn btn-success">Назад</a>
+				<br>
+				<br>
+				<br>
+				<div>
+					<table>
+						<tbody id="field">
+							<tr>
+								<td width="200">
+									Назва: <input name="tbTitle" type="text" class="form-control" value="{{searchObj.title}}" />
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									Дата:<input type="text" id="datepicker" class="form-control" name="tbDate" pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{4}" value="{{searchObj.date}}" required/>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<br>
+				<br>
+				<div class="col-md-5">
+					<button type="submit" class="btn btn-success btn-block" formaction="?export=false">Знайти </button>
+				</div>
+				{%if entered == "chief"%}
+					<div class="col-sm-3" align="right">
+						<button type="submit" class="btn btn-success" formaction="?export=true">Експорт</button>
+					{%if export == "true"%}
+						<a href="/media/files/export/export{{file}}.xls"  download>Завантажити export.xls</a>
+					{%endif%}
+					</div>
+				{%endif%}
+			</form>
+			<br>
+			<br>
+			<hr>
+				<table class="table">
+					<thead>
+						<tr>
+							<th width="200">Захід</th>
+							<th width="200">Дата</th>
+							<th width="100">Город</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for item in resultList%}
+						<tr>
+							<td><a href="infoinvestor?id={{item.id}}"><h4>{{item.title}}</h4></a></td>
+							<td>{{item.date}}</td>
+							<td>{{item.school.city}}</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
 			</div>
-		  </div>
-    </div> <!-- /container -->
+		</div>
+    </div><!-- /container -->
 		  <footer>
 			  <div  style="padding-top:15px;padding-left:80px;padding-bottom:5px;">
 			      <table>
@@ -157,8 +219,11 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+			$('#datepicker').datepicker();
+	</script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-
+  	<script type="text/javascript">
+	</script>
   </body>
 </html>

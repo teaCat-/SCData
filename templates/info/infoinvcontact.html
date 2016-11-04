@@ -122,8 +122,6 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
@@ -134,8 +132,6 @@
 				<p></p>
 				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
-				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
 				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
@@ -143,6 +139,13 @@
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
 				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
+			{%endif%}
+			{%if entered == "invest-manager"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
+				<hr>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>

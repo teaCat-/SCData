@@ -107,8 +107,6 @@
 			{%if entered == "chief"%}
 				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
 				<hr>
-				<a href="regi"><button class="btn btn-success btn-block" type="submit">Создати нового робітника</button></a>
-				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 			{%if entered == "worker"%}
@@ -119,8 +117,6 @@
 				<p></p>
 				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проект</button></a>
 				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
-				<p></p>
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
 				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
@@ -128,6 +124,13 @@
 				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключеві слова</button></a>
 				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На главну сторінку</button></form>
+			{%endif%}
+			{%if entered == "invest-manager"%}
+				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
+				<hr>
+				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
+				<hr>
+				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На глоловну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -166,12 +169,14 @@
 				<div class="col-md-5">
 					<button type="submit" class="btn btn-success btn-block" formaction="?export=false">Знайти </button>
 				</div>
-				<div class="col-sm-3" align="right">
-					<button type="submit" class="btn btn-success" formaction="?export=true">Експорт</button>
-				{%if export == "true"%}
-					<a href="/media/files/export/export{{file}}.xls"  download>Завантажити export.xls</a>
+				{%if entered == "chief"%}
+					<div class="col-sm-3" align="right">
+						<button type="submit" class="btn btn-success" formaction="?export=true">Експорт</button>
+					{%if export == "true"%}
+						<a href="/media/files/export/export{{file}}.xls"  download>Завантажити export.xls</a>
+					{%endif%}
+					</div>
 				{%endif%}
-				</div>
 			</form>
 			<br>
 			<br>
@@ -179,8 +184,8 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Інвестор</th>
-							<th>Город</th>
+							<th width="200">Інвестор</th>
+							<th width="100">Город</th>
 						</tr>
 					</thead>
 					<tbody>
