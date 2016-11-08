@@ -70,10 +70,12 @@ def index(request):
         if selTable == "investor":
             val = request.POST.get("tbQSch", None)
             tmpRez = tInvestor.objects.filter(investor__icontains = val)
-            if not (entered == "chief" and userSch.school.city == u"Київ"):
-                tmp2Rez = tmpRez.filter(school = None)
-                tmpRez = tmpRez.filter(school = userSch.school)
-                queryList.extend(tmp2Rez)
+            """Investor filter switched off
+                if not (entered == "chief" and userSch.school.city == u"Київ"):
+                    tmp2Rez = tmpRez.filter(school = None)
+                    tmpRez = tmpRez.filter(school = userSch.school)
+                    queryList.extend(tmp2Rez)
+            """
             queryList.extend(tmpRez)
 
         if selTable == "mentor":
@@ -387,7 +389,7 @@ def fillFormsInvContacts(excelList, excelKeys):
         i+=1
     return rezList
 
-def addInvContToDB(request, id, index, school):
+def addInvContToDB(request, id, index):
     newInvCont = tInvestorContacts.objects.create(
         investorID = id,
         name = request.POST.getlist('tbName')[index],
@@ -397,7 +399,6 @@ def addInvContToDB(request, id, index, school):
         mail = request.POST.getlist('tbMail')[index],
         company = request.POST.getlist('tbCompany')[index],
         position = request.POST.getlist('tbPosition')[index],
-        school = school.school
     )
 
     newInvCont.save()
@@ -967,11 +968,13 @@ def investorsearch(request):
             descr__icontains = searchObj.descr,
         )
 
-        if not (entered == "chief" and userSch.school.city == u"Київ"):
-            tmpListWithNone = tmpList.filter(school = None)
-            tmpList = tmpList.filter(school = userSch.school)
-            resultList.extend(tmpList)
-            resultList.extend(tmpListWithNone)
+        """ Search all investors
+            if not (entered == "chief" and userSch.school.city == u"Київ"):
+                tmpListWithNone = tmpList.filter(school = None)
+                tmpList = tmpList.filter(school = userSch.school)
+                resultList.extend(tmpListWithNone)
+        """
+        resultList.extend(tmpList)
 
         if export == "true":
 
@@ -1224,7 +1227,7 @@ def infostartuper(request):
 
         if startuper.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":startuper.school.contacts})
 
     if _print == "true":
         return render(request, "info/printstartuper.html", {"name":curruser,
@@ -1311,7 +1314,7 @@ def infoproject(request):
 
         if project.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ") and entered is not 0:
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":project.school.contacts})
 
     currStat = ""
     if len(status) > 0:
@@ -1412,7 +1415,7 @@ def infoinvestor(request):
         if investor.school != None:
             if investor.school != userSch.school:
                 if not (entered == "chief" and userSch.school.city == u"Київ"):
-                    return render(request, "nopermission.html", {"name":curruser,})
+                    return render(request, "nopermission.html", {"name":curruser,"message":investor.school.contacts})
         if investor.user != None:
             if curruser != investor.user:
                 return render(request, "nopermission.html", {"name":curruser,
@@ -1482,9 +1485,9 @@ def infoinvcontact(request):
         except:
             pass
 
-        if contact.school != userSch.school:
+        if contact.investorID.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":contact.investorID.school.contacts})
 
     if _print == "true":
         return render(request, "info/printinvcontact.html", {"name":curruser,
@@ -1546,7 +1549,7 @@ def infomentor(request):
 
         if mentor.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":mentor.school.contacts})
 
     if _print == "true":
         return render(request, "info/printmentor.html", {"name":curruser,
@@ -1609,7 +1612,7 @@ def infoevent(request):
 
         if event.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser, "message":event.school.contacts})
 
     if _print == "true":
         return render(request, "info/printevent.html", {"name":curruser,
@@ -1671,7 +1674,7 @@ def infovisitors(request):
         if investor.school != None:
             if investor.school != userSch.school:
                 if not (entered == "chief" and userSch.school.city == u"Київ"):
-                    return render(request, "nopermission.html", {"name":curruser,})
+                    return render(request, "nopermission.html", {"name":curruser,"message":investor.school.contacts})
         if investor.user != None:
             if curruser != investor.user:
                 return render(request, "nopermission.html", {"name":curruser,
@@ -1833,7 +1836,9 @@ def addfile(request):
             curruser = User.objects.get(username=curruserName)
             if curruser.groups.filter(name="worker"):
                 entered = "worker"
-    if entered != "worker":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "worker" and entered != "invest-manager":
         return redirect("index")
 
     """Getting data from url"""
@@ -2491,7 +2496,7 @@ def editstartuper(request):
 
         if startuper.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":startuper.school.contacts})
 
     return render(request, "editing/editstartuper.html", {"name":curruser,
                                           "entered":entered,
@@ -2678,7 +2683,7 @@ def editproject(request):
 
         if project.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":project.school.contacts})
 
     return render(request, "editing/editproject.html", {"name":curruser,
                                           "entered":entered,
@@ -2785,7 +2790,7 @@ def editinvestor(request):
         if investor.school != None:
             if investor.school != userSch.school:
                 if not (entered == "chief" and userSch.school.city == u"Київ"):
-                    return render(request, "nopermission.html", {"name": curruser,})
+                    return render(request, "nopermission.html", {"name": curruser,"message":investor.school.contacts})
         if investor.user != None:
             if curruser != investor.user:
                 return render(request, "nopermission.html", {"name": curruser,
@@ -2811,9 +2816,9 @@ def editinvcontact(request):
         else:
             curruserName = request.session.get("curUser", False)
             curruser = User.objects.get(username=curruserName)
-            if curruser.groups.filter(name="worker"):
-                entered = "worker"
-    if entered != "worker":
+            if curruser.groups.filter(name="invest-manager"):
+                entered = "invest-manager"
+    if entered != "invest-manager":
         return redirect("index")
     userSch = Object()
     userSch.school = Object()
@@ -2863,9 +2868,9 @@ def editinvcontact(request):
 
             return redirect("/infoinvcontact?id="+_id)
 
-        if contact.school != userSch.school:
+        if contact.investorID.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":contact.investorID.school.contacts})
 
     return render(request, "editing/editinvcontact.html", {"name":curruser,
                                           "entered":entered,
@@ -2947,7 +2952,7 @@ def editmentor(request):
 
         if mentor.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":mentor.school.contacts})
 
 
     return render(request, "editing/editmentor.html", {"name":curruser,
@@ -3009,7 +3014,7 @@ def editevent(request):
 
         if event.school != userSch.school:
             if not (entered == "chief" and userSch.school.city == u"Київ"):
-                return render(request, "nopermission.html", {"name":curruser,})
+                return render(request, "nopermission.html", {"name":curruser,"message":event.school.contacts})
 
 
     return render(request, "editing/editevent.html", {"name":curruser,

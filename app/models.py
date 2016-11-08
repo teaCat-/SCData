@@ -8,10 +8,11 @@ from django.contrib.auth.models import User
 
 class tSchool(models.Model):
     city = models.TextField(max_length=50, default="")
+    contacts = models.TextField(max_length=500, default="")
     def __unicode__(self):
         return self.city+" |"+str(self.id)
     class Meta:
-        verbose_name_plural = u'Школи'
+        verbose_name_plural = u'Філіали'
 
 
 class tUserSch(models.Model):
@@ -72,7 +73,7 @@ class tInvestorContacts(models.Model):
     position = models.TextField(max_length=50, default="", blank=True, null=True)
     company = models.TextField(max_length=50, default="", blank=True, null=True)
     def __unicode__(self):
-        return self.name+" "+self.surname+" "+self.midname+" |"+str(self.id)
+        return self.name+" "+self.surname+" "+self.midname+"("+self.investorID.investor+")"+" |"+str(self.id)
     class Meta:
         verbose_name_plural = u'Контакти інвесторів'
 

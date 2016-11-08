@@ -122,7 +122,7 @@
 		  </div>
 		<p></p>
 		<div class="row">
-			<a class="btn btn-success" href="\infoinvestor?id={{investor.id}}">Відміна</a>
+			<a class="btn btn-success" href="\infoinvestor?id={{investor.id}}">Скасувати</a>
 			<hr>
 			<form class="form-regi" method = "POST" enctype="multipart/form-data">
 			{% csrf_token %}
@@ -150,10 +150,10 @@
 							<h3>{{item.num}}</h3>
 							<label>Прізвище: <input name="tbSurname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.surname}}" required></label>
 							<label>Ім'я: <input name="tbName" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.name}}" required></label>
-							<label>По батькові: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.midname}}" required></label>
+							<label>По батькові: <input name="tbMidname" pattern="^[А-Яа-яЁёІіЇї]+$" type="text" class="form-control" value="{{item.midname}}" ></label>
 							<p></p>
-							<label>Телефон: <input name="tbPhone" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" type="tel" placeholder="___-___-____" class="form-control" value="{{item.phone}}" required></label>
-							<label>Пошта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}" required></label>
+							<label>Телефон: <input name="tbPhone" oninput="telAutoFill(this);" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" type="tel" placeholder="___-___-____" class="form-control" value="{{item.phone}}" ></label>
+							<label>Пошта:<input name="tbMail" type="email" class="form-control" value="{{item.mail}}" ></label>
 							<p></p>
 							<label>Компанія:<input name="tbCompany" type="text" class="form-control" value="{{item.company}}"></label>
 							<label>Должність:<input name="tbPosition" type="text" class="form-control" value="{{item.position}}"></label>

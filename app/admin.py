@@ -9,18 +9,13 @@ from django.forms.models import BaseInlineFormSet
 # Register your models here.
 from models import *
 
-admin.site.register(tVisitors)
 admin.site.register(tInvestor)
 admin.site.register(tInvestorContacts)
 admin.site.register(tProject)
-admin.site.register(tAddInfoInv)
-admin.site.register(tAddInfoProj)
 admin.site.register(tStatus)
 admin.site.register(tActivities)
 admin.site.register(tStartuper)
-admin.site.register(tDoc)
 admin.site.register(tMentor)
-admin.site.register(tKeyWord)
 admin.site.register(tSchool)
 
 class RequiredInlineFormSet(BaseInlineFormSet):

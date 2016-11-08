@@ -135,8 +135,6 @@
 				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
 				<p></p>
 				<a href="eventadd"><button class="btn btn-success btn-block" type="submit">Додати захід</button></a>
-				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
 				<hr>
 				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
@@ -156,7 +154,7 @@
 			<div class="col-md-9">
 			  <h3>Інформація про контакт інвестора "<a href="/infoinvestor?id={{contact.investorID.id}}">{{contact.investorID.investor}}</a>":</h3>
 			<div class=".col-md-2">
-			{%if entered == "worker"%}
+			{%if entered == "invest-manager"%}
 				<a href="/editinvcontact?id={{contact.id}}"><button class="btn btn-success" type="submit">Редагувати</button></a>
 			{%endif%}
 				<a href="/infoinvcontact?id={{contact.id}}&print=true" class="btn btn-success">Роздрукувати</a>

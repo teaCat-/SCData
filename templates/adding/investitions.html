@@ -96,30 +96,35 @@
 
 	<div class = "menu">
 		<div class="navbar-form navbar-right">
-			{%if entered == "worker"%}
-			{%endif%}
 		</div>
 	</div>
 
     <div class="container">
 		  <!-- Example row of columns -->
-		  <div class="row">
-			{%if entity == "act"%}
-			  	<h3>Додати захід:</h3>
-		  	{%endif%}
-			{%if entity == "stat"%}
-			  	<h3>Обновити статус:</h3>
-		  	{%endif%}
-				<hr>
-		  </div>
 		<p></p>
 		<div class="row">
+			{%if entity == "act"%}
+					<h3>Додати захід:</h3>
+			{%else%}
+				{%if entity == "stat"%}
+					<h3>Обновити статус:</h3>
+				{%else%}
+					<h3>Додати інвестиції:</h3>
+				{%endif%}
+		  	{%endif%}
+				<hr>
+			<div class="col-md-10">
+				<p></p>
+				<a href="/infoinvestor?id={{id}}"><button type="submit" class="btn btn-success"> Скасувати </button></a>
+			<br>
+			<br>
+			</div>
 			<form class="form-regi" method = "POST">
 			{% csrf_token %}
 					<div class="col-sm-4">
 						<input type="datetime" class="form-control" name="tbDate" value="{{now}}" required/>
 					<p></p>
-						<input type="text" class="form-control" name="tbProject" placeholder="Проєкт" list="projects"  required/><i style="color:red">{{projErr}}</i>
+						<input type="text" class="form-control" name="tbProject" placeholder="Проект" list="projects"  required/><i style="color:red">{{projErr}}</i>
 						<datalist id="projects">
 							{%for item in projects%}
 								<option>{{item.title}}</option>
@@ -143,10 +148,6 @@
 						<button type="submit" class="btn btn-success" formaction="?id={{id}}&redirect=true"> Зберігти і повернутись</button>
 					</div>
 			</form>
-			<div class="col-md-10">
-				<p></p>
-				<a href="/infoinvestor?id={{id}}"><button type="submit" class="btn btn-success"> Відміити </button></a>
-			</div>
 		{%if added is not False%}
 			<h4>Результат:</h4>
 			<p></p>

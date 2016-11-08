@@ -99,20 +99,6 @@
 			{%if entered == "chief"%}
 			{%endif%}
 			{%if entered == "worker"%}
-				<a href="search"><button class="btn btn-success btn-block" type="submit">Розгорнутий пошук</button></a>
-				<hr>
-				<p></p>
-				<a href="add?obj=startuper"><button class="btn btn-success btn-block" type="submit">Додати стартапера</button></a>
-				<p></p>
-				<a href="add?obj=project"><button class="btn btn-success btn-block" type="submit">Додати проєкт</button></a>
-				<p></p>
-				<a href="add?obj=investor"><button class="btn btn-success btn-block" type="submit">Додати інвестора</button></a>
-				<p></p>
-				<a href="add?obj=mentor"><button class="btn btn-success btn-block" type="submit">Додати ментора</button></a>
-				<p></p>
-				<a href="tagadd"><button class="btn btn-success btn-block" type="submit">Додати ключові слова</button></a>
-				<hr>
-				<form><button class="btn btn-success btn-block" type="submit" formaction="\">На головну сторінку</button></form>
 			{%endif%}
 		</div>
 	</div>
@@ -253,7 +239,7 @@
 								<p></p>
 								<div class="col-sm-6">
 								<hr>
-									<a class="btn btn-success btn-block" href="/infostartuper?id={{id}}">Відмінити</a>
+									<a class="btn btn-success btn-block" href="/infostartuper?id={{id}}">Скасувати</a>
 									<button class="btn btn-success btn-block" type="submit"  formaction="?id={{id}}&page={{page}}&entity=startuper">Додати</button>
 									<button class="btn btn-success btn-block" type="submit"  formaction="?id={{id}}&page={{page}}&entity=startuper&redirect=true">Додати і повернутись</button>
 								</div>
